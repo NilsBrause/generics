@@ -1,0 +1,285 @@
+Index
+=====
+
+Part A:
+1. Introduction
+2. Legal notice
+3. Testbench
+
+Part B:
+1. 1 bit register (register1.vhd)
+2. N bit register (register.vhd)
+3. Shift register (shift_reg.vhd)
+4. Delay register (delay_reg.vhd)
+
+
+Part A
+======
+
+1. Introduction
+---------------
+
+This folder contains various extremly useful generic VHDL compoments.
+Documentation for each component can be found in the following sections.
+If you add a component, you have to conform to the existing coding conventions
+and you have to append a section to this document. If you fail to do so, your
+component will be deleted without further notice.
+
+
+2. Legal notice
+---------------
+
+Copyright (c) 2012, Nils Christopher Brause
+All rights reserved.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+The views and conclusions contained in the software and documentation are
+those of the authors and should not be interpreted as representing official
+policies, either expressed or implied, of the Max Planck Institute for
+Gravitational Physics (Albert Einstein Institute).
+
+
+3. Testbench
+------------
+
+If you have the free open source VHDL simulator GHDL installed you can run the
+provided thestbench to test the included components. In a shell type "make" and
+press Enter to do so. You can view th generated waveforms with the free open
+source waveform viewer GTKWave.
+The testbench itself can be found in the file testbench.vhd.
+
+
+Part B
+======
+
+1. 1 bit register (register1.vhd)
+---------------------------------
+
+A 1 bit register can store 1 bit of information.
+It can be used for e.g. reset synchronization.
+
+Component declaration:
+
+  component reg1 is
+    port (
+      clk      : in  std_logic;
+      reset    : in  std_logic;
+      enable   : in  std_logic;
+      data_in  : in  std_logic;
+      data_out : out std_logic);
+  end component reg1;
+
+Schematic:
+
+   +------------------+
+---| clk     data_out |---
+---| reset            |
+---| enable           |
+---| data_in          |
+   +------------------+
+
+Port description:
+
+- clk: clock input
+- reset: asynchronous reset (active low)
+- enable: enable pin
+- data_in: data input
+- data_out: data output
+
+Logic lable:
+
+reset | clk  | enable | data_in | data_out
+------+------+--------+---------+---------
+high  | rise | high   | high    | high
+high  | rise | high   | low     | low
+high  | rise | low    | dnc     | last
+high  | fall | dnc    | dnc     | last
+low   | dnc  | dnc    | dnc     | low
+
+"dnc" means "do not care".
+
+
+2. N bit register (register.vhd)
+--------------------------------
+
+A N bit register can store N bit of information.
+It works exactly as the 1 bit register but with N bits.
+
+Component declaration:
+
+  component reg is
+    generic (
+      bits : natural); 
+    port (
+      clk      : in  std_logic;
+      reset    : in  std_logic;
+      enable   : in  std_logic;
+      data_in  : in  std_logic_vector(bits-1 downto 0);
+      data_out : out std_logic_vector(bits-1 downto 0)); 
+  end component reg;
+
+Schematic:
+
+   +------------------+
+---| clk     data_out |===
+---| reset            |
+---| enable           |
+===| data_in          |
+   +------------------+
+
+The "="-symbol denotes a bus.
+
+Generic description:
+
+- bits: denotes the number of bits to be stored.
+
+Port description:
+
+- clk: clock input
+- reset: asynchronous reset (active low)
+- enable: enable pin
+- data_in: data input
+- data_out: data output
+
+
+3. Shift register (shift_reg.vhd)
+---------------------------------
+
+A shift register can be used to parallelize a serial signal. Wieth every clock
+cycle the Nth bits is put on the seril output and replaced by the N-1th bit,
+the 1..N-1th bit is replaced by the 0..N-2nd bit and the 0th bit is replaced
+by the serial input.
+
+Component declaration:
+
+  component shift_reg is
+    generic (
+      bits : natural);
+    port (
+      clk          : in  std_logic;
+      reset        : in  std_logic;
+      serial_in    : in  std_logic;
+      serial_out   : out std_logic;
+      parallel_out : out std_logic_vector(bits-1 downto 0);
+      enable       : in  std_logic);
+  end component shift_reg;
+
+Schematic:
+
+   +------------------------+
+---| clk       serial_out   |---
+---| reset     parallel_out |===
+---| enable                 |
+---| serial_in              |
+   +------------------------+
+
+Generic description:
+
+- bits: denotes the number of bits to be stored
+
+Port description:
+
+- clk: clock input
+- reset: asynchronous reset (active low)
+- enable: enable pin
+- serial_in: serial data input
+- serial_out: serial data output
+- parallel_out: parallel data output
+
+
+4. Delay register (delay_reg.vhd)
+---------------------------------
+
+A delay register works just like a normal N bit register, but the delay
+generated by the delay register can be adjusted to suit your needs.
+
+Component declaration:
+
+  component delay_reg is
+    generic (
+      bits  : natural;
+      delay : natural);
+    port (
+      clk      : in  std_logic;
+      reset    : in  std_logic;
+      enable   : in  std_logic;
+      data_in  : in  std_logic_vector(bits-1 downto 0);
+      data_out : out std_logic_vector(bits-1 downto 0));
+  end component delay_reg;
+
+Schematic:
+
+   +------------------+
+---| clk     data_out |===
+---| reset            |
+---| enable           |
+===| data_in          |
+   +------------------+
+
+Generic description:
+
+- bits: denotes the number of bits to be stored
+- delay: denotes the delay to be generated
+
+Port description:
+
+- clk: clock input
+- reset: asynchronous reset (active low)
+- enable: enable pin
+- data_in: data input
+- data_out: data output
+
+
+5. Adder (add.vhd)
+------------------
+
+This adder adds two signed or unsigned numbers and outputs the result. It also
+includes carry logic and signed overflow detection.
+
+Component declaration:
+
+  component add is
+    generic (
+      bits : natural);
+    port (
+      input1    : in  std_logic_vector(bits-1 downto 0);
+      input2    : in  std_logic_vector(bits-1 downto 0);
+      output    : out std_logic_vector(bits-1 downto 0);
+      carry_in  : in  std_logic;
+      carry_out : out std_logic;
+      overflow  : out std_logic);
+  end component add;
+
+Schematic:
+
+   +--------------------+
+===| input1   output    |===
+===| input2   carry_out |---
+---| carry_in overflow  |---
+   +--------------------+
+
+Generic description:
+
+- bits: denotes the number of bits to be stored
+- delay: denotes the delay to be generated
+
+Port description:
+
+- input1: first summand
+- input2: second summand
+- output: sum of input1, input2 and carry_in
+- carry_in: carry input
+- carry_out: carry output  or unsigned overflow indicator
+- overlfow: signed overflow indicator
+
