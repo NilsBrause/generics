@@ -14,6 +14,7 @@ Part B:
 5. Adder (add.vhd)
 6. Subtractor (sub.vhd)
 7. Accumulator (accumulator.vhd)
+8. Counter (counter.vhd)
 
 
 Part A
@@ -338,7 +339,7 @@ Port description:
 --------------------------------
 
 An accumulator accumulates its input value at every clock cycle. The resulting
-accumulated value is put out.
+accumulated value is put out. If it reaches its maximal value it overflows.
 
 Component declaration:
 
@@ -376,4 +377,47 @@ Port description:
 - enable: enable pin
 - input: values to accumulate
 - output: accumulated value
+
+
+8. Counter (counter.vhd)
+------------------------
+
+A counter can count either upwards or downwards eath clock cycle.
+If it reaches its maximal value it restarts at zero.
+
+Component declaration:
+
+  component counter is
+    generic (
+      bits            : natural;
+      direction       : bit;
+      use_kogge_stone : bit);
+    port (
+      clk    : in  std_logic;
+      reset  : in  std_logic;
+      enable : in  std_logic;
+      output : out std_logic_vector(bits-1 downto 0));
+  end component counter;
+
+Schematic:
+
+   +---------------+
+---| clk    output |===
+---| reset         |
+---| enable        |
+   +---------------+
+
+Generic description:
+
+- bits: denotes the width of the counter (and therfore its maximum value)
+- use_kogge_stone: Use an optimized Kogge Stone adder
+                   (if no hardware adder is available)
+- direction: Denotes the counter direction. '0' is down and '1' is up.
+
+Port description:
+
+- clk: clock input
+- reset: asynchronous reset (active low)
+- enable: enable pin
+- output: counter output
 

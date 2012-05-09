@@ -97,6 +97,18 @@ architecture behav of testbench is
       input  : in  std_logic_vector(bits-1 downto 0);
       output : out std_logic_vector(bits-1 downto 0));
   end component accumulator;
+
+  component counter is
+    generic (
+      bits            : natural;
+      direction       : bit;
+      use_kogge_stone : bit);
+    port (
+      clk    : in  std_logic;
+      reset  : in  std_logic;
+      enable : in  std_logic;
+      output : out std_logic_vector(bits-1 downto 0));
+  end component counter;
   
   signal clk : std_logic := '0';
   signal rst : std_logic := '0';
@@ -199,6 +211,17 @@ begin  -- architecture behav
       reset  => reset,
       enable => '1',
       input  => "00001011",
+      output => open);
+
+  counter_1: counter
+    generic map (
+      bits            => 8,
+      direction       => '1',
+      use_kogge_stone => '0')
+    port map (
+      clk    => clk,
+      reset  => reset,
+      enable => '1',
       output => open);
 
 end architecture behav;
