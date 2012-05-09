@@ -49,9 +49,9 @@ architecture behav of sub is
       overflow  : out std_logic);
   end component add;
 
-  signal input2n : std_logic_vector(bits-1 downto 0);
-  signal carry_in : std_logic;
-  signal carry_out : std_logic;
+  signal input2n : std_logic_vector(bits-1 downto 0) := (others => '0');
+  signal carry_in : std_logic := '0';
+  signal carry_out : std_logic := '0';
   
 begin  -- architecture behav
 

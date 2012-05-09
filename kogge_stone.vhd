@@ -35,8 +35,8 @@ architecture behav of kogge_stone is
 
   constant max : natural := log2ceil(bits);
 
-  signal P : std_logic_vector((max+1)*bits-1 downto 0);
-  signal G : std_logic_vector((max+1)*bits-1 downto 0);
+  signal P : std_logic_vector((max+1)*bits-1 downto 0) := (others => '0');
+  signal G : std_logic_vector((max+1)*bits-1 downto 0) := (others => '0');
 
 begin  -- architecture behav
 

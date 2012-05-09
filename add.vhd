@@ -46,9 +46,9 @@ architecture behav of add is
       S : out std_logic_vector(bits downto 0));
   end component kogge_stone;
 
-  signal input1_tmp : std_logic_vector(bits+1 downto 0);
-  signal input2_tmp : std_logic_vector(bits+1 downto 0);
-  signal output_tmp : std_logic_vector(bits+1 downto 0);
+  signal input1_tmp : std_logic_vector(bits+1 downto 0) := (others => '0');
+  signal input2_tmp : std_logic_vector(bits+1 downto 0) := (others => '0');
+  signal output_tmp : std_logic_vector(bits+1 downto 0) := (others => '0');
 
 begin  -- architecture behav
 

@@ -46,7 +46,7 @@ architecture behav of delay_reg is
       data_out : out std_logic_vector(bits-1 downto 0));
   end component reg;
 
-  signal tmp : std_logic_vector((delay+1)*bits-1 downto 0);
+  signal tmp : std_logic_vector((delay+1)*bits-1 downto 0) := (others => '0');
   
 begin  -- architecture behav
 
