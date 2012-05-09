@@ -72,6 +72,18 @@ architecture behav of testbench is
       overflow  : out std_logic);
   end component add;
 
+  component sub is
+    generic (
+      bits : natural);
+    port (
+      input1     : in  std_logic_vector(bits-1 downto 0);
+      input2     : in  std_logic_vector(bits-1 downto 0);
+      output     : out std_logic_vector(bits-1 downto 0);
+      borrow_in  : in  std_logic;
+      borrow_out : out std_logic;
+      underflow  : out std_logic);
+  end component sub;
+  
   signal clk : std_logic;
   signal rst : std_logic;
 
@@ -150,5 +162,16 @@ begin  -- architecture behav
       carry_in  => '1',
       carry_out => open,
       overflow  => open);
+
+  sub_1: sub
+    generic map (
+      bits => 8)
+    port map (
+      input1     => "11000111",
+      input2     => "00011111",
+      output     => open,
+      borrow_in  => '0',
+      borrow_out => open,
+      underflow  => open);
 
 end architecture behav;

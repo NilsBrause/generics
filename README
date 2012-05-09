@@ -11,6 +11,8 @@ Part B:
 2. N bit register (register.vhd)
 3. Shift register (shift_reg.vhd)
 4. Delay register (delay_reg.vhd)
+5. Adder (add.vhd)
+6. Subtractor (sub.vhd)
 
 
 Part A
@@ -271,8 +273,7 @@ Schematic:
 
 Generic description:
 
-- bits: denotes the number of bits to be stored
-- delay: denotes the delay to be generated
+- bits: denotes the width of the adder
 
 Port description:
 
@@ -280,6 +281,47 @@ Port description:
 - input2: second summand
 - output: sum of input1, input2 and carry_in
 - carry_in: carry input
-- carry_out: carry output  or unsigned overflow indicator
+- carry_out: carry output or unsigned overflow indicator
 - overlfow: signed overflow indicator
 
+
+6. Subtractor (sub.vhd)
+-----------------------
+
+A subtractor subtracts two unsigned or signed numbers and outputs the result.
+It also includes borrow logic and signed underflow detection.
+
+Component declaration:
+
+  component sub is
+    generic (
+      bits : natural);
+    port (
+      input1     : in  std_logic_vector(bits-1 downto 0);
+      input2     : in  std_logic_vector(bits-1 downto 0);
+      output     : out std_logic_vector(bits-1 downto 0);
+      borrow_in  : in  std_logic;
+      borrow_out : out std_logic;
+      underflow  : out std_logic);
+  end component sub;
+  
+Schematic:
+
+   +----------------------+
+===| input1    output     |===
+===| input2    borrow_out |---
+---| borrow_in underflow  |---
+   +----------------------+
+
+Generic description:
+
+- bits: denotes the width of the subtractor
+
+Port description:
+
+- input1: minuend
+- input2: subtrahend
+- output: difference of input1, input2 and borrow_in
+- borrow_in: borrow input
+- borrow_out: borrow output or unsigned underflow indicator
+- underlfow: signed underflow indicator
