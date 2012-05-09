@@ -85,9 +85,21 @@ architecture behav of testbench is
       borrow_out : out std_logic;
       underflow  : out std_logic);
   end component sub;
+
+  component accumulator is
+    generic (
+      bits            : natural;
+      use_kogge_stone : bit);
+    port (
+      clk    : in  std_logic;
+      reset  : in  std_logic;
+      enable : in  std_logic;
+      input  : in  std_logic_vector(bits-1 downto 0);
+      output : out std_logic_vector(bits-1 downto 0));
+  end component accumulator;
   
-  signal clk : std_logic;
-  signal rst : std_logic;
+  signal clk : std_logic := '0';
+  signal rst : std_logic := '0';
 
   signal reset : std_logic := '0';
   signal serial : std_logic := '0';
@@ -177,5 +189,16 @@ begin  -- architecture behav
       borrow_in  => '0',
       borrow_out => open,
       underflow  => open);
+
+  accumulator_1: accumulator
+    generic map (
+      bits            => 8,
+      use_kogge_stone => '0')
+    port map (
+      clk    => clk,
+      reset  => reset,
+      enable => '1',
+      input  => "00001011",
+      output => open);
 
 end architecture behav;
