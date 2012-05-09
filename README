@@ -253,7 +253,8 @@ Component declaration:
 
   component add is
     generic (
-      bits : natural);
+      bits : natural;
+      use_kogge_stone : bit);
     port (
       input1    : in  std_logic_vector(bits-1 downto 0);
       input2    : in  std_logic_vector(bits-1 downto 0);
@@ -274,6 +275,8 @@ Schematic:
 Generic description:
 
 - bits: denotes the width of the adder
+- use_kogge_stone: Use an optimized Kogge Stone adder
+                   (if no hardware adder is available)
 
 Port description:
 
@@ -295,7 +298,8 @@ Component declaration:
 
   component sub is
     generic (
-      bits : natural);
+      bits : natural;
+      use_kogge_stone : bit);
     port (
       input1     : in  std_logic_vector(bits-1 downto 0);
       input2     : in  std_logic_vector(bits-1 downto 0);
@@ -316,6 +320,8 @@ Schematic:
 Generic description:
 
 - bits: denotes the width of the subtractor
+- use_kogge_stone: Use an optimized Kogge Stone adder
+                   (if no hardware adder is available)
 
 Port description:
 

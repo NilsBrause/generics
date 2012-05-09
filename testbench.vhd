@@ -62,7 +62,8 @@ architecture behav of testbench is
 
   component add is
     generic (
-      bits : natural);
+      bits : natural;
+      use_kogge_stone : bit);
     port (
       input1    : in  std_logic_vector(bits-1 downto 0);
       input2    : in  std_logic_vector(bits-1 downto 0);
@@ -74,7 +75,8 @@ architecture behav of testbench is
 
   component sub is
     generic (
-      bits : natural);
+      bits : natural;
+      use_kogge_stone : bit);
     port (
       input1     : in  std_logic_vector(bits-1 downto 0);
       input2     : in  std_logic_vector(bits-1 downto 0);
@@ -154,7 +156,8 @@ begin  -- architecture behav
 
   add_1: add
     generic map (
-      bits => 8)
+      bits => 8,
+      use_kogge_stone => '1')
     port map (
       input1    => "01110011",
       input2    => "01010111",
@@ -165,7 +168,8 @@ begin  -- architecture behav
 
   sub_1: sub
     generic map (
-      bits => 8)
+      bits => 8,
+      use_kogge_stone => '0')
     port map (
       input1     => "11000111",
       input2     => "00011111",

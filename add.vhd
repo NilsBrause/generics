@@ -24,7 +24,8 @@ use ieee.numeric_std.all;
 
 entity add is
   generic (
-    bits : natural);
+    bits : natural;
+    use_kogge_stone : bit);
   port (
     input1    : in  std_logic_vector(bits-1 downto 0);
     input2    : in  std_logic_vector(bits-1 downto 0);
@@ -35,6 +36,15 @@ entity add is
 end entity add;
 
 architecture behav of add is
+
+  component kogge_stone is
+    generic (
+      bits : natural);
+    port (
+      A : in  std_logic_vector(bits-1 downto 0);
+      B : in  std_logic_vector(bits-1 downto 0);
+      S : out std_logic_vector(bits downto 0));
+  end component kogge_stone;
 
   signal input1_tmp : std_logic_vector(bits+1 downto 0);
   signal input2_tmp : std_logic_vector(bits+1 downto 0);
@@ -50,7 +60,19 @@ begin  -- architecture behav
   input2_tmp(bits downto 1) <= input2;
   input2_tmp(0) <= carry_in;
 
-  output_tmp <= std_logic_vector(unsigned(input1_tmp) + unsigned(input2_tmp));
+  kogge_stone_no: if use_kogge_stone = '0' generate
+    output_tmp <= std_logic_vector(unsigned(input1_tmp) + unsigned(input2_tmp));
+  end generate kogge_stone_no;
+
+  kogge_stone_yes: if use_kogge_stone = '1' generate
+    kogge_stone_1: kogge_stone
+      generic map (
+        bits => bits+1)
+      port map (
+        A => input1_tmp(bits downto 0),
+        B => input2_tmp(bits downto 0),
+        S => output_tmp);
+  end generate kogge_stone_yes;
 
   carry_out <= output_tmp(bits+1);
   output <= output_tmp(bits downto 1);

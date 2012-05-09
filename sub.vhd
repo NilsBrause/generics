@@ -23,7 +23,8 @@ use ieee.std_logic_1164.all;
 
 entity sub is
   generic (
-    bits : natural);
+    bits : natural;
+    use_kogge_stone : bit);
   port (
     input1     : in  std_logic_vector(bits-1 downto 0);
     input2     : in  std_logic_vector(bits-1 downto 0);
@@ -37,7 +38,8 @@ architecture behav of sub is
 
   component add is
     generic (
-      bits : natural);
+      bits : natural;
+      use_kogge_stone : bit);
     port (
       input1    : in  std_logic_vector(bits-1 downto 0);
       input2    : in  std_logic_vector(bits-1 downto 0);
@@ -58,7 +60,8 @@ begin  -- architecture behav
 
   add_1: add
     generic map (
-      bits => bits)
+      bits => bits,
+      use_kogge_stone => use_kogge_stone)
     port map (
       input1    => input1,
       input2    => input2n,
