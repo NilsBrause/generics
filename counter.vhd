@@ -34,18 +34,6 @@ entity counter is
 end entity counter;
 
 architecture behav of counter is
-
-  component accumulator is
-    generic (
-      bits            : natural;
-      use_kogge_stone : bit);
-    port (
-      clk    : in  std_logic;
-      reset  : in  std_logic;
-      enable : in  std_logic;
-      input  : in  std_logic_vector(bits-1 downto 0);
-      output : out std_logic_vector(bits-1 downto 0));
-  end component accumulator;
   
   signal one : std_logic_vector(bits-1 downto 0) := (others => '0');
   signal mone : std_logic_vector(bits-1 downto 0) := (others => '1');
@@ -55,7 +43,7 @@ begin  -- architecture behav
   one(0) <= '1';
 
   up: if direction = '1' generate
-    accumulator_1: accumulator
+    accumulator_1: entity work.accumulator
       generic map (
         bits            => bits,
         use_kogge_stone => use_kogge_stone)
@@ -68,7 +56,7 @@ begin  -- architecture behav
   end generate up;
 
   down: if direction = '0' generate
-    accumulator_1: accumulator
+    accumulator_1: entity work.accumulator
       generic map (
         bits            => bits,
         use_kogge_stone => use_kogge_stone)

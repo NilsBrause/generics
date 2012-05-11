@@ -36,33 +36,11 @@ end entity nco;
 
 architecture behav of nco is
 
-  component accumulator is
-    generic (
-      bits : natural;
-      use_kogge_stone : bit);
-    port (
-      clk    : in  std_logic;
-      reset  : in  std_logic;
-      enable : in  std_logic;
-      input  : in  std_logic_vector(bits-1 downto 0);
-      output : out std_logic_vector(bits-1 downto 0));
-  end component accumulator;
-
-  component sincos is
-    generic (
-      phase_bits : natural;
-      bits       : natural);
-    port (
-      phase : in  std_logic_vector(phase_bits-1 downto 0);
-      sin   : out std_logic_vector(bits-1 downto 0);
-      cos   : out std_logic_vector(bits-1 downto 0));
-  end component sincos;
-
   signal pa : std_logic_vector(pir_bits-1 downto 0) := (others => '0');
   
 begin  -- architecture behav
 
-  pareg : accumulator
+  pareg : entity work.accumulator
     generic map (
       bits            => pir_bits,
       use_kogge_stone => use_kogge_stone)
@@ -73,7 +51,7 @@ begin  -- architecture behav
       input  => pir,
       output => pa);
 
-  sincos_1: sincos
+  sincos_1: entity work.sincos
     generic map (
       phase_bits => pir_bits,
       bits       => bits)

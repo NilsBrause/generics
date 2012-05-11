@@ -35,17 +35,6 @@ end entity shift_reg;
 
 architecture behav of shift_reg is
 
-  component reg is
-    generic (
-      bits : natural);
-    port (
-      clk      : in  std_logic;
-      reset    : in  std_logic;
-      enable   : in  std_logic;
-      data_in  : in  std_logic_vector(bits-1 downto 0);
-      data_out : out std_logic_vector(bits-1 downto 0));
-  end component reg;
-
   signal tmp : std_logic_vector(bits downto 0) := (others => '0');
   
 begin  -- architecture behav
@@ -53,7 +42,7 @@ begin  -- architecture behav
   tmp(0) <= serial_in;
 
   regs : for c in 0 to bits-1 generate
-    myreg : reg
+    myreg : entity work.reg
       generic map (
         bits => 1)
       port map (

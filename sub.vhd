@@ -36,19 +36,6 @@ end entity sub;
 
 architecture behav of sub is
 
-  component add is
-    generic (
-      bits : natural;
-      use_kogge_stone : bit);
-    port (
-      input1    : in  std_logic_vector(bits-1 downto 0);
-      input2    : in  std_logic_vector(bits-1 downto 0);
-      output    : out std_logic_vector(bits-1 downto 0);
-      carry_in  : in  std_logic;
-      carry_out : out std_logic;
-      overflow  : out std_logic);
-  end component add;
-
   signal input2n : std_logic_vector(bits-1 downto 0) := (others => '0');
   signal carry_in : std_logic := '0';
   signal carry_out : std_logic := '0';
@@ -58,7 +45,7 @@ begin  -- architecture behav
   input2n <= not input2;
   carry_in <= not borrow_in;
 
-  add_1: add
+  add_1: entity work.add
     generic map (
       bits => bits,
       use_kogge_stone => use_kogge_stone)

@@ -34,19 +34,10 @@ end reg;
 
 architecture behav of reg is
   
-  component reg1 is
-    port (
-      clk      : in  std_logic;
-      reset    : in  std_logic;
-      enable   : in  std_logic;
-      data_in  : in  std_logic;
-      data_out : out std_logic);
-  end component reg1;
-  
 begin  -- behav
 
   regs: for c in 0 to bits-1 generate
-    my_reg : reg1
+    my_reg : entity work.reg1
       port map (
         clk      => clk,
         reset    => reset,

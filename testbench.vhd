@@ -20,6 +20,7 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use work.log2.all;
 
 entity testbench is
   
@@ -27,112 +28,6 @@ end entity testbench;
 
 architecture behav of testbench is
 
-  component reg1 is
-    port (
-      clk      : in  std_logic;
-      reset    : in  std_logic;
-      enable   : in  std_logic;
-      data_in  : in  std_logic;
-      data_out : out std_logic);
-  end component reg1;
-
-  component shift_reg is
-    generic (
-      bits : natural);
-    port (
-      clk          : in  std_logic;
-      reset        : in  std_logic;
-      serial_in    : in  std_logic;
-      serial_out   : out std_logic;
-      parallel_out : out std_logic_vector(bits-1 downto 0);
-      enable       : in  std_logic);
-  end component shift_reg;
-
-  component delay_reg is
-    generic (
-      bits  : natural;
-      delay : natural);
-    port (
-      clk      : in  std_logic;
-      reset    : in  std_logic;
-      enable   : in  std_logic;
-      data_in  : in  std_logic_vector(bits-1 downto 0);
-      data_out : out std_logic_vector(bits-1 downto 0));
-  end component delay_reg;
-
-  component add is
-    generic (
-      bits : natural;
-      use_kogge_stone : bit);
-    port (
-      input1    : in  std_logic_vector(bits-1 downto 0);
-      input2    : in  std_logic_vector(bits-1 downto 0);
-      output    : out std_logic_vector(bits-1 downto 0);
-      carry_in  : in  std_logic;
-      carry_out : out std_logic;
-      overflow  : out std_logic);
-  end component add;
-
-  component sub is
-    generic (
-      bits : natural;
-      use_kogge_stone : bit);
-    port (
-      input1     : in  std_logic_vector(bits-1 downto 0);
-      input2     : in  std_logic_vector(bits-1 downto 0);
-      output     : out std_logic_vector(bits-1 downto 0);
-      borrow_in  : in  std_logic;
-      borrow_out : out std_logic;
-      underflow  : out std_logic);
-  end component sub;
-
-  component accumulator is
-    generic (
-      bits            : natural;
-      use_kogge_stone : bit);
-    port (
-      clk    : in  std_logic;
-      reset  : in  std_logic;
-      enable : in  std_logic;
-      input  : in  std_logic_vector(bits-1 downto 0);
-      output : out std_logic_vector(bits-1 downto 0));
-  end component accumulator;
-
-  component counter is
-    generic (
-      bits            : natural;
-      direction       : bit;
-      use_kogge_stone : bit);
-    port (
-      clk    : in  std_logic;
-      reset  : in  std_logic;
-      enable : in  std_logic;
-      output : out std_logic_vector(bits-1 downto 0));
-  end component counter;
-
-  component nco is
-    generic (
-      pir_bits        : natural;
-      bits            : natural;
-      use_kogge_stone : bit);
-    port (
-      clk   : in  std_logic;
-      reset : in  std_logic;
-      pir   : in  std_logic_vector(pir_bits-1 downto 0);
-      sin   : out std_logic_vector(bits-1 downto 0);
-      cos   : out std_logic_vector(bits-1 downto 0));
-  end component nco;
-
-  component array_adder is
-    generic (
-      bits            : natural;
-      width           : natural;
-      use_kogge_stone : bit);
-    port (
-      data : in  std_logic_vector(width*bits-1 downto 0);
-      sum  : out std_logic_vector(width-1+bits-1 downto 0));
-  end component array_adder;
-  
   signal clk : std_logic := '0';
   signal rst : std_logic := '0';
 
@@ -162,7 +57,7 @@ begin  -- architecture behav
 -------------------------------------------------------------------------------
 
   -- synchronize reset
-  reset_reg1: reg1
+  reset_reg1: entity work.reg1
     port map (
       clk      => clk,
       reset    => '1',
@@ -179,7 +74,7 @@ begin  -- architecture behav
     end if;
   end process serial_gen;
 
-  shift_reg_1: shift_reg
+  shift_reg_1: entity work.shift_reg
     generic map (
       bits => 8)
     port map (
@@ -190,7 +85,7 @@ begin  -- architecture behav
       parallel_out => open,
       enable       => '1');
 
-  delay_reg_1: delay_reg
+  delay_reg_1: entity work.delay_reg
     generic map (
       bits  => 8,
       delay => 2)
@@ -201,7 +96,7 @@ begin  -- architecture behav
       data_in  => "10101010",
       data_out => open);
 
-  add_1: add
+  add_1: entity work.add
     generic map (
       bits => 8)
     port map (
@@ -212,7 +107,7 @@ begin  -- architecture behav
       carry_out => open,
       overflow  => open);
 
-  sub_1: sub
+  sub_1: entity work.sub
     generic map (
       bits => 8)
     port map (
@@ -223,7 +118,7 @@ begin  -- architecture behav
       borrow_out => open,
       underflow  => open);
 
-  accumulator_1: accumulator
+  accumulator_1: entity work.accumulator
     generic map (
       bits => 8)
     port map (
@@ -233,7 +128,7 @@ begin  -- architecture behav
       input  => "00001011",
       output => open);
 
-  counter_1: counter
+  counter_1: entity work.counter
     generic map (
       bits      => 8,
       direction => '1')
@@ -243,7 +138,7 @@ begin  -- architecture behav
       enable => '1',
       output => open);
 
-  nco_1: nco
+  nco_1: entity work.nco
     generic map (
       pir_bits => 10,
       bits     => 10)
@@ -254,12 +149,14 @@ begin  -- architecture behav
       sin   => open,
       cos   => open);
 
-  array_adder_1: array_adder
+  array_adder_1: entity work.array_adder
     generic map (
       bits  => 8,
       width => 6)
     port map (
-      data => "100100110110100100111101010100101011010110010101",
-      sum  => open);
+      clk   => clk,
+      reset => reset,
+      data  => "111111111111111111111111111111111111111111111111",
+      sum   => open);
 
 end architecture behav;

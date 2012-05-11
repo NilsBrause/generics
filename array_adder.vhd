@@ -26,96 +26,59 @@ entity array_adder is
   generic (
     bits            : natural;
     width           : natural;
+    signed_arith    : bit := '1';
+    use_registers   : bit := '0';
     use_kogge_stone : bit := '0');
   port (
+    clk   : in  std_logic;
+    reset : in  std_logic;
     data  : in  std_logic_vector(width*bits-1 downto 0);
-    sum   : out std_logic_vector(width-1+bits-1 downto 0));
+    sum   : out std_logic_vector(log2ceil(width)+bits-1 downto 0));
 end array_adder;
 
 architecture tree_add of array_adder is
 
-  component add is
-    generic (
-      bits            : natural;
-      use_kogge_stone : bit);
-    port (
-      input1    : in  std_logic_vector(bits-1 downto 0);
-      input2    : in  std_logic_vector(bits-1 downto 0);
-      output    : out std_logic_vector(bits-1 downto 0);
-      carry_in  : in  std_logic;
-      carry_out : out std_logic;
-      overflow  : out std_logic);
-  end component add;
-
-  component reg is
-    generic (
-      bits : natural);
-    port (
-      clk      : in  std_logic;
-      reset    : in  std_logic;
-      enable   : in  std_logic;
-      data_in  : in  std_logic_vector(bits-1 downto 0);
-      data_out : out std_logic_vector(bits-1 downto 0));
-  end component reg;
-
   constant stages : natural := log2ceil(width)+1;
   constant swidth : natural := 2**(stages-1);
-  constant sum_bits : natural := width+bits-1;
-  constant nodes : natural := 2*swidth-1;
+  constant sum_bits : natural := stages+bits-1;
 
-  function tree(r, c, w : natural) return natural is
-    variable s : natural := 0;
-  begin
-    if r > 0 then
-      for n in 1 to r loop
-        s := s + w/(2**(n-1));
-      end loop;
-    end if;
-    return s + c;
-  end function;
+  type stage_t is array (0 to swidth-1) of std_logic_vector(sum_bits-1 downto 0);
+  type tree_t is array (0 to stages-1) of stage_t;
 
-  signal summand : std_logic_vector(nodes*sum_bits-1 downto 0);
---  signal temp : std_logic_vector((nodes-swidth)*(sum_bits+1)-1 downto 0);
+  signal tree : tree_t;
   
 begin  -- tree_add
 
   summands: for i in 0 to width-1 generate
-    summand(i*sum_bits + bits-1 downto i*sum_bits)
-      <= data(i*bits + bits-1 downto i*bits);
-    summand(i*sum_bits + sum_bits-1 downto i*sum_bits + bits)
-      <= (others => data(i*bits + bits-1));
+    tree(0)(i)(bits-1 downto 0) <= data(i*bits + bits-1 downto i*bits);
+    signed_yes: if signed_arith = '1' generate
+      tree(0)(i)(sum_bits-1 downto bits) <= (others => data(i*bits + bits-1));
+    end generate signed_yes;
+    signed_no: if signed_arith = '0' generate
+      tree(0)(i)(sum_bits-1 downto bits) <= (others => '0');
+    end generate signed_no;
   end generate summands;
 
   zeros: for i in width to swidth-1 generate
-    summand(i*sum_bits + sum_bits-1 downto i*sum_bits) <= (others => '0');
+    tree(0)(i) <= (others => '0');
   end generate zeros;
 
   stage: for c in 1 to stages-1 generate
     adds: for i in 0 to 2**(stages-1-c)-1 generate
-      add_1: add
+      add_1: entity work.add
         generic map (
           bits            => sum_bits,
           use_kogge_stone => use_kogge_stone)
         port map (
-          input1    => summand(tree(c-1, 2*i, swidth)*sum_bits + sum_bits-1
-                               downto tree(c-1, 2*i, swidth)*sum_bits),
-          input2    => summand(tree(c-1, 2*i+1, swidth)*sum_bits + sum_bits-1
-                               downto tree(c-1, 2*i+1, swidth)*sum_bits),
-          output    => summand(tree(c, i, swidth)*sum_bits + sum_bits-1
-                               downto tree(c, i, swidth)*sum_bits),
---          output    => temp(tree(c-1, i, swidth/2)*(sum_bits+1) + (sum_bits+1)-1
---                            downto tree(c-1, i, swidth/2)*(sum_bits+1)),
+          input1    => tree(c-1)(2*i),
+          input2    => tree(c-1)(2*i+1),
+          output    => tree(c)(i),
           carry_in  => '0',
           carry_out => open,
           overflow  => open);
---      summand(tree(c, i, swidth)*sum_bits + sum_bits-1
---              downto tree(c, i, swidth)*sum_bits)
---        <= temp(tree(c-1, i, swidth/2)*(sum_bits+1) + sum_bits-1
---                downto tree(c-1, i, swidth/2)*(sum_bits+1));
     end generate adds;
   end generate stage;
 
-  sum <= summand(tree(stages-1, 0, swidth)*sum_bits + sum_bits-1
-                           downto tree(stages-1, 0, swidth)*sum_bits);
+  sum <= tree(stages-1)(0);
 
 end tree_add;

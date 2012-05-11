@@ -35,37 +35,13 @@ end entity accumulator;
 
 architecture behav of accumulator is
 
-  component add is
-    generic (
-      bits : natural;
-      use_kogge_stone : bit);
-    port (
-      input1    : in  std_logic_vector(bits-1 downto 0);
-      input2    : in  std_logic_vector(bits-1 downto 0);
-      output    : out std_logic_vector(bits-1 downto 0);
-      carry_in  : in  std_logic;
-      carry_out : out std_logic;
-      overflow  : out std_logic);
-  end component add;
-
-  component reg is
-    generic (
-      bits : natural);
-    port (
-      clk      : in  std_logic;
-      reset    : in  std_logic;
-      enable   : in  std_logic;
-      data_in  : in  std_logic_vector(bits-1 downto 0);
-      data_out : out std_logic_vector(bits-1 downto 0));
-  end component reg;
-
   signal add_in : std_logic_vector(bits-1 downto 0) := (others => '0');
   signal add_out : std_logic_vector(bits-1 downto 0) := (others => '0');
   signal reg_out: std_logic_vector(bits-1 downto 0) := (others => '0');
 
 begin  -- architecture behav
 
-  add_1: add
+  add_1: entity work.add
     generic map (
       bits => bits,
       use_kogge_stone => use_kogge_stone)
@@ -77,7 +53,7 @@ begin  -- architecture behav
       carry_out => open,
       overflow  => open);
 
-  reg_1: reg
+  reg_1: entity work.reg
     generic map (
       bits => bits)
     port map (
