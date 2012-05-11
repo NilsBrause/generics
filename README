@@ -17,6 +17,7 @@ Part B:
 08. Counter (counter.vhd)
 09. Sine/Cosine look up table (sincos.vhd)
 10. Numerically controlled oscillator (nco.vhd)
+11. Array adder (array_adder.vhd)
 
 Part A
 ======
@@ -509,4 +510,41 @@ Port description:
 - pir: frequency input
 - sin: sine output
 - cos: cosine output
+
+11. Array adder (array_adder.vhd)
+---------------------------------
+
+If you want to add a lange number of values, the most efficient way to do this
+is in a tree. This array adder does exactly this.
+Please note that the array adder has no carry or overflow logic.
+
+Component declaration;
+
+  component array_adder is
+    generic (
+      bits            : natural;
+      width           : natural;
+      use_kogge_stone : bit);
+    port (
+      data : in  std_logic_vector(width*bits-1 downto 0);
+      sum  : out std_logic_vector(width-1+bits-1 downto 0));
+  end component array_adder;
+
+Schematic:
+
+   +----------+
+===| data sum |===
+   +----------+
+
+Generic descriptuion:
+
+- bits: denotes the width of one input value
+- width: denotes the number of input values
+- use_kogge_stone: Use an optimized Kogge Stone adder
+                   (if no hardware adder is available)
+                   (default = '0')
+
+Port description:
+- data: combined input values
+- sum: sum output
 

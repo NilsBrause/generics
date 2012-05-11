@@ -122,6 +122,16 @@ architecture behav of testbench is
       sin   : out std_logic_vector(bits-1 downto 0);
       cos   : out std_logic_vector(bits-1 downto 0));
   end component nco;
+
+  component array_adder is
+    generic (
+      bits            : natural;
+      width           : natural;
+      use_kogge_stone : bit);
+    port (
+      data : in  std_logic_vector(width*bits-1 downto 0);
+      sum  : out std_logic_vector(width-1+bits-1 downto 0));
+  end component array_adder;
   
   signal clk : std_logic := '0';
   signal rst : std_logic := '0';
@@ -215,7 +225,7 @@ begin  -- architecture behav
 
   accumulator_1: accumulator
     generic map (
-      bits            => 8)
+      bits => 8)
     port map (
       clk    => clk,
       reset  => reset,
@@ -225,8 +235,8 @@ begin  -- architecture behav
 
   counter_1: counter
     generic map (
-      bits            => 8,
-      direction       => '1')
+      bits      => 8,
+      direction => '1')
     port map (
       clk    => clk,
       reset  => reset,
@@ -235,13 +245,21 @@ begin  -- architecture behav
 
   nco_1: nco
     generic map (
-      pir_bits        => 10,
-      bits            => 10)
+      pir_bits => 10,
+      bits     => 10)
     port map (
       clk   => clk,
       reset => reset,
       pir   => "0001000000",
       sin   => open,
       cos   => open);
+
+  array_adder_1: array_adder
+    generic map (
+      bits  => 8,
+      width => 6)
+    port map (
+      data => "100100110110100100111101010100101011010110010101",
+      sum  => open);
 
 end architecture behav;
