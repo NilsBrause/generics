@@ -19,7 +19,7 @@
 # Gravitational Physics (Albert Einstein Institute).
 
 TB = testbench
-OBJ = log2.o register1.o register.o shift_reg.o delay_reg.o kogge_stone.o add.o sub.o accumulator.o counter.o lut.o sincos.o
+OBJ = log2.o register1.o register.o shift_reg.o delay_reg.o kogge_stone.o add.o sub.o accumulator.o counter.o lut.o sincos.o nco.o
 
 output.ghw: $(TB)
 	ghdl -r $(TB) --stop-time=10us --wave=output.ghw
@@ -38,4 +38,4 @@ makelut: makelut.cpp Makefile
 	g++ makelut.cpp -omakelut
 
 clean:
-	rm -f *.o *.cf $(TB) makelut output.ghw *~
+	rm -f *.o *.cf $(TB) makelut lut.vhd output.ghw *~

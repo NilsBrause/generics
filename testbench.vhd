@@ -110,15 +110,18 @@ architecture behav of testbench is
       output : out std_logic_vector(bits-1 downto 0));
   end component counter;
 
-  component sincos is
+  component nco is
     generic (
-      phase_bits : natural;
-      bits       : natural);
+      pir_bits        : natural;
+      bits            : natural;
+      use_kogge_stone : bit);
     port (
-      phase : in  std_logic_vector(phase_bits-1 downto 0);
+      clk   : in  std_logic;
+      reset : in  std_logic;
+      pir   : in  std_logic_vector(pir_bits-1 downto 0);
       sin   : out std_logic_vector(bits-1 downto 0);
       cos   : out std_logic_vector(bits-1 downto 0));
-  end component sincos;
+  end component nco;
   
   signal clk : std_logic := '0';
   signal rst : std_logic := '0';
@@ -126,8 +129,6 @@ architecture behav of testbench is
   signal reset : std_logic := '0';
   signal serial : std_logic := '0';
 
-  signal tmp : std_logic_vector(7 downto 0) := (others => '0');
-  
 begin  -- architecture behav
 
   -- generate clock
@@ -234,14 +235,17 @@ begin  -- architecture behav
       clk    => clk,
       reset  => reset,
       enable => '1',
-      output => tmp);
+      output => open);
 
-  sincos_1: sincos
+  nco_1: nco
     generic map (
-      phase_bits => 8,
-      bits       => 8)
+      pir_bits        => 10,
+      bits            => 10,
+      use_kogge_stone => '0')
     port map (
-      phase => tmp,
+      clk   => clk,
+      reset => reset,
+      pir   => "0001000000",
       sin   => open,
       cos   => open);
 
