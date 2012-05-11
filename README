@@ -280,6 +280,7 @@ Generic description:
 - bits: denotes the width of the adder
 - use_kogge_stone: Use an optimized Kogge Stone adder
                    (if no hardware adder is available)
+                   (default = '0')
 
 Port description:
 
@@ -325,6 +326,7 @@ Generic description:
 - bits: denotes the width of the subtractor
 - use_kogge_stone: Use an optimized Kogge Stone adder
                    (if no hardware adder is available)
+                   (default = '0')
 
 Port description:
 
@@ -370,6 +372,7 @@ Generic description:
 - bits: denotes the width of the accumulator
 - use_kogge_stone: Use an optimized Kogge Stone adder
                    (if no hardware adder is available)
+                   (default = '0')
 
 Port description:
 
@@ -413,6 +416,7 @@ Generic description:
 - bits: denotes the width of the counter (and therfore its maximum value)
 - use_kogge_stone: Use an optimized Kogge Stone adder
                    (if no hardware adder is available)
+                   (default = '0')
 - direction: Denotes the counter direction. '0' is down and '1' is up.
 
 Port description:
@@ -496,6 +500,7 @@ Generic descriptuion:
 - bits: denotes the width of the outputs
 - use_kogge_stone: Use an optimized Kogge Stone adder
                    (if no hardware adder is available)
+                   (default = '0')
 
 Port description:
 

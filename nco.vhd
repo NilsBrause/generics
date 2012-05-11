@@ -25,7 +25,7 @@ entity nco is
   generic (
     pir_bits        : natural;
     bits            : natural;
-    use_kogge_stone : bit);
+    use_kogge_stone : bit := '0');
   port (
     clk   : in  std_logic;
     reset : in  std_logic;

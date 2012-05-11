@@ -193,8 +193,7 @@ begin  -- architecture behav
 
   add_1: add
     generic map (
-      bits => 8,
-      use_kogge_stone => '1')
+      bits => 8)
     port map (
       input1    => "01110011",
       input2    => "01010111",
@@ -205,8 +204,7 @@ begin  -- architecture behav
 
   sub_1: sub
     generic map (
-      bits => 8,
-      use_kogge_stone => '0')
+      bits => 8)
     port map (
       input1     => "11000111",
       input2     => "00011111",
@@ -217,8 +215,7 @@ begin  -- architecture behav
 
   accumulator_1: accumulator
     generic map (
-      bits            => 8,
-      use_kogge_stone => '0')
+      bits            => 8)
     port map (
       clk    => clk,
       reset  => reset,
@@ -229,8 +226,7 @@ begin  -- architecture behav
   counter_1: counter
     generic map (
       bits            => 8,
-      direction       => '1',
-      use_kogge_stone => '0')
+      direction       => '1')
     port map (
       clk    => clk,
       reset  => reset,
@@ -240,8 +236,7 @@ begin  -- architecture behav
   nco_1: nco
     generic map (
       pir_bits        => 10,
-      bits            => 10,
-      use_kogge_stone => '0')
+      bits            => 10)
     port map (
       clk   => clk,
       reset => reset,

@@ -25,7 +25,7 @@ use ieee.numeric_std.all;
 entity add is
   generic (
     bits : natural;
-    use_kogge_stone : bit);
+    use_kogge_stone : bit := '0');
   port (
     input1    : in  std_logic_vector(bits-1 downto 0);
     input2    : in  std_logic_vector(bits-1 downto 0);
