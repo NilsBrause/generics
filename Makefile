@@ -19,10 +19,10 @@
 # Gravitational Physics (Albert Einstein Institute).
 
 TB = testbench
-OBJ = log2.o register1.o register.o shift_reg.o delay_reg.o kogge_stone.o add.o sub.o accumulator.o counter.o
+OBJ = log2.o register1.o register.o shift_reg.o delay_reg.o kogge_stone.o add.o sub.o accumulator.o counter.o lut.o sincos.o
 
 output.ghw: $(TB)
-	ghdl -r $(TB) --stop-time=1us --wave=output.ghw
+	ghdl -r $(TB) --stop-time=10us --wave=output.ghw
 
 $(TB): $(OBJ) $(TB).vhd
 	ghdl -a -Wc,-g $(TB).vhd
@@ -31,11 +31,11 @@ $(TB): $(OBJ) $(TB).vhd
 %.o: %.vhd Makefile
 	ghdl -a -Wc,-g $<
 
-#lut.vhd: makelut
-#	./makelut 8 16 > lut.vhd
+lut.vhd: makelut Makefile
+	./makelut 10 12 > lut.vhd
 
-#makelut: makelut.cpp
-#	g++ makelut.cpp -omakelut
+makelut: makelut.cpp Makefile
+	g++ makelut.cpp -omakelut
 
 clean:
-	rm -f *.o *.cf $(TB) output.ghw *~
+	rm -f *.o *.cf $(TB) makelut output.ghw *~

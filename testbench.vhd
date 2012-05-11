@@ -109,12 +109,24 @@ architecture behav of testbench is
       enable : in  std_logic;
       output : out std_logic_vector(bits-1 downto 0));
   end component counter;
+
+  component sincos is
+    generic (
+      phase_bits : natural;
+      bits       : natural);
+    port (
+      phase : in  std_logic_vector(phase_bits-1 downto 0);
+      sin   : out std_logic_vector(bits-1 downto 0);
+      cos   : out std_logic_vector(bits-1 downto 0));
+  end component sincos;
   
   signal clk : std_logic := '0';
   signal rst : std_logic := '0';
 
   signal reset : std_logic := '0';
   signal serial : std_logic := '0';
+
+  signal tmp : std_logic_vector(7 downto 0) := (others => '0');
   
 begin  -- architecture behav
 
@@ -222,6 +234,15 @@ begin  -- architecture behav
       clk    => clk,
       reset  => reset,
       enable => '1',
-      output => open);
+      output => tmp);
+
+  sincos_1: sincos
+    generic map (
+      phase_bits => 8,
+      bits       => 8)
+    port map (
+      phase => tmp,
+      sin   => open,
+      cos   => open);
 
 end architecture behav;
