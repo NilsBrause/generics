@@ -18,6 +18,7 @@ Part B:
 09. Sine/Cosine look up table (sincos.vhd)
 10. Numerically controlled oscillator (nco.vhd)
 11. Array adder (array_adder.vhd)
+12. Multiplier (mul.vhd)
 
 Part A
 ======
@@ -556,8 +557,56 @@ Generic descriptuion:
                    (default = '0')
 
 Port description:
+
 - clk: clock input
 - reset: asynchronous reset (active low)
 - data: combined input values
 - sum: sum output
 
+
+12. Multiplier (mul.vhd)
+------------------------
+
+The multiplier can mutiply signed or unsigned numbers.
+
+Component declaration:
+
+  component mul is
+    generic (
+      bits1           : natural;
+      bits2           : natural;
+      signed_arith    : bit;
+      use_kogge_stone : bit);
+    port (
+      clk    : in  std_logic;
+      reset  : in  std_logic;
+      input1 : in  std_logic_vector(bits1-1 downto 0);
+      input2 : in  std_logic_vector(bits2-1 downto 0);
+      output : out std_logic_vector(bits1+bits2-1 downto 0));
+  end component mul;
+
+Schematic:
+
+   +---------------+
+---| clk    output |===
+---| reset         |
+===| input1        |
+===| input2        |
+   +---------------+
+
+Generic description:
+
+- bits1: denotes the width of the first input value
+- bits2: denotes the width of the second input value
+- signed_arith: use sigend arithmetic
+- use_kogge_stone: Use an optimized Kogge Stone adder
+                   (if no hardware adder is available)
+                   (default = '0')
+
+Port description:
+
+- clk: clock input
+- reset: asynchronous reset (active low)
+- input1: first input value
+- input2: second input value
+- output: product output

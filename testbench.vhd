@@ -159,4 +159,17 @@ begin  -- architecture behav
       data  => "111111111111111111111111111111111111111111111111",
       sum   => open);
 
+  mul_1: entity work.mul
+    generic map (
+      bits1           => 8,
+      bits2           => 8,
+      signed_arith    => '0',
+      use_kogge_stone => '1')
+    port map (
+      clk    => clk,
+      reset  => reset,
+      input1 => "11010101",
+      input2 => "10101010",
+      output => open);
+
 end architecture behav;
