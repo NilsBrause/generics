@@ -19,6 +19,7 @@ Part B:
 10. Numerically controlled oscillator (nco.vhd)
 11. Array adder (array_adder.vhd)
 12. Multiplier (mul.vhd)
+13. Rounder (round.vhd)
 
 Part A
 ======
@@ -610,3 +611,46 @@ Port description:
 - input1: first input value
 - input2: second input value
 - output: product output
+
+
+13. Rounder (round.vhd)
+-----------------------
+
+The rounder does arithmetic rounding of signed and unsigned integers
+without overflowing.
+Please note that no rounding occures is outp_bits >= inp_bits.
+
+Component declaration:
+
+  component round is
+    generic (
+      inp_bits        : natural;
+      outp_bits       : natural;
+      signed_arith    : bit;
+      use_kogge_stone : bit);
+    port (
+      input  : in  std_logic_vector(inp_bits-1 downto 0);
+      output : out std_logic_vector(outp_bits-1 downto 0));
+  end component round;
+
+Schematic:
+
+   +--------------+
+===| input output |===
+   +--------------+
+
+Generic description:
+
+- inp_bits: denotes the width of the input
+- outp_bits: denotes the desired width of the output
+- signed_arith: use sigend arithmetic
+                   (default = '1')
+- use_kogge_stone: Use an optimized Kogge Stone adder
+                   (if no hardware adder is available)
+                   (default = '0')
+
+Port description:
+
+- input: input value
+- output: rounded output
+

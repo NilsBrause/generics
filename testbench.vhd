@@ -34,6 +34,8 @@ architecture behav of testbench is
   signal reset : std_logic := '0';
   signal serial : std_logic := '0';
 
+  signal cnt_out : std_logic_vector(7 downto 0) := (others => '0');
+
 begin  -- architecture behav
 
   -- generate clock
@@ -136,7 +138,7 @@ begin  -- architecture behav
       clk    => clk,
       reset  => reset,
       enable => '1',
-      output => open);
+      output => cnt_out);
 
   nco_1: entity work.nco
     generic map (
@@ -170,6 +172,14 @@ begin  -- architecture behav
       reset  => reset,
       input1 => "11010101",
       input2 => "10101010",
+      output => open);
+
+  round_1: entity work.round
+    generic map (
+      inp_bits        => 8,
+      outp_bits       => 4)
+    port map (
+      input  => cnt_out,
       output => open);
 
 end architecture behav;
