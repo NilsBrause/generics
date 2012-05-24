@@ -35,6 +35,7 @@ architecture behav of testbench is
   signal serial : std_logic := '0';
 
   signal cnt_out : std_logic_vector(7 downto 0) := (others => '0');
+  signal sin : std_logic_vector(9 downto 0) := (others => '0');
 
 begin  -- architecture behav
 
@@ -148,7 +149,7 @@ begin  -- architecture behav
       clk   => clk,
       reset => reset,
       pir   => "0001000000",
-      sin   => open,
+      sin   => sin,
       cos   => open);
 
   array_adder_1: entity work.array_adder
@@ -181,5 +182,18 @@ begin  -- architecture behav
     port map (
       input  => cnt_out,
       output => open);
+
+  iqdemod_1: entity work.iqdemod
+    generic map (
+      bits            => 10,
+      nco_bits        => 10,
+      freq_bits       => 10)
+    port map (
+      clk   => clk,
+      reset => reset,
+      input => sin,
+      freq  => "0001000001",
+      i     => open,
+      q     => open);
 
 end architecture behav;

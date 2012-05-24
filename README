@@ -20,6 +20,7 @@ Part B:
 11. Array adder (array_adder.vhd)
 12. Multiplier (mul.vhd)
 13. Rounder (round.vhd)
+14. IQ demudulator (iqdemod.vhd)
 
 Part A
 ======
@@ -600,6 +601,7 @@ Generic description:
 - bits1: denotes the width of the first input value
 - bits2: denotes the width of the second input value
 - signed_arith: use sigend arithmetic
+                   (default = '1')
 - use_kogge_stone: Use an optimized Kogge Stone adder
                    (if no hardware adder is available)
                    (default = '0')
@@ -653,4 +655,59 @@ Port description:
 
 - input: input value
 - output: rounded output
+
+
+14. IQ demudulator (iqdemod.vhd)
+--------------------------------
+
+The IQ demudulator is a Frequency downconverter which converts a QAM modulated
+high frequency signal into two intermediate frequency signal, which are
+90 degree out of phase (I and Q).
+
+Component declaration:
+
+  component iqdemod is
+    generic (
+      bits            : natural;
+      nco_bits        : natural;
+      freq_bits       : natural;
+      signed_arith    : bit;
+      use_kogge_stone : bit);
+    port (
+      clk   : in  std_logic;
+      reset : in  std_logic;
+      input : in  std_logic_vector(bits-1 downto 0);
+      freq  : in  std_logic_vector(freq_bits-1 downto 0);
+      i     : out std_logic_vector(bits+nco_bits-1 downto 0);
+      q     : out std_logic_vector(bits+nco_bits-1 downto 0));
+  end component iqdemod;
+
+Schematic:
+
+   +---------+
+---| clk   i |===
+---| reset q |===
+===| input   |
+===| freq    |
+   +---------+
+
+Generic description:
+
+- bits: denotes the width of the input signal
+- nco_bits: denotes the width of the internal NCO
+- freq_bits: denotes the width of the frequency value
+- signed_arith: use sigend arithmetic
+                   (default = '1')
+- use_kogge_stone: Use an optimized Kogge Stone adder
+                   (if no hardware adder is available)
+                   (default = '0')
+
+Port description:
+
+- clk: clock input
+- reset: asynchronous reset (active low)
+- input: input signal
+- freq: demodulation frequency
+- i: in phase signal
+- q: quadrature signal
 

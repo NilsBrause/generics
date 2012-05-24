@@ -28,7 +28,7 @@ entity mul is
     bits1           : natural;
     bits2           : natural;
     signed_arith    : bit := '1';
-    use_kogge_stone : bit := '1');
+    use_kogge_stone : bit := '0');
   port (
     clk    : in  std_logic;
     reset  : in  std_logic;
