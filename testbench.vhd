@@ -203,4 +203,13 @@ begin  -- architecture behav
       input  => "1010",
       output => open);
 
+  barrel_shift_1: entity work.barrel_shift
+    generic map (
+      bits         => 8,
+      signed_arith => '1')
+    port map (
+      input  => "10101010",
+      amount => "1110",
+      output => open);
+
 end architecture behav;

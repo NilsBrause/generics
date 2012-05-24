@@ -22,6 +22,8 @@ Part B:
 13. Rounder (round.vhd)
 14. IQ demudulator (iqdemod.vhd)
 15. Demultiplexer (demultiplex.vhd)
+16. Barrel shifter (barrel_shift.vhd)
+
 
 Part A
 ======
@@ -742,4 +744,44 @@ Port description:
 
 - input: input value
 - output: demultiplexed output value
+
+
+16. Barrel shifter (barrel_shift.vhd)
+-------------------------------------
+
+A barrel shifter shifts the digits of a binary number in an give direction by a
+given amount. It therefore does a cheap multiplication by two to the power of
+the amount of bits being shifted.
+
+Component declaration:
+
+  component barrel_shift is
+    generic (
+      bits         : natural;
+      signed_arith : bit); 
+    port (
+      input  : in  std_logic_vector(bits-1 downto 0);
+      amount : in  std_logic_vector(log2ceil(bits)-1 downto 0);
+      output : out std_logic_vector(bits-1 downto 0)); 
+  end component barrel_shift;
+
+Schematic:
+
+   +----------------+
+===| input   output |===
+===| amounnt        |
+   +----------------+
+
+Generic description:
+
+- bits: denotes the width of the input signal
+- signed_arith: use sigend arithmetic
+                   (default = '1')
+
+Port description:
+
+- input: input value
+- amount: number of bits to shift (in signed 2's complement - positive numbers
+          shift to the left, negative numbers shift to the right)
+- output: shifted output value
 
