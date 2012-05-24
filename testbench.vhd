@@ -36,6 +36,7 @@ architecture behav of testbench is
 
   signal cnt_out : std_logic_vector(7 downto 0) := (others => '0');
   signal sin : std_logic_vector(9 downto 0) := (others => '0');
+  signal i : std_logic_vector(19 downto 0) := (others => '0');
 
 begin  -- architecture behav
 
@@ -177,23 +178,23 @@ begin  -- architecture behav
 
   round_1: entity work.round
     generic map (
-      inp_bits        => 8,
-      outp_bits       => 4)
+      inp_bits  => 8,
+      outp_bits => 4)
     port map (
       input  => cnt_out,
       output => open);
 
   iqdemod_1: entity work.iqdemod
     generic map (
-      bits            => 10,
-      nco_bits        => 10,
-      freq_bits       => 10)
+      bits      => 10,
+      nco_bits  => 10,
+      freq_bits => 10)
     port map (
       clk   => clk,
       reset => reset,
       input => sin,
       freq  => "0001000001",
-      i     => open,
+      i     => i,
       q     => open);
 
   demultiplexer_1: entity work.demultiplexer
@@ -205,11 +206,20 @@ begin  -- architecture behav
 
   barrel_shift_1: entity work.barrel_shift
     generic map (
-      bits         => 8,
-      signed_arith => '1')
+      bits => 8)
     port map (
       input  => "10101010",
       amount => "1110",
+      output => open);
+
+  differentiator_1: entity work.differentiator
+    generic map (
+      bits => 20)
+    port map (
+      clk    => clk,
+      reset  => reset,
+      enable => '1',
+      input  => i,
       output => open);
 
 end architecture behav;

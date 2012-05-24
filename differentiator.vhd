@@ -21,7 +21,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity accumulator is
+entity differentiator is
   generic (
     bits : natural;
     use_kogge_stone : bit := '0');
@@ -31,27 +31,13 @@ entity accumulator is
     enable : in  std_logic;
     input  : in  std_logic_vector(bits-1 downto 0);
     output : out std_logic_vector(bits-1 downto 0));
-end entity accumulator;
+end entity differentiator;
 
-architecture behav of accumulator is
+architecture behav of differentiator is
 
-  signal add_in  : std_logic_vector(bits-1 downto 0) := (others => '0');
-  signal add_out : std_logic_vector(bits-1 downto 0) := (others => '0');
   signal reg_out : std_logic_vector(bits-1 downto 0) := (others => '0');
 
 begin  -- architecture behav
-
-  add_1: entity work.add
-    generic map (
-      bits => bits,
-      use_kogge_stone => use_kogge_stone)
-    port map (
-      input1    => add_in,
-      input2    => input,
-      output    => add_out,
-      carry_in  => '0',
-      carry_out => open,
-      overflow  => open);
 
   reg_1: entity work.reg
     generic map (
@@ -60,10 +46,19 @@ begin  -- architecture behav
       clk      => clk,
       reset    => reset,
       enable   => enable,
-      data_in  => add_out,
+      data_in  => input,
       data_out => reg_out);
 
-  output <= reg_out;
-  add_in <= reg_out;
+  sub_1: entity work.sub
+    generic map (
+      bits            => bits,
+      use_kogge_stone => use_kogge_stone)
+    port map (
+      input1     => input,
+      input2     => reg_out,
+      output     => output,
+      borrow_in  => '0',
+      borrow_out => open,
+      underflow  => open);
   
 end architecture behav;
