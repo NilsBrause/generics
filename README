@@ -21,6 +21,7 @@ Part B:
 12. Multiplier (mul.vhd)
 13. Rounder (round.vhd)
 14. IQ demudulator (iqdemod.vhd)
+15. Demultiplexer (demultiplex.vhd)
 
 Part A
 ======
@@ -710,4 +711,35 @@ Port description:
 - freq: demodulation frequency
 - i: in phase signal
 - q: quadrature signal
+
+
+15. Demultiplexer (demultiplex.vhd)
+-----------------------------------
+
+A demupltiplexer calculates two to the power if the input signal.
+
+Component declaration:
+
+  component demultiplexer is
+    generic (
+      bits : natural);
+    port (
+      input  : in  std_logic_vector(bits-1 downto 0);
+      output : out std_logic_vector(2**bits-1 downto 0));
+  end component demultiplexer;
+
+Schematic:
+
+   +--------------+
+===| input output |===
+   +--------------+
+
+Generic description:
+
+- bits: denotes the width of the input signal
+
+Port description:
+
+- input: input value
+- output: demultiplexed output value
 

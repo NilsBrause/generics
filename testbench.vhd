@@ -196,4 +196,11 @@ begin  -- architecture behav
       i     => open,
       q     => open);
 
+  demultiplexer_1: entity work.demultiplexer
+    generic map (
+      bits => 4)
+    port map (
+      input  => "1010",
+      output => open);
+
 end architecture behav;

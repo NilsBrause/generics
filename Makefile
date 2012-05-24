@@ -19,7 +19,7 @@
 # Gravitational Physics (Albert Einstein Institute).
 
 TB = testbench
-OBJ = log2.o register1.o register.o shift_reg.o delay_reg.o kogge_stone.o add.o sub.o accumulator.o counter.o lut.o sincos.o nco.o array_adder.o mul.o round.o iqdemod.o
+OBJ = log2.o register1.o register.o shift_reg.o delay_reg.o kogge_stone.o add.o sub.o accumulator.o counter.o lut.o sincos.o nco.o array_adder.o mul.o round.o iqdemod.o demultiplex.o
 
 output.ghw: $(TB)
 	ghdl -r $(TB) --stop-time=100us --wave=output.ghw
