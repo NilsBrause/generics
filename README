@@ -25,6 +25,7 @@ Part B:
 16. Barrel shifter (barrel_shift.vhd)
 17. Differentiator (differentiator.vhd)
 18. Bidirectional buffer (bidir.vhd)
+19. Cascaded integrator comb filter (cic.vhd)
 
 
 Part A
@@ -868,4 +869,59 @@ Port description:
 - output: value to be put on pins if dir = '0'
 - input: value read from pins if dir = '1'
 - dir: direction of pins. Input = '1', Output = '0'
+
+
+19. Cascaded integrator comb filter (cic.vhd)
+---------------------------------------------
+
+A CIC-filter can be used to convert a signal from one samplerate s to another
+samplerate s/2^r without aliasing. The number of samples fer filter stage is
+fixed to one at the moment, but the number of filter stages is configurable.
+
+Component declaration:
+
+  component cic is
+    generic (
+      bits            : natural;
+      r               : natural;
+      n               : natural;
+      signed_arith    : bit;
+      use_kogge_stone : bit);
+    port (
+      clk     : in  std_logic;
+      clk2    : in  std_logic;
+      reset   : in  std_logic;
+      input   : in  std_logic_vector(bits-1 downto 0);
+      output  : out std_logic_vector(bits-1 downto 0);
+      output2 : out std_logic_vector(n*r+bits-1 downto 0));
+  end component cic;
+
+Schematic:
+
+   +---------------+
+---| clk   output  |===
+---| clk2  output2 |===
+---| reset         |
+===| input         |
+   +---------------+
+
+Generic description:
+
+- bits: denotes the width of the input signal
+- r: samplerate divider (see description)
+- n: denotes the number of filter stages
+- signed_arith: use sigend arithmetic
+                   (default = '1')
+- use_kogge_stone: Use an optimized Kogge Stone adder
+                   (if no hardware adder is available)
+                   (default = '0')
+
+Port description:
+
+- clk: clock of the input signal (frequency f)
+- clk2: clock of the output signal (must have frequency f/2^r)
+- reset: asynchronous reset (active low)
+- input: input signal
+- output: filtered output signal with the same width of the input signal
+- output2: fill width filtered output signal
 

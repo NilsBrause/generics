@@ -28,15 +28,14 @@ end entity testbench;
 
 architecture behav of testbench is
 
-  signal clk : std_logic := '0';
-  signal rst : std_logic := '0';
-
-  signal reset : std_logic := '0';
-  signal serial : std_logic := '0';
-
+  signal clk     : std_logic := '0';
+  signal clk2    : std_logic := '0';
+  signal rst     : std_logic := '0';
+  signal reset   : std_logic := '0';
+  signal serial  : std_logic := '0';
   signal cnt_out : std_logic_vector(7 downto 0) := (others => '0');
-  signal sin : std_logic_vector(9 downto 0) := (others => '0');
-  signal i : std_logic_vector(19 downto 0) := (others => '0');
+  signal sin     : std_logic_vector(9 downto 0) := (others => '0');
+  signal i       : std_logic_vector(19 downto 0) := (others => '0');
 
 begin  -- architecture behav
 
@@ -221,5 +220,19 @@ begin  -- architecture behav
       enable => '1',
       input  => i,
       output => open);
+
+  clk2 <= cnt_out(2);
+  cic_1: entity work.cic
+    generic map (
+      bits => 20,
+      r    => 3,
+      n    => 1)
+    port map (
+      clk     => clk,
+      clk2    => clk2,
+      reset   => reset,
+      input   => i,
+      output  => open,
+      output2 => open);
 
 end architecture behav;
