@@ -27,6 +27,7 @@ Part B:
 18. Bidirectional buffer (bidir.vhd)
 19. Cascaded integrator comb filter (cic.vhd)
 20. Linear feedback shift register (lfsr.vhd)
+21. Proportional integral differential controller (pidctrl.vhd)
 
 
 Part A
@@ -960,3 +961,62 @@ Port description:
 - clk: clock input
 - reset: asynchronous reset (active low)
 - output: random nnumber output
+
+
+21. Proportional integral differential controller (pidctrl.vhd)
+---------------------------------------------------------------
+This is a standard PID controller as found in many control loops. You can
+adjust each gain separatly and also apply a pre-gain to prevent overflows.
+
+Component declaration:
+
+  component pidctrl is
+    generic (
+      bits            : natural;
+      int_bits        : natural;
+      signed_arith    : bit;
+      use_kogge_stone : bit);
+    port (
+      clk     : in  std_logic;
+      reset   : in  std_logic;
+      input   : in  std_logic_vector(bits-1 downto 0);
+      pregain : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
+      pgain   : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
+      igain   : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
+      dgain   : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
+      output  : out std_logic_vector(bits-1 downto 0));
+  end component pidctrl;
+
+Schematic:
+
+   +----------------+
+---| clk     output |===
+---| reset          |
+===| input          |
+===| pregain        |
+===| pgain          |
+===| igain          |
+===| dgain          |
+   +----------------+
+
+Generic description:
+
+- bits: denotes the width of the input signal
+- int_bits: denotes the width of the internal signals
+- signed_arith: use sigend arithmetic
+                   (default = '1')
+- use_kogge_stone: Use an optimized Kogge Stone adder
+                   (if no hardware adder is available)
+                   (default = '0')
+
+Port description:
+
+- clk: clock input
+- reset: asynchronous reset (active low)
+- input: input signal
+- pregain: pre-gain input
+- pgain: gain of the proportional controller
+- igain: gain of the integral controller
+- dgain: gain of the differential controller
+- output: controlled output signal
+

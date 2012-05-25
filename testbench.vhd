@@ -36,6 +36,7 @@ architecture behav of testbench is
   signal cnt_out : std_logic_vector(7 downto 0) := (others => '0');
   signal sin     : std_logic_vector(9 downto 0) := (others => '0');
   signal i       : std_logic_vector(19 downto 0) := (others => '0');
+  signal i2      : std_logic_vector(19 downto 0) := (others => '0');
 
 begin  -- architecture behav
 
@@ -232,7 +233,7 @@ begin  -- architecture behav
       clk2    => clk2,
       reset   => reset,
       input   => i,
-      output  => open,
+      output  => i2,
       output2 => open);
 
   lfsr_1: entity work.lfsr
@@ -242,5 +243,19 @@ begin  -- architecture behav
       clk    => clk,
       reset  => reset,
       output => open);
+
+  pidctrl_1: entity work.pidctrl
+    generic map (
+      bits     => 20,
+      int_bits => 40)
+    port map (
+      clk     => clk,
+      reset   => reset,
+      input   => i2,
+      pregain => "101110",
+      pgain   => "000011",
+      igain   => "000110",
+      dgain   => "100000",
+      output  => open);
 
 end architecture behav;
