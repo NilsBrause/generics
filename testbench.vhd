@@ -235,4 +235,12 @@ begin  -- architecture behav
       output  => open,
       output2 => open);
 
+  lfsr_1: entity work.lfsr
+    generic map (
+      bits => 12)
+    port map (
+      clk    => clk,
+      reset  => reset,
+      output => open);
+
 end architecture behav;

@@ -26,6 +26,7 @@ Part B:
 17. Differentiator (differentiator.vhd)
 18. Bidirectional buffer (bidir.vhd)
 19. Cascaded integrator comb filter (cic.vhd)
+20. Linear feedback shift register (lfsr.vhd)
 
 
 Part A
@@ -925,3 +926,37 @@ Port description:
 - output: filtered output signal with the same width of the input signal
 - output2: fill width filtered output signal
 
+
+20. Linear feedback shift register (lfsr.vhd)
+---------------------------------------------
+
+The linear feedbash shift register (short 'LFSR') can be used to generate
+random numbers with up to 168 bits length.
+
+Component declaration:
+
+  component lfsr is
+    generic (
+      bits : natural);
+    port (
+      clk    : in  std_logic;
+      reset  : in  std_logic;
+      output : out std_logic_vector(bits-1 downto 0));
+  end component lfsr;
+
+Schematic:
+
+   +--------------+
+---| clk   output |===
+---| reset        |
+   +--------------+
+
+Generic description:
+
+- bits: denotes the desired width of the output
+
+Port description:
+
+- clk: clock input
+- reset: asynchronous reset (active low)
+- output: random nnumber output
