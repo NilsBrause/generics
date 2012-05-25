@@ -24,6 +24,7 @@ Part B:
 15. Demultiplexer (demultiplex.vhd)
 16. Barrel shifter (barrel_shift.vhd)
 17. Differentiator (differentiator.vhd)
+18. Bidirectional buffer (bidir.vhd)
 
 
 Part A
@@ -830,4 +831,41 @@ Port description:
 - enable: enable pin
 - input: values to differentiate
 - output: differentiated value
+
+18. Bidirectional buffer (bidir.vhd)
+------------------------------------
+
+A bidirectional buffer can be used to interface with an inout-signal.
+
+Component declaration:
+
+  component bidir is
+    generic (
+      bits : natural);
+    port (
+      pins   : inout std_logic_vector(bits-1 downto 0);
+      output : in    std_logic_vector(bits-1 downto 0);
+      input  : out   std_logic_vector(bits-1 downto 0);
+      dir    : in    std_logic);
+  end component bidir;
+
+Schematic:
+
+          ||
+   +--------------+
+   |     pins     |
+===| output input |===
+---| dir          |
+   +--------------+
+
+Generic description:
+
+- bits: denotes the width of the buffer
+
+Port description:
+
+- pins: connect to inout signal
+- output: value to be put on pins if dir = '0'
+- input: value read from pins if dir = '1'
+- dir: direction of pins. Input = '1', Output = '0'
 
