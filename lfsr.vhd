@@ -47,7 +47,9 @@ begin  -- behav
     port map (
       clk          => clk,
       reset        => reset,
+      load         => '0',
       serial_in    => srin,
+      parallel_in  => (others => '0'),
       serial_out   => open,
       parallel_out => srout,
       enable       => '1');

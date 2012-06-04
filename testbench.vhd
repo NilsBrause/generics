@@ -69,23 +69,29 @@ begin  -- architecture behav
       data_in  => rst,
       data_out => reset);
 
-  serial_gen: process (clk, reset) is
-  begin
-    if reset = '0' then
-      serial <= '0';
-    elsif rising_edge(clk) then
-      serial <= not serial;
-    end if;
-  end process serial_gen;
-
   shift_reg_1: entity work.shift_reg
     generic map (
       bits => 8)
     port map (
       clk          => clk,
       reset        => reset,
+      load         => '0',
+      parallel_in  => (others => '0'),
       serial_in    => serial,
       serial_out   => open,
+      parallel_out => open,
+      enable       => '1');
+  
+  shift_reg_2: entity work.shift_reg
+    generic map (
+      bits => 8)
+    port map (
+      clk          => clk,
+      reset        => reset,
+      load         => clk2,
+      parallel_in  => "10110111",
+      serial_in    => '0',
+      serial_out   => serial,
       parallel_out => open,
       enable       => '1');
 
@@ -222,7 +228,6 @@ begin  -- architecture behav
       input  => i,
       output => open);
 
-  clk2 <= cnt_out(2);
   cic_1: entity work.cic
     generic map (
       bits => 20,
@@ -257,5 +262,14 @@ begin  -- architecture behav
       igain   => "000110",
       dgain   => "100000",
       output  => open);
+
+  clkdiv_1: entity work.clkdiv
+    generic map (
+      div => 3)
+    port map (
+      clk     => clk,
+      reset   => reset,
+      enable  => '1',
+      clk_out => clk2);
 
 end architecture behav;

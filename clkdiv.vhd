@@ -21,41 +21,53 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity shift_reg is
+entity clkdiv is
   generic (
-    bits : natural);
+    div : natural;
+    use_kogge_stone : bit := '0');
   port (
-    clk          : in  std_logic;
-    reset        : in  std_logic;
-    load         : in  std_logic;
-    serial_in    : in  std_logic;
-    serial_out   : out std_logic;
-    parallel_in  : in  std_logic_vector(bits-1 downto 0);
-    parallel_out : out std_logic_vector(bits-1 downto 0);
-    enable       : in  std_logic);
-end entity shift_reg;
+    clk     : in  std_logic;
+    reset   : in  std_logic;
+    enable  : in  std_logic;
+    clk_out : out std_logic);
+end entity clkdiv;
 
-architecture behav of shift_reg is
+architecture behav of clkdiv is
 
-  signal tmp : std_logic_vector(bits downto 0) := (others => '0');
-  signal tmp2 : std_logic_vector(bits downto 0) := (others => '0');
-  
+  signal tmp : std_logic_vector(div-1 downto 0);
+  signal last : std_logic;
+
 begin  -- architecture behav
 
-  tmp(0) <= serial_in;
+  counter_1: entity work.counter
+    generic map (
+      bits            => div,
+      direction       => '1',
+      use_kogge_stone => use_kogge_stone)
+    port map (
+      clk    => clk,
+      reset  => reset,
+      enable => enable,
+      output => tmp);
 
-  regs : for c in 0 to bits-1 generate
-    tmp2(c) <= parallel_in(c) when load = '1' else tmp(c);
-    myreg : entity work.reg1
-      port map (
-        clk      => clk,
-        reset    => reset,
-        enable   => enable,
-        data_in  => tmp2(c),
-        data_out => tmp(c+1));
-  end generate regs;
+  div_no: if div = 0 generate
+    clk_out <= clk;
+  end generate div_no;
 
-  serial_out <= tmp(bits);
-  parallel_out <= tmp(bits downto 1);
-  
+  div_yes: if div > 0 generate
+    process (clk, reset) is
+    begin
+      if reset = '0' then
+        clk_out <= '0';
+      elsif rising_edge(clk) then
+        if tmp(div-1) = '1' and last = '0' then
+          clk_out <= '1';
+        else
+          clk_out <= '0';
+        end if;
+        last <= tmp(div-1);
+      end if;
+    end process;
+  end generate div_yes;
+
 end architecture behav;
