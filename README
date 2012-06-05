@@ -30,6 +30,7 @@ Part B:
 21. Proportional integral differential controller (pidctrl.vhd)
 22. Clock Divider (clkdiv.vhd)
 23. Phase locked loop (pll.vhd)
+24. Pulse width modulation (pwm.vhd)
 
 
 Part A
@@ -1035,7 +1036,7 @@ Port description:
 ------------------------------
 
 A clock divider can be used to generate a slower clock from a fast clock by
-dividing its frequency by 2^N.
+dividing its frequency by some N.
 
 Component declaration:
 
@@ -1060,7 +1061,7 @@ Schematic:
 
 Generic description:
 
-- div: clock divider. Same as 'r' in the CIC filer.
+- div: clock divider. Divides the frequency by div+1.
 - use_kogge_stone: Use an optimized Kogge Stone adder
                    (if no hardware adder is available)
                    (default = '0')
@@ -1150,4 +1151,51 @@ Port description:
 - i: in phase signal
 - q: quadrature signal
 - freq_out: the measured current frequency of the input signal.
+
+
+24. Pulse width modulation (pwm.vhd)
+------------------------------------
+
+Pulse width modulation (PWM) can be used as a cheap 1 bit digital to abalog
+converter. The digital values are convertet tu pulses of different widths. In
+combination with an low pass filter this results in a smooth analog curve.
+
+Component declaration:
+
+  component pwm is
+    generic (
+      bits            : natural;
+      use_kogge_stone : bit);
+    port (
+      clk    : in  std_logic;
+      reset  : in  std_logic;
+      enable : in  std_logic;
+      ratio  : in  std_logic_vector(log2ceil(bits)-1 downto 0);
+      output : out std_logic);
+  end component pwm;
+
+Schematic:
+
+   +---------------+
+---| clk    output |===
+---| reset         |
+---| enable        |
+===| ratio         |
+   +---------------+
+
+Generic description:
+
+bits: the length of the output pulses
+- use_kogge_stone: Use an optimized Kogge Stone adder
+                   (if no hardware adder is available)
+                   (default = '0')
+
+Port description:
+
+- clk: clock input
+- reset: asynchronous reset (active low)
+- enable: enable pin
+- ratio: PWM ratio/DAC input
+- output: PWM output
+
 

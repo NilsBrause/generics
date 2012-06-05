@@ -20,44 +20,43 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 use work.log2.all;
 
-entity clkdiv is
+entity pwm is
   generic (
-    div : natural;
+    bits            : natural;
     use_kogge_stone : bit := '0');
   port (
-    clk     : in  std_logic;
-    reset   : in  std_logic;
-    enable  : in  std_logic;
-    clk_out : out std_logic);
-end entity clkdiv;
+    clk    : in  std_logic;
+    reset  : in  std_logic;
+    enable : in  std_logic;
+    ratio  : in  std_logic_vector(log2ceil(bits)-1 downto 0);
+    output : out std_logic);
+end entity pwm;
 
-architecture behav of clkdiv is
+architecture behav of pwm is
 
-  signal tmp : std_logic_vector(div-1 downto 0);
-  signal last : std_logic;
-  signal one : std_logic_vector(log2ceil(div)-1 downto 0);
+  signal cnt_out : std_logic_vector(log2ceil(bits)-1 downto 0);
+  signal cnt_rst : std_logic;
+  signal cnt_rst_int : std_logic;
 
 begin  -- architecture behav
 
-  one(0) <= '1';
-  one(log2ceil(div)-1 downto 1) <= (others => '0');
-  
-  div_no: if div = 0 generate
-    clk_out <= clk;
-  end generate div_no;
+  cnt_rst <= cnt_rst_int and reset;
+  cnt_rst_int <= '0' when to_integer(unsigned(cnt_out)) = bits else '1';
 
-  div_yes: if div > 0 generate
-  pwm_1: entity work.pwm
+  counter_1: entity work.counter
     generic map (
-      bits => div)
+      bits            => log2ceil(bits),
+      direction       => '1',
+      use_kogge_stone => use_kogge_stone)
     port map (
       clk    => clk,
-      reset  => reset,
+      reset  => cnt_rst,
       enable => enable,
-      ratio  => one,
-      output => clk_out);
-  end generate div_yes;
+      output => cnt_out);
+
+  output <= '1' when unsigned(cnt_out) < unsigned(ratio) else '0';
 
 end architecture behav;

@@ -265,11 +265,21 @@ begin  -- architecture behav
 
   clkdiv_1: entity work.clkdiv
     generic map (
-      div => 3)
+      div => 2**3)
     port map (
       clk     => clk,
       reset   => reset,
       enable  => '1',
       clk_out => clk2);
+
+  pwm_1: entity work.pwm
+    generic map (
+      bits => 8)
+    port map (
+      clk    => clk,
+      reset  => reset,
+      enable => '1',
+      ratio  => "0101",
+      output => open);
 
 end architecture behav;
