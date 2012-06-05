@@ -163,12 +163,12 @@ begin  -- architecture behav
   
   round_2: entity work.round
     generic map (
-      inp_bits        => int_bits+2,
+      inp_bits        => int_bits,
       outp_bits       => bits,
       signed_arith    => signed_arith,
       use_kogge_stone => use_kogge_stone)
     port map (
-      input  => sum,
+      input  => sum(int_bits-1 downto 0),
       output => output);
 
 end architecture behav;
