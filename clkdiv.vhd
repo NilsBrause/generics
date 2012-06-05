@@ -20,11 +20,13 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 use work.log2.all;
 
 entity clkdiv is
   generic (
     div : natural;
+    duty_cycle : bit := '1'; -- 0 = almost 0%, 1 = about 50%
     use_kogge_stone : bit := '0');
   port (
     clk     : in  std_logic;
@@ -38,11 +40,22 @@ architecture behav of clkdiv is
   signal tmp : std_logic_vector(div-1 downto 0) := (others => '0');
   signal last : std_logic := '0';
   signal one : std_logic_vector(log2ceil(div)-1 downto 0) := (others => '0');
+  signal half : std_logic_vector(log2ceil(div)-1 downto 0) := (others => '0');
+  signal ratio : std_logic_vector(log2ceil(div)-1 downto 0) := (others => '0');
 
 begin  -- architecture behav
 
   one(0) <= '1';
   one(log2ceil(div)-1 downto 1) <= (others => '0');
+  half <= std_logic_vector(to_unsigned(div/2, log2ceil(div)));
+
+  almost0: if duty_cycle = '0' generate
+    ratio <= one;
+  end generate almost0;
+  
+  about50: if duty_cycle = '1' generate
+    ratio <= half;
+  end generate about50;
   
   div_no: if div = 0 generate
     clk_out <= clk;
@@ -56,7 +69,7 @@ begin  -- architecture behav
       clk    => clk,
       reset  => reset,
       enable => enable,
-      ratio  => one,
+      ratio  => ratio,
       output => clk_out);
   end generate div_yes;
 

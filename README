@@ -1044,6 +1044,7 @@ Component declaration:
   component clkdiv is
     generic (
       div             : natural;
+      duty_cycle      : bit;
       use_kogge_stone : bit);
     port (
       clk     : in  std_logic;
@@ -1063,6 +1064,8 @@ Schematic:
 Generic description:
 
 - div: clock divider. Divides the frequency by div+1.
+- duty_cycle: Duty cycle. 0 = almost 0%, 1 = about 50%
+              (default = '0')
 - use_kogge_stone: Use an optimized Kogge Stone adder
                    (if no hardware adder is available)
                    (default = '0')

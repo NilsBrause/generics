@@ -50,6 +50,7 @@ begin  -- architecture behav
   clkdiv_1: entity work.clkdiv
     generic map (
       div             => bits+1,
+      duty_cycle      => '0',
       use_kogge_stone => use_kogge_stone)
     port map (
       clk     => clk,
