@@ -282,4 +282,16 @@ begin  -- architecture behav
       ratio  => "0101",
       output => open);
 
+  serializer_1: entity work.serializer
+    generic map (
+      bits => 8)
+    port map (
+      clk    => clk,
+      reset  => reset,
+      enable => '1',
+      input  => "10101001",
+      clk1   => open,
+      clk2   => open,
+      ser    => open);
+
 end architecture behav;

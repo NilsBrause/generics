@@ -35,13 +35,13 @@ end entity sincos;
 
 architecture behav of sincos is
 
-  signal phase2   : std_logic_vector(lut_in_bits+1 downto 0);
-  signal quadrant : std_logic_vector(1 downto 0);
-  signal idx      : std_logic_vector(lut_in_bits-1 downto 0);
-  signal val0     : std_logic_vector(lut_out_bits-1 downto 0);
-  signal val1     : std_logic_vector(lut_out_bits-1 downto 0);
-  signal cos_tmp  : std_logic_vector(lut_out_bits-1 downto 0);
-  signal sin_tmp  : std_logic_vector(lut_out_bits-1 downto 0);
+  signal phase2   : std_logic_vector(lut_in_bits+1 downto 0) := (others => '0');
+  signal quadrant : std_logic_vector(1 downto 0) := (others => '0');
+  signal idx      : std_logic_vector(lut_in_bits-1 downto 0) := (others => '0');
+  signal val0     : std_logic_vector(lut_out_bits-1 downto 0) := (others => '0');
+  signal val1     : std_logic_vector(lut_out_bits-1 downto 0) := (others => '0');
+  signal cos_tmp  : std_logic_vector(lut_out_bits-1 downto 0) := (others => '0');
+  signal sin_tmp  : std_logic_vector(lut_out_bits-1 downto 0) := (others => '0');
 
 begin  -- architecture behav
 

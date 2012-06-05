@@ -48,8 +48,8 @@ end entity pll;
 
 architecture behav of pll is
 
-  signal pid_out : std_logic_vector(bits+nco_bits-1 downto 0);
-  signal pid_out_round : std_logic_vector(freq_bits-1 downto 0);
+  signal pid_out : std_logic_vector(bits+nco_bits-1 downto 0) := (others => '0');
+  signal pid_out_round : std_logic_vector(freq_bits-1 downto 0) := (others => '0');
 
 begin  -- architecture behav
 

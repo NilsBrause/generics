@@ -34,7 +34,7 @@ end round;
 
 architecture behav of round is
 
-  signal roundup   : std_logic_vector(outp_bits-1 downto 0);
+  signal roundup : std_logic_vector(outp_bits-1 downto 0) := (others => '0');
   
 begin  -- behav
 

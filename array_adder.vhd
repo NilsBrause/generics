@@ -45,7 +45,7 @@ architecture tree_add of array_adder is
   type stage_t is array (0 to swidth-1) of std_logic_vector(sum_bits-1 downto 0);
   type tree_t is array (0 to stages-1) of stage_t;
 
-  signal tree : tree_t;
+  signal tree : tree_t := (others => (others => (others => '0')));
   
 begin  -- tree_add
 

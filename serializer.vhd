@@ -20,43 +20,58 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
-use work.log2.all;
 
-entity pwm is
+entity serializer is
   generic (
     bits            : natural;
     use_kogge_stone : bit := '0');
+
   port (
     clk    : in  std_logic;
     reset  : in  std_logic;
     enable : in  std_logic;
-    ratio  : in  std_logic_vector(log2ceil(bits)-1 downto 0);
-    output : out std_logic);
-end entity pwm;
+    input  : in  std_logic_vector(bits-1 downto 0);
+    clk1   : out std_logic;
+    clk2   : out std_logic;
+    ser    : out std_logic);
+end entity serializer;
 
-architecture behav of pwm is
+architecture behav of serializer is
 
-  signal cnt_out : std_logic_vector(log2ceil(bits)-1 downto 0) := (others => '0');
-  signal cnt_rst : std_logic := '0';
-  signal cnt_rst_int : std_logic := '0';
+  signal inp : std_logic_vector(bits downto 0) := (others => '0');
+  signal ser_tmp : std_logic := '0';
+  signal clk_out : std_logic := '0';
 
 begin  -- architecture behav
 
-  cnt_rst <= cnt_rst_int and reset;
-  cnt_rst_int <= '0' when to_integer(unsigned(cnt_out)) = bits else '1';
+  inp(bits downto 1) <= input;
+  inp(0) <= '0';
 
-  counter_1: entity work.counter
+  clkdiv_1: entity work.clkdiv
     generic map (
-      bits            => log2ceil(bits),
-      direction       => '1',
+      div             => bits+1,
       use_kogge_stone => use_kogge_stone)
     port map (
-      clk    => clk,
-      reset  => cnt_rst,
-      enable => enable,
-      output => cnt_out);
+      clk     => clk,
+      reset   => reset,
+      enable  => enable,
+      clk_out => clk_out);
 
-  output <= '1' when unsigned(cnt_out) < unsigned(ratio) else '0';
+  shift_reg_1: entity work.shift_reg
+    generic map (
+      bits => bits+1)
+    port map (
+      clk          => clk,
+      reset        => reset,
+      load         => clk_out,
+      serial_in    => ser_tmp,
+      serial_out   => ser_tmp,
+      parallel_in  => inp,
+      parallel_out => open,
+      enable       => enable);
+
+  ser <= ser_tmp;
+  clk1 <= clk and not clk_out;
+  clk2 <= clk_out;
 
 end architecture behav;

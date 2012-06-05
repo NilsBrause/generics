@@ -39,15 +39,15 @@ end entity mul;
 
 architecture behav of mul is
 
-  signal minput1    : std_logic_vector(bits1-1 downto 0);
-  signal minput2    : std_logic_vector(bits2-1 downto 0);
+  signal minput1    : std_logic_vector(bits1-1 downto 0) := (others => '0');
+  signal minput2    : std_logic_vector(bits2-1 downto 0) := (others => '0');
 
-  signal ninput1    : std_logic_vector(bits1-1 downto 0);
-  signal ninput2    : std_logic_vector(bits2-1 downto 0);
+  signal ninput1    : std_logic_vector(bits1-1 downto 0) := (others => '0');
+  signal ninput2    : std_logic_vector(bits2-1 downto 0) := (others => '0');
 
   constant sum_bits : natural := bits1+bits2;
-  signal summands   : std_logic_vector(bits1*sum_bits-1 downto 0);
-  signal tmp        : std_logic_vector(log2ceil(bits1)+sum_bits-1 downto 0);
+  signal summands   : std_logic_vector(bits1*sum_bits-1 downto 0) := (others => '0');
+  signal tmp        : std_logic_vector(log2ceil(bits1)+sum_bits-1 downto 0) := (others => '0');
 
 begin  -- architecture behavb
 

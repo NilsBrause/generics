@@ -32,9 +32,9 @@ end lfsr;
 
 architecture behav of lfsr is
 
-  signal srin  : std_logic;
-  signal srout : std_logic_vector(bits-1 downto 0);
-  signal to_xnor : std_logic_vector(5 downto 0);
+  signal srin  : std_logic := '0';
+  signal srout : std_logic_vector(bits-1 downto 0) := (others => '0');
+  signal to_xnor : std_logic_vector(5 downto 0) := (others => '0');
   
 begin  -- behav
 

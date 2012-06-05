@@ -41,18 +41,18 @@ end entity pidctrl;
 
 architecture behav of pidctrl is
 
-  signal input2 : std_logic_vector(int_bits-1 downto 0);
-  signal input3 : std_logic_vector(int_bits-1 downto 0);
-  signal input4 : std_logic_vector(int_bits-1 downto 0);
+  signal input2 : std_logic_vector(int_bits-1 downto 0) := (others => '0');
+  signal input3 : std_logic_vector(int_bits-1 downto 0) := (others => '0');
+  signal input4 : std_logic_vector(int_bits-1 downto 0) := (others => '0');
 
-  signal pout : std_logic_vector(int_bits-1 downto 0);
-  signal aout : std_logic_vector(int_bits-1 downto 0);
-  signal iout : std_logic_vector(int_bits-1 downto 0);
-  signal dout : std_logic_vector(int_bits-1 downto 0);
-  signal dout2 : std_logic_vector(int_bits-1 downto 0);
+  signal pout : std_logic_vector(int_bits-1 downto 0) := (others => '0');
+  signal aout : std_logic_vector(int_bits-1 downto 0) := (others => '0');
+  signal iout : std_logic_vector(int_bits-1 downto 0) := (others => '0');
+  signal dout : std_logic_vector(int_bits-1 downto 0) := (others => '0');
+  signal dout2 : std_logic_vector(int_bits-1 downto 0) := (others => '0');
 
-  signal data : std_logic_vector(3*int_bits-1 downto 0);
-  signal sum : std_logic_vector(int_bits+2-1 downto 0);
+  signal data : std_logic_vector(3*int_bits-1 downto 0) := (others => '0');
+  signal sum : std_logic_vector(int_bits+2-1 downto 0) := (others => '0');
   
 begin  -- architecture behav
 

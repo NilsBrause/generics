@@ -40,8 +40,8 @@ end entity cic;
 architecture behav of cic is
 
   constant bits2 : natural := n*r + bits;
-  signal input2  : std_logic_vector(bits-1 downto 0);
-  signal temp    : std_logic_vector((2*n+2)*bits2-1 downto 0);
+  signal input2  : std_logic_vector(bits-1 downto 0) := (others => '0');
+  signal temp    : std_logic_vector((2*n+2)*bits2-1 downto 0) := (others => '0');
 
 begin  -- architecture behav
 
