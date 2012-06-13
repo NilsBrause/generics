@@ -70,18 +70,18 @@ entity barrel_shift is
     signed_arith : bit := '1');
   port (
     input  : in  std_logic_vector(bits-1 downto 0);
-    amount : in  std_logic_vector(log2ceil(bits)-1 downto 0);
+    amount : in  std_logic_vector(log2ceil(bits) downto 0);
     output : out std_logic_vector(bits-1 downto 0));
 end entity barrel_shift;
 
 architecture behav of barrel_shift is
 
-  type output_t is array (natural range <>) of std_logic_vector(bits-1 downto 0);
-  signal outputs : output_t(-bits+1 to bits-1);
+  type output_t is array (integer range <>) of std_logic_vector(bits-1 downto 0);
+  signal outputs : output_t(-bits to bits);
 
 begin  -- architecture behav
 
-  left: for c in 1 to bits-1 generate
+  left: for c in 1 to bits generate
     
     barrel_shift_int_1: entity work.barrel_shift_int
       generic map (
@@ -97,7 +97,7 @@ begin  -- architecture behav
 
   outputs(0) <= input;
   
-  right: for c in -1 downto -bits+1 generate
+  right: for c in -1 downto -bits generate
     
     barrel_shift_int_1: entity work.barrel_shift_int
       generic map (

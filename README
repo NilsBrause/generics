@@ -778,7 +778,7 @@ Component declaration:
       signed_arith : bit); 
     port (
       input  : in  std_logic_vector(bits-1 downto 0);
-      amount : in  std_logic_vector(log2ceil(bits)-1 downto 0);
+      amount : in  std_logic_vector(log2ceil(bits) downto 0);
       output : out std_logic_vector(bits-1 downto 0)); 
   end component barrel_shift;
 
@@ -992,10 +992,10 @@ Component declaration:
       clk     : in  std_logic;
       reset   : in  std_logic;
       input   : in  std_logic_vector(bits-1 downto 0);
-      pregain : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
-      pgain   : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
-      igain   : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
-      dgain   : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
+      pregain : in  std_logic_vector(log2ceil(int_bits) downto 0);
+      pgain   : in  std_logic_vector(log2ceil(int_bits) downto 0);
+      igain   : in  std_logic_vector(log2ceil(int_bits) downto 0);
+      dgain   : in  std_logic_vector(log2ceil(int_bits) downto 0);
       output  : out std_logic_vector(bits-1 downto 0));
   end component pidctrl;
 
@@ -1087,7 +1087,7 @@ see: GARDNER, FLOYD M.: Phaselock Techniques. WILEY INTERSCIENCE, 2005.
 
 Component declaration:
 
-  component pll is
+  component pll2 is
     generic (
       bits            : natural;
       int_bits        : natural;
@@ -1102,10 +1102,10 @@ Component declaration:
       i          : out std_logic_vector(bits+nco_bits-1 downto 0);
       q          : out std_logic_vector(bits+nco_bits-1 downto 0);
       error      : in  std_logic_vector(bits+nco_bits-1 downto 0);
-      pregain    : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
-      pgain      : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
-      igain      : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
-      dgain      : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
+      pregain    : in  std_logic_vector(log2ceil(int_bits) downto 0);
+      pgain      : in  std_logic_vector(log2ceil(int_bits) downto 0);
+      igain      : in  std_logic_vector(log2ceil(int_bits) downto 0);
+      dgain      : in  std_logic_vector(log2ceil(int_bits) downto 0);
       start_freq : in  std_logic_vector(freq_bits-1 downto 0);
       freq_out   : out std_logic_vector(freq_bits-1 downto 0);
       freq_in    : in  std_logic_vector(freq_bits-1 downto 0));

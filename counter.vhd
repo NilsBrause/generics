@@ -36,11 +36,12 @@ end entity counter;
 architecture behav of counter is
   
   signal one : std_logic_vector(bits-1 downto 0) := (others => '0');
-  signal mone : std_logic_vector(bits-1 downto 0) := (others => '1');
+  constant mone : std_logic_vector(bits-1 downto 0) := (others => '1');
 
 begin  -- architecture behav
 
   one(0) <= '1';
+  one(bits-1 downto 1) <= (others => '0');
 
   up: if direction = '1' generate
     accumulator_1: entity work.accumulator

@@ -32,10 +32,10 @@ entity pidctrl is
     clk      : in  std_logic;
     reset    : in  std_logic;
     input    : in  std_logic_vector(bits-1 downto 0);
-    pregain  : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
-    pgain    : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
-    igain    : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
-    dgain    : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
+    pregain  : in  std_logic_vector(log2ceil(int_bits) downto 0);
+    pgain    : in  std_logic_vector(log2ceil(int_bits) downto 0);
+    igain    : in  std_logic_vector(log2ceil(int_bits) downto 0);
+    dgain    : in  std_logic_vector(log2ceil(int_bits) downto 0);
     output   : out std_logic_vector(bits-1 downto 0));
 end entity pidctrl;
 

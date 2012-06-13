@@ -102,7 +102,7 @@ begin  -- architecture behav
       cos   => open);
 
   -- the PLL
-  pll_1: entity work.pll
+  pll_1: entity work.pll2
     generic map (
       bits      => nco_bits,
       int_bits  => 40,

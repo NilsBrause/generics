@@ -37,8 +37,6 @@ end entity clkdiv;
 
 architecture behav of clkdiv is
 
-  signal tmp : std_logic_vector(div-1 downto 0) := (others => '0');
-  signal last : std_logic := '0';
   signal one : std_logic_vector(log2ceil(div)-1 downto 0) := (others => '0');
   signal half : std_logic_vector(log2ceil(div)-1 downto 0) := (others => '0');
   signal ratio : std_logic_vector(log2ceil(div)-1 downto 0) := (others => '0');

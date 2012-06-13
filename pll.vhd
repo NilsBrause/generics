@@ -22,12 +22,12 @@ library ieee;
 use ieee.std_logic_1164.all;
 use work.log2.all;
 
-entity pll is
+entity pll2 is
   generic (
-    bits            : natural;
-    int_bits        : natural;
-    nco_bits        : natural;
-    freq_bits       : natural;
+    bits            : natural := 16;
+    int_bits        : natural := 40;
+    nco_bits        : natural := 12;
+    freq_bits       : natural := 16;
     signed_arith    : bit := '1';
     use_kogge_stone : bit := '0');
   port (
@@ -37,16 +37,16 @@ entity pll is
     i          : out std_logic_vector(bits+nco_bits-1 downto 0);
     q          : out std_logic_vector(bits+nco_bits-1 downto 0);
     error      : in  std_logic_vector(bits+nco_bits-1 downto 0);
-    pregain    : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
-    pgain      : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
-    igain      : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
-    dgain      : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
+    pregain    : in  std_logic_vector(log2ceil(int_bits) downto 0);
+    pgain      : in  std_logic_vector(log2ceil(int_bits) downto 0);
+    igain      : in  std_logic_vector(log2ceil(int_bits) downto 0);
+    dgain      : in  std_logic_vector(log2ceil(int_bits) downto 0);
     start_freq : in  std_logic_vector(freq_bits-1 downto 0);
     freq_out   : out std_logic_vector(freq_bits-1 downto 0);
     freq_in    : in  std_logic_vector(freq_bits-1 downto 0));
-end entity pll;
+end entity pll2;
 
-architecture behav of pll is
+architecture behav of pll2 is
 
   signal pid_out : std_logic_vector(bits+nco_bits-1 downto 0) := (others => '0');
   signal pid_out_round : std_logic_vector(freq_bits-1 downto 0) := (others => '0');
