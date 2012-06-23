@@ -37,10 +37,10 @@ entity pll2 is
     i          : out std_logic_vector(bits+nco_bits-1 downto 0);
     q          : out std_logic_vector(bits+nco_bits-1 downto 0);
     error      : in  std_logic_vector(bits+nco_bits-1 downto 0);
-    pregain    : in  std_logic_vector(log2ceil(int_bits) downto 0);
-    pgain      : in  std_logic_vector(log2ceil(int_bits) downto 0);
-    igain      : in  std_logic_vector(log2ceil(int_bits) downto 0);
-    dgain      : in  std_logic_vector(log2ceil(int_bits) downto 0);
+    pregain    : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
+    pgain      : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
+    igain      : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
+    dgain      : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
     start_freq : in  std_logic_vector(freq_bits-1 downto 0);
     freq_out   : out std_logic_vector(freq_bits-1 downto 0);
     freq_in    : in  std_logic_vector(freq_bits-1 downto 0));

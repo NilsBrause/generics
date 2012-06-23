@@ -22,11 +22,11 @@ library ieee;
 use ieee.std_logic_1164.all;
 use work.log2.all;
 
-entity testbench is
+entity testbench_pll is
   
-end entity testbench;
+end entity testbench_pll;
 
-architecture behav of testbench is
+architecture behav of testbench_pll is
 
   constant freq_bits : natural := 12;
   constant nco_bits : natural := 12;
@@ -116,8 +116,8 @@ begin  -- architecture behav
       q          => q,
       error      => q,
       pregain    => "110000",
-      pgain      => "010000",
-      igain      => "001000",
+      pgain      => "001000",
+      igain      => "000100",
       dgain      => "100000",
       start_freq => "000100000000",
       freq_out   => freq,

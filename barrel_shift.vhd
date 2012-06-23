@@ -70,7 +70,7 @@ entity barrel_shift is
     signed_arith : bit := '1');
   port (
     input  : in  std_logic_vector(bits-1 downto 0);
-    amount : in  std_logic_vector(log2ceil(bits) downto 0);
+    amount : in  std_logic_vector(log2ceil(bits)-1 downto 0);
     output : out std_logic_vector(bits-1 downto 0));
 end entity barrel_shift;
 
