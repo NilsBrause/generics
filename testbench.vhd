@@ -294,4 +294,15 @@ begin  -- architecture behav
       clk2   => open,
       ser    => open);
 
+  comparator_1: entity work.comparator
+    generic map (
+      bits            => 3,
+      use_kogge_stone => '1')
+    port map (
+      input1 => "100",
+      input2 => "011",
+      equal  => open,
+      uless  => open,
+      sless  => open);
+
 end architecture behav;

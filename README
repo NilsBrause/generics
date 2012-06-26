@@ -32,6 +32,7 @@ Part B:
 23. Phase locked loop (pll.vhd)
 24. Pulse width modulation (pwm.vhd)
 25. Serializer (serializer.vhd)
+26. Comparator (cmp.vhd)
 
 
 Part A
@@ -1250,4 +1251,45 @@ Port description:
 - clk2: byte finished clock
 - ser: serial data output
 
+26. Comparator (cmp.vhd)
+------------------------
+
+The comparator compares two numbers and outputs wether they are equal or
+less (signed and unsigned) or none of the two. Every other Comparison can
+be constructed from these two.
+
+Component declaration:
+
+  comparator_1: entity work.comparator
+    generic map (
+      bits            => bits,
+      use_kogge_stone => use_kogge_stone)
+    port map (
+      input1 => input1,
+      input2 => input2,
+      equal  => equal,
+      uless  => uless,
+      sless  => sless);
+
+Schematic:
+
+   +--------------+
+===| input1 equal |---
+===| input2 uless |---
+   |        sless |---
+   +--------------+
+
+Generic description:
+
+- bits: denotes the width of the input signal
+- use_kogge_stone: Use an optimized Kogge Stone adder
+                   (if no hardware adder is available)
+                   (default = '0')
+Port description:
+
+- input1: first input
+- input2: second input
+- equal: wether input1 = input2
+- uless: wether unsigned(input1) < unsigned(input2)
+- sless: wether signed(input1) < signed(input2)
 
