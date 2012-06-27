@@ -22,20 +22,28 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity demultiplexer is
+entity decoder is
   generic (
     bits : natural);
   port (
     input  : in  std_logic_vector(bits-1 downto 0);
     output : out std_logic_vector(2**bits-1 downto 0));
-end entity demultiplexer;
+end entity decoder;
 
-architecture behav of demultiplexer is
+architecture behav of decoder is
 
 begin  -- architecture behav
 
   my_little_loopy: for c in 0 to 2**bits-1 generate
-    output(c) <= '1' when to_integer(unsigned(input)) = c else '0';
+    comparator_1: entity work.comparator
+      generic map (
+        bits => bits)
+      port map (
+        input1 => input,
+        input2 => std_logic_vector(to_unsigned(c, bits)),
+        equal  => output(c),
+        uless  => open,
+        sless  => open);
   end generate my_little_loopy;
 
 end architecture behav;

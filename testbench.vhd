@@ -203,7 +203,7 @@ begin  -- architecture behav
       i     => i,
       q     => open);
 
-  demultiplexer_1: entity work.demultiplexer
+  decoder_1: entity work.decoder
     generic map (
       bits => 4)
     port map (

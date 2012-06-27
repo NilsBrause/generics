@@ -35,12 +35,23 @@ end entity comparator;
 
 architecture behav of comparator is
 
+  signal cmp_out : std_logic_vector(bits-1 downto 0);
   signal sub_out : std_logic_vector(bits-1 downto 0);
   signal equal_tmp : std_logic_vector(bits-1 downto 0);
   signal carry : std_logic;
   signal overflow : std_logic;
 
 begin  -- architecture behav
+
+  -- test for equalness
+  cmp_loop: for c in 0 to bits-1 generate
+    cmp_out(c) <= input1(c) xnor input2(c);
+  end generate cmp_loop;
+  equal_tmp(bits-1) <= cmp_out(bits-1);
+  equal2_loop: for c in bits-2 downto 0 generate
+    equal_tmp(c) <= equal_tmp(c+1) and cmp_out(c);
+  end generate equal2_loop;
+  equal <= equal_tmp(0);
 
   sub_1: entity work.sub
     generic map (
@@ -54,13 +65,6 @@ begin  -- architecture behav
       borrow_out => carry,
       underflow  => overflow);
   
-  -- test for equalness
-  equal_tmp(bits-1) <= not sub_out(bits-1);
-  equal2_loop: for c in bits-2 downto 0 generate
-    equal_tmp(c) <= equal_tmp(c+1) and not sub_out(c);
-  end generate equal2_loop;
-  equal <= equal_tmp(0);
-
   -- test for signed less
   sless <= (sub_out(bits-1) and not overflow)
            or (not sub_out(bits-1) and overflow);
