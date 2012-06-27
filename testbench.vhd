@@ -305,4 +305,13 @@ begin  -- architecture behav
       uless  => open,
       sless  => open);
 
+  demultiplex_1: entity work.demultiplex
+    generic map (
+      bits      => 2,
+      code_bits => 2)
+    port map (
+      code   => "10",
+      input  => "00011011",
+      output => open);
+
 end architecture behav;

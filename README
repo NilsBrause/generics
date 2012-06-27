@@ -33,6 +33,7 @@ Part B:
 24. Pulse width modulation (pwm.vhd)
 25. Serializer (serializer.vhd)
 26. Comparator (cmp.vhd)
+27. Demultiplexer (demux.vhd)
 
 
 Part A
@@ -736,7 +737,7 @@ Port description:
 15. Decoder (decode.vhd)
 -----------------------------------
 
-A demupltiplexer calculates two to the power if the input signal.
+A decoder calculates two to the power of the input signal.
 
 Component declaration:
 
@@ -1271,8 +1272,6 @@ Component declaration:
       uless  => uless,
       sless  => sless);
 
-Schematic:
-
    +--------------+
 ===| input1 equal |---
 ===| input2 uless |---
@@ -1292,4 +1291,40 @@ Port description:
 - equal: wether input1 = input2
 - uless: wether unsigned(input1) < unsigned(input2)
 - sless: wether signed(input1) < signed(input2)
+
+
+27. Demultiplexer (demux.vhd)
+-----------------------------
+
+A demultiplexer can be used to demultiplex a multiplexed bus. In other words
+it selects one specific signal out of many depending on some value.
+
+Component declaration:
+
+  component demultiplex is
+    generic (
+      bits      : natural;
+      code_bits : natural);
+    port (
+      code   : in  std_logic_vector(code_bits-1 downto 0);
+      input  : in  std_logic_vector(2**code_bits*bits-1 downto 0);
+      output : out std_logic_vector(bits-1 downto 0));
+  end component demultiplex;
+
+Schematic:
+
+   +--------------+
+===| code  output |===
+===| input        |
+   +--------------+
+
+Generic description:
+
+- bits: denotes the width of the input signal
+- code_bits: denotes thw width of the code signal
+
+Port description:
+- code: signal selector
+- input: multiplexed input signal
+- output: demultiplexed output signal
 
