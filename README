@@ -1380,3 +1380,55 @@ Port description:
 - serial_out: serial data output
 - parallel_out: parallel data output
 
+
+29. Butterfly (butterfly.vhd)
+-----------------------------
+
+A butterfly is an essential part of a fast fourier transformation. Please note
+that thsi implementation can at the moment only be used on devices with
+hardware multipliers/adders.
+
+Component declaration:
+
+  butterfly_1: entity work.butterfly
+    generic map (
+      bits       => bits,
+      phase_bits => phase_bits)
+    port map (
+      phase        => phase,
+      input1_real  => input1_real,
+      input1_imag  => input1_imag,
+      input2_real  => input2_real,
+      input2_imag  => input2_imag,
+      output1_real => output1_real,
+      output1_imag => output1_imag,
+      output2_real => output2_real,
+      output2_imag => output2_imag);
+
+Schematic:
+
+   +--------------------------+
+===| input1_real output1_real |===
+===| input1_imag output1_imag |===
+===| input2_real output2_real |===
+===| input2_imag output1_imag |===
+===| phase                    |
+   +--------------------------+
+
+Generic description:
+
+- bits: denotes the width of the input and output0signals
+- phase_bits: denotes the width of the phase signal
+
+Port description:
+
+- phase: this is the 'k' from w_k
+- input1_real: real part of the first input
+- input1_imag: imaginary part of the first input
+- input2_real: real part of the second input
+- input2_imag: imaginary part of the second input
+- output1_real: real part of the first output
+- output1_imag: imaginary part of the first output
+- output2_real: real part of the second output
+- output2_imag: imaginary part of the second output
+

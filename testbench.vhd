@@ -328,4 +328,19 @@ begin  -- architecture behav
       parallel_out => open,
       enable       => '1');
 
+  butterfly_1: entity work.butterfly
+    generic map (
+      bits       => 16,
+      phase_bits => 16)
+    port map (
+      phase        => "1000000000000000",  -- unsigned 0.5
+      input1_real  => "0100000000000000",  -- signed 0.5
+      input1_imag  => "0100000000000000",  -- signed 0.5
+      input2_real  => "0100000000000000",  -- signed 0.5
+      input2_imag  => "0100000000000000",  -- signed 0.5
+      output1_real => open,             -- signed 0
+      output1_imag => open,             -- signed 0
+      output2_real => open,             -- signed 1
+      output2_imag => open);            -- signed 1
+
 end architecture behav;
