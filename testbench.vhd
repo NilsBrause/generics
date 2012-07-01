@@ -314,4 +314,18 @@ begin  -- architecture behav
       input  => "00011011",
       output => open);
 
+  multi_shift_reg_1: entity work.multi_shift_reg
+    generic map (
+      bits  => 4,
+      bytes => 4)
+    port map (
+      clk          => clk,
+      reset        => reset,
+      load         => '0',
+      serial_in    => "0011",
+      serial_out   => open,
+      parallel_in  => (others => '0'),
+      parallel_out => open,
+      enable       => '1');
+
 end architecture behav;

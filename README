@@ -34,6 +34,7 @@ Part B:
 25. Serializer (serializer.vhd)
 26. Comparator (cmp.vhd)
 27. Demultiplexer (demux.vhd)
+28. Multi-bit shift register (multi_shift_reg.vhd)
 
 
 Part A
@@ -224,7 +225,7 @@ Port description:
 - load: load the the value from parallel_in
 - enable: enable pin
 - serial_in: serial data input
-- parallel_in; parallel datza input
+- parallel_in; parallel data input
 - serial_out: serial data output
 - parallel_out: parallel data output
 
@@ -1327,4 +1328,55 @@ Port description:
 - code: signal selector
 - input: multiplexed input signal
 - output: demultiplexed output signal
+
+
+28. Multi-bit shift register (multi_shift_reg.vhd)
+--------------------------------------------------
+
+A multi-bit shift register is a combination of multiple normal single-bit shift
+registers with integrated row/column trnasformation.
+
+Component declaration:
+
+  component multi_shift_reg is
+    generic (
+      bits  : natural;
+      bytes : natural);
+    port (
+      clk          : in  std_logic;
+      reset        : in  std_logic;
+      load         : in  std_logic;
+      serial_in    : in  std_logic_vector(bits-1 downto 0);
+      serial_out   : out std_logic_vector(bits-1 downto 0);
+      parallel_in  : in  std_logic_vector(bytes*bits-1 downto 0);
+      parallel_out : out std_logic_vector(bytes*bits-1 downto 0);
+      enable       : in  std_logic);
+  end component multi_shift_reg;
+
+Schematic:
+
+   +--------------------------+
+---| clk         serial_out   |===
+---| reset       parallel_out |===
+---| load                     |
+===| serial_in                |
+===| parallel_in              |
+---| enable                   |
+   +--------------------------+
+
+Generic description:
+
+- bits: denotes the width of the serial input
+- bytes: denotes the number of items to be stored
+
+Port description:
+
+- clk: clock input
+- reset: asynchronous reset (active low)
+- load: load the the value from parallel_in
+- enable: enable pin
+- serial_in: serial data input
+- parallel_in; parallel data input
+- serial_out: serial data output
+- parallel_out: parallel data output
 
