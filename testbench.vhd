@@ -343,4 +343,14 @@ begin  -- architecture behav
       output2_real => open,             -- signed 1
       output2_imag => open);            -- signed 1
 
+  multiplex_1: entity work.multiplex
+    generic map (
+      bits      => 2,
+      code_bits => 2)
+    port map (
+      basein => "11100100",
+      input  => "11",
+      code   => "01",
+      output => open);
+
 end architecture behav;

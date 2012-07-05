@@ -35,6 +35,8 @@ Part B:
 26. Comparator (cmp.vhd)
 27. Demultiplexer (demux.vhd)
 28. Multi-bit shift register (multi_shift_reg.vhd)
+29. Butterfly (butterfly.vhd)
+30. Multiplexer (mux.vhd)
 
 
 Part A
@@ -1322,7 +1324,7 @@ Schematic:
 Generic description:
 
 - bits: denotes the width of the input signal
-- code_bits: denotes thw width of the code signal
+- code_bits: denotes the width of the code signal
 
 Port description:
 - code: signal selector
@@ -1417,7 +1419,7 @@ Schematic:
 
 Generic description:
 
-- bits: denotes the width of the input and output0signals
+- bits: denotes the width of the input and output signals
 - phase_bits: denotes the width of the phase signal
 
 Port description:
@@ -1431,4 +1433,42 @@ Port description:
 - output1_imag: imaginary part of the first output
 - output2_real: real part of the second output
 - output2_imag: imaginary part of the second output
+
+30. Multiplexer (mux.vhd)
+-------------------------
+
+A multiplexer multiplexes a signal into a stream of multiple signals.
+
+Component declaration:
+
+  component multiplex is
+    generic (
+      bits      : natural;
+      code_bits : natural);
+    port (
+      basein : in  std_logic_vector(2**code_bits*bits-1 downto 0);
+      input  : in  std_logic_vector(bits-1 downto 0);
+      code   : in  std_logic_vector(code_bits-1 downto 0);
+      output : out std_logic_vector(2**code_bits*bits-1 downto 0));
+  end component multiplex;
+
+Schematic:
+
+   +---------------+
+===| basein output |===
+===| input         |
+===| code          |
+   +---------------+
+
+Generic description:
+
+- bits: denotes the width of the input signal
+- code_bits: denotes the width of the code signal
+
+Port description:
+
+- basein: base signal, where the input will be multiplexed into
+- input: to be multiplexed signal
+- code: signal selector
+- output: multiplexed output signal
 
