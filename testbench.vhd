@@ -215,7 +215,7 @@ begin  -- architecture behav
       bits => 8)
     port map (
       input  => "10101010",
-      amount => "1110",
+      amount => "110",
       output => open);
 
   differentiator_1: entity work.differentiator
@@ -279,7 +279,7 @@ begin  -- architecture behav
       clk    => clk,
       reset  => reset,
       enable => '1',
-      ratio  => "0101",
+      ratio  => "101",
       output => open);
 
   serializer_1: entity work.serializer
@@ -333,6 +333,8 @@ begin  -- architecture behav
       bits       => 16,
       phase_bits => 16)
     port map (
+      clk          => clk,
+      reset        => reset,
       phase        => "1000000000000000",  -- unsigned 0.5
       input1_real  => "0100000000000000",  -- signed 0.5
       input1_imag  => "0100000000000000",  -- signed 0.5

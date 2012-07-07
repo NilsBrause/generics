@@ -80,9 +80,9 @@ Gravitational Physics (Albert Einstein Institute).
 ------------
 
 If you have the free open source VHDL simulator GHDL installed you can run the
-provided thestbench to test the included components. In a shell type "make" and
-press Enter to do so. You can view th generated waveforms with the free open
-source waveform viewer GTKWave.
+provided thestbench to test the included components. In a shell type
+"make ghdl" and press Enter to do so. You can view th generated waveforms with
+the free open source waveform viewer GTKWave.
 The testbench itself can be found in the file testbench.vhd. Please note that
 the PLL has a separate testbench calles testbench_pll.vhd.
 
