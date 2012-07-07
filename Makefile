@@ -240,3 +240,5 @@ mrproper: realclean
 	rm -rf $(TOPENTITY).bit
 #	trace
 	rm -rf $(TOPENTITY).twr
+#	ghdl
+	rm -rf $(TESTBENCH).ghw

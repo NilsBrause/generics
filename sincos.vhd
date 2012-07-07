@@ -28,6 +28,8 @@ entity sincos is
     phase_bits : natural;
     bits       : natural);
   port (
+    clk   : in  std_logic;
+    reset : in  std_logic;
     phase : in  std_logic_vector(phase_bits-1 downto 0);
     sin   : out std_logic_vector(bits-1 downto 0);
     cos   : out std_logic_vector(bits-1 downto 0));
@@ -35,13 +37,16 @@ end entity sincos;
 
 architecture behav of sincos is
 
-  signal phase2   : std_logic_vector(lut_in_bits+1 downto 0) := (others => '0');
-  signal quadrant : std_logic_vector(1 downto 0) := (others => '0');
-  signal idx      : std_logic_vector(lut_in_bits-1 downto 0) := (others => '0');
-  signal val0     : std_logic_vector(lut_out_bits-1 downto 0) := (others => '0');
-  signal val1     : std_logic_vector(lut_out_bits-1 downto 0) := (others => '0');
-  signal cos_tmp  : std_logic_vector(lut_out_bits-1 downto 0) := (others => '0');
-  signal sin_tmp  : std_logic_vector(lut_out_bits-1 downto 0) := (others => '0');
+  signal phase2    : std_logic_vector(lut_in_bits+1 downto 0) := (others => '0');
+  signal quadrant  : std_logic_vector(1 downto 0) := (others => '0');
+  signal quadrant2 : std_logic_vector(1 downto 0) := (others => '0');
+  signal idx       : std_logic_vector(lut_in_bits-1 downto 0) := (others => '0');
+  signal val0      : std_logic_vector(lut_out_bits-1 downto 0) := (others => '0');
+  signal val1      : std_logic_vector(lut_out_bits-1 downto 0) := (others => '0');
+  signal val2      : std_logic_vector(lut_out_bits-1 downto 0) := (others => '0');
+  signal val3      : std_logic_vector(lut_out_bits-1 downto 0) := (others => '0');
+  signal cos_tmp   : std_logic_vector(lut_out_bits-1 downto 0) := (others => '0');
+  signal sin_tmp   : std_logic_vector(lut_out_bits-1 downto 0) := (others => '0');
 
 begin  -- architecture behav
 
@@ -54,11 +59,27 @@ begin  -- architecture behav
     phase2(lut_in_bits-phase_bits+1 downto 0) <= (others => '0');
   end generate less;
   
-  quadrant <= phase2(lut_in_bits+1 downto lut_in_bits);
+  quadrant2 <= phase2(lut_in_bits+1 downto lut_in_bits);
   idx <= phase2(lut_in_bits-1 downto 0);
   
-  val0 <= rom(to_integer(unsigned(idx)));
-  val1 <= rom(to_integer(unsigned(not idx)));
+  -- make synthesizable RAM
+  lutram: process (clk, reset) is
+  begin
+    if rising_edge(clk) then
+      val0 <= rom(to_integer(unsigned(idx)));
+      val1 <= rom(to_integer(unsigned(not idx)));
+    end if;
+  end process lutram;
+  
+  reg_3: entity work.reg
+    generic map (
+      bits => 2)
+    port map (
+      clk      => clk,
+      reset    => reset,
+      enable   => '1',
+      data_in  => quadrant2,
+      data_out => quadrant);
   
   cos_tmp <= val0 when quadrant = "00" else
              not val1 when quadrant = "01" else

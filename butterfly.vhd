@@ -26,6 +26,8 @@ entity butterfly is
     bits       : natural;
     phase_bits : natural);
   port (
+    clk          : in  std_logic;
+    reset        : in  std_logic;
     phase        : in  std_logic_vector(phase_bits-1 downto 0);
     input1_real  : in  std_logic_vector(bits-1 downto 0);
     input1_imag  : in  std_logic_vector(bits-1 downto 0);
@@ -39,11 +41,13 @@ end entity butterfly;
 
 architecture behav of butterfly is
 
-  constant clk : std_logic := '0';
-  constant reset : std_logic := '0';
-
   signal sin : std_logic_vector(bits-1 downto 0);
   signal cos : std_logic_vector(bits-1 downto 0);
+
+  signal input1_real_tmp : std_logic_vector(bits-1 downto 0);
+  signal input1_imag_tmp : std_logic_vector(bits-1 downto 0);
+  signal input2_real_tmp : std_logic_vector(bits-1 downto 0);
+  signal input2_imag_tmp : std_logic_vector(bits-1 downto 0);
 
   signal input2_real_sin2 : std_logic_vector(2*bits-1 downto 0);
   signal input2_real_cos2 : std_logic_vector(2*bits-1 downto 0);
@@ -74,7 +78,7 @@ begin  -- architecture behav
   -- (a + i*b)(c - i*s) = a*c + b*s + i*(b*c - a*s)
 
   -----------------------------------------------------------------------------
-  -- Part I: calculate sine/cosine
+  -- Part I: calculate sine/cosine & delay input
   -----------------------------------------------------------------------------
 
   sincos_1: entity work.sincos
@@ -82,9 +86,51 @@ begin  -- architecture behav
       phase_bits => phase_bits,
       bits       => bits)
     port map (
+      clk   => clk,
+      reset => reset,
       phase => phase,
       sin   => sin,
       cos   => cos);
+
+  reg_1: entity work.reg
+    generic map (
+      bits => bits)
+    port map (
+      clk      => clk,
+      reset    => reset,
+      enable   => '1',
+      data_in  => input1_real,
+      data_out => input1_real_tmp);
+
+  reg_2: entity work.reg
+    generic map (
+      bits => bits)
+    port map (
+      clk      => clk,
+      reset    => reset,
+      enable   => '1',
+      data_in  => input1_imag,
+      data_out => input1_imag_tmp);
+
+  reg_3: entity work.reg
+    generic map (
+      bits => bits)
+    port map (
+      clk      => clk,
+      reset    => reset,
+      enable   => '1',
+      data_in  => input2_real,
+      data_out => input2_real_tmp);
+
+  reg_4: entity work.reg
+    generic map (
+      bits => bits)
+    port map (
+      clk      => clk,
+      reset    => reset,
+      enable   => '1',
+      data_in  => input2_imag,
+      data_out => input2_imag_tmp);
 
   -----------------------------------------------------------------------------
   -- Part II: Multiply sine/cosine with real/imaginary part of input2
@@ -98,7 +144,7 @@ begin  -- architecture behav
     port map (
       clk    => clk,
       reset  => reset,
-      input1 => input2_real,
+      input1 => input2_real_tmp,
       input2 => sin,
       output => input2_real_sin2);
   
@@ -110,7 +156,7 @@ begin  -- architecture behav
     port map (
       clk    => clk,
       reset  => reset,
-      input1 => input2_real,
+      input1 => input2_real_tmp,
       input2 => cos,
       output => input2_real_cos2);
   
@@ -122,7 +168,7 @@ begin  -- architecture behav
     port map (
       clk    => clk,
       reset  => reset,
-      input1 => input2_imag,
+      input1 => input2_imag_tmp,
       input2 => sin,
       output => input2_imag_sin2);
   
@@ -134,7 +180,7 @@ begin  -- architecture behav
     port map (
       clk    => clk,
       reset  => reset,
-      input1 => input2_imag,
+      input1 => input2_imag_tmp,
       input2 => cos,
       output => input2_imag_cos2);
 

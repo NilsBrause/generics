@@ -56,6 +56,8 @@ begin  -- architecture behav
       phase_bits => pir_bits,
       bits       => bits)
     port map (
+      clk   => clk,
+      reset => reset,
       phase => pa,
       sin   => sin,
       cos   => cos);
