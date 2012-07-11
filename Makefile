@@ -26,6 +26,7 @@ TOPENTITY = main
 
 # simulation only
 TESTBENCH = testbench
+TBHDLFILES = testbench.vhd
 DOFILE = testbench.do
 FUSEFLAGS = 
 TBFLAGS = 
@@ -83,21 +84,21 @@ help:
 	@echo ""
 	@echo "Configuration variables:"
 	@echo "  (Put them into your config.mk)"
-	@echo "  HDLFILES:  VHDL Source Files (Default: main.vhd)"
-	@echo "  TOPENTITY: The topmost entity name (Default: main)"
-	@echo "  TESTBENCH: Testbench entity name (Default: testbench)"
-	@echo "             (File must be named accordingly)"
-	@echo "  DOFILE:    Simulation batch file (Default: testbench.do)"
-	@echo "  FUSEFLAGS: Command line arguments for FUSE (Default empty)"
-	@echo "  TBFLAGS:   Command line arguments for the testbench (Default empty)"
-	@echo "  DEVICE:    Your device (Default: xc6vlx240t-ff1156-1)"
-	@echo "  UCFILE:    User constraints file (Default: main.ucf)"
-	@echo "  URFILE:    User rules file (Default: main.urf)"
-	@echo "  XSTFLAGS:  Command line arguments for XST (Default empty)"
-	@echo "  MAPFLAGS:  Command line arguments for MAP (Default empty)"
-	@echo "  PARFLAGS:  Command line arguments for PAR (Default empty)"
-	@echo "  BITFLAGS:  Command line arguments for BITGEN (Default empty)"
-	@echo "  TRCFLAGS:  Command line arguments for TRCE (Default '-a -v')"
+	@echo "  HDLFILES:   VHDL Source Files (Default: main.vhd)"
+	@echo "  TOPENTITY:  The topmost entity name (Default: main)"
+	@echo "  TESTBENCH:  Testbench entity name (Default: testbench)"
+	@echo "  TBHDLFILES: Testbench HDL files (Default: testbench.vhd)"
+	@echo "  DOFILE:     Simulation batch file (Default: testbench.do)"
+	@echo "  FUSEFLAGS:  Command line arguments for FUSE (Default empty)"
+	@echo "  TBFLAGS:    Command line arguments for the testbench (Default empty)"
+	@echo "  DEVICE:     Your device (Default: xc6vlx240t-ff1156-1)"
+	@echo "  UCFILE:     User constraints file (Default: main.ucf)"
+	@echo "  URFILE:     User rules file (Default: main.urf)"
+	@echo "  XSTFLAGS:   Command line arguments for XST (Default empty)"
+	@echo "  MAPFLAGS:   Command line arguments for MAP (Default empty)"
+	@echo "  PARFLAGS:   Command line arguments for PAR (Default empty)"
+	@echo "  BITFLAGS:   Command line arguments for BITGEN (Default empty)"
+	@echo "  TRCFLAGS:   Command line arguments for TRCE (Default '-a -v')"
 	@echo ""
 	@echo "About IP cores:"
 	@echo "  Just put the generated .ngc files into the same directory"
@@ -109,7 +110,7 @@ help:
 
 # GHDL Simulation #############################################################
 
-$(TESTBENCH).ghw: $(patsubst %.vhd,%.o,$(HDLFILES)) Makefile config.mk
+$(TESTBENCH).ghw: $(patsubst %.vhd,%.o,$(HDLFILES))  $(patsubst %.vhd,%.o,$(TBHDLFILES)) Makefile config.mk
 	ghdl -a -Wc,-g $(TESTBENCH).vhd
 	ghdl -e -Wc,-g $(TESTBENCH)
 	ghdl -r $(TESTBENCH) --stop-time=30us --wave=$@
@@ -126,9 +127,9 @@ $(TESTBENCH)_t.wdb: $(TESTBENCH)_t $(TOPENTITY)_par.sdf $(DOFILE) Makefile\
 $(TESTBENCH)_t: $(TOPENTITY)_tsim.prj Makefile config.mk
 	fuse $(FUSEFLAGS) $(TESTBENCH) --prj $< -o $@
 
-$(TOPENTITY)_tsim.prj: $(TOPENTITY)_par.vhd $(TESTBENCH).vhd Makefile config.mk
+$(TOPENTITY)_tsim.prj: $(TOPENTITY)_par.vhd $(TBHDLFILES) Makefile config.mk
 	rm -rf $@
-	for i in $< $(TESTBENCH).vhd ; do \
+	for i in $< $(TBHDLFILES) ; do \
 		echo "vhdl work $$i" >> $@ ; \
 	done
 
@@ -184,9 +185,9 @@ $(TESTBENCH).wdb: $(TESTBENCH) $(DOFILE) Makefile config.mk
 $(TESTBENCH): $(TOPENTITY)_sim.prj Makefile config.mk
 	fuse $(FUSEFLAGS) work.$(TESTBENCH) --prj $< -o $@
 
-$(TOPENTITY)_sim.prj: $(HDLFILES) $(TESTBENCH).vhd Makefile config.mk
+$(TOPENTITY)_sim.prj: $(HDLFILES) $(TBHDLFILES) Makefile config.mk
 	rm -rf $@
-	for i in $(HDLFILES) $(TESTBENCH).vhd ; do \
+	for i in $(HDLFILES) $(TBHDLFILES) ; do \
 		echo "vhdl work $$i" >> $@ ; \
 	done
 
