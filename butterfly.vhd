@@ -24,7 +24,8 @@ use ieee.std_logic_1164.all;
 entity butterfly is
   generic (
     bits       : natural;
-    phase_bits : natural);
+    phase_bits : natural;
+    add_regs   : natural := 0);
   port (
     clk          : in  std_logic;
     reset        : in  std_logic;
@@ -66,6 +67,10 @@ architecture behav of butterfly is
   signal input1_imag2 : std_logic_vector(bits-1 downto 0);
   signal input2_twiddle_real2 : std_logic_vector(bits-1 downto 0);
   signal input2_twiddle_imag2 : std_logic_vector(bits-1 downto 0);
+  signal input1_real3 : std_logic_vector(bits-1 downto 0);
+  signal input1_imag3 : std_logic_vector(bits-1 downto 0);
+  signal input2_twiddle_real3 : std_logic_vector(bits-1 downto 0);
+  signal input2_twiddle_imag3 : std_logic_vector(bits-1 downto 0);
 
 begin  -- architecture behav
 
@@ -184,11 +189,57 @@ begin  -- architecture behav
       input2 => cos,
       output => input2_imag_cos2);
 
-  -- shift only by bits-1 becauise of sign bit.
-  input2_real_sin <= input2_real_sin2(2*bits-2 downto bits-1);
-  input2_imag_sin <= input2_imag_sin2(2*bits-2 downto bits-1);
-  input2_real_cos <= input2_real_cos2(2*bits-2 downto bits-1);
-  input2_imag_cos <= input2_imag_cos2(2*bits-2 downto bits-1);
+  -- shift only by bits-1 because of sign bit.
+  
+  add_regs_0: if add_regs > 0 generate
+    reg_5: entity work.reg
+      generic map (
+        bits => bits)
+      port map (
+        clk      => clk,
+        reset    => reset,
+        enable   => '1',
+        data_in  => input2_real_sin2(2*bits-2 downto bits-1),
+        data_out => input2_real_sin);
+    
+    reg_6: entity work.reg
+      generic map (
+        bits => bits)
+      port map (
+        clk      => clk,
+        reset    => reset,
+        enable   => '1',
+        data_in  => input2_imag_sin2(2*bits-2 downto bits-1),
+        data_out => input2_imag_sin);
+    
+    reg_7: entity work.reg
+      generic map (
+        bits => bits)
+      port map (
+        clk      => clk,
+        reset    => reset,
+        enable   => '1',
+        data_in  => input2_real_cos2(2*bits-2 downto bits-1),
+        data_out => input2_real_cos);
+    
+    reg_8: entity work.reg
+      generic map (
+        bits => bits)
+      port map (
+        clk      => clk,
+        reset    => reset,
+        enable   => '1',
+        data_in  => input2_imag_cos2(2*bits-2 downto bits-1),
+        data_out => input2_imag_cos);
+  end generate add_regs_0;
+
+  add_regs_1: if add_regs < 1 generate
+    input2_real_sin <= input2_real_sin2(2*bits-2 downto bits-1);
+    input2_imag_sin <= input2_imag_sin2(2*bits-2 downto bits-1);
+    input2_real_cos <= input2_real_cos2(2*bits-2 downto bits-1);
+    input2_imag_cos <= input2_imag_cos2(2*bits-2 downto bits-1);
+  end generate add_regs_1;
+  
 
   -----------------------------------------------------------------------------
   -- Part III: Finish complex multiplication
@@ -220,10 +271,59 @@ begin  -- architecture behav
   -- Part IV: Attenuation to prevent overflow
   -----------------------------------------------------------------------------
 
-  input1_real2 <= input1_real(bits-1) & input1_real(bits-1 downto 1);
-  input1_imag2 <= input1_imag(bits-1) & input1_imag(bits-1 downto 1);
-  input2_twiddle_real2 <= input2_twiddle_real(bits-1) & input2_twiddle_real(bits-1 downto 1);
-  input2_twiddle_imag2 <= input2_twiddle_imag(bits-1) & input2_twiddle_imag(bits-1 downto 1);
+  add_regs_2: if add_regs > 1 generate
+    input1_real3 <= input1_real(bits-1) & input1_real(bits-1 downto 1);
+    input1_imag3 <= input1_imag(bits-1) & input1_imag(bits-1 downto 1);
+    input2_twiddle_real3 <= input2_twiddle_real(bits-1) & input2_twiddle_real(bits-1 downto 1);
+    input2_twiddle_imag3 <= input2_twiddle_imag(bits-1) & input2_twiddle_imag(bits-1 downto 1);
+    
+    reg_9: entity work.reg
+      generic map (
+        bits => bits)
+      port map (
+        clk      => clk,
+        reset    => reset,
+        enable   => '1',
+        data_in  => input1_real3,
+        data_out => input1_real2);
+    
+    reg_10: entity work.reg
+      generic map (
+        bits => bits)
+      port map (
+        clk      => clk,
+        reset    => reset,
+        enable   => '1',
+        data_in  => input1_imag3,
+        data_out => input1_imag2);
+    
+    reg_11: entity work.reg
+      generic map (
+        bits => bits)
+      port map (
+        clk      => clk,
+        reset    => reset,
+        enable   => '1',
+        data_in  => input2_twiddle_real3,
+        data_out => input2_twiddle_real2);
+    
+    reg_12: entity work.reg
+      generic map (
+        bits => bits)
+      port map (
+        clk      => clk,
+        reset    => reset,
+        enable   => '1',
+        data_in  => input2_twiddle_imag3,
+        data_out => input2_twiddle_imag2);
+  end generate add_regs_2;
+
+  add_regs_3: if add_regs < 2 generate
+    input1_real2 <= input1_real(bits-1) & input1_real(bits-1 downto 1);
+    input1_imag2 <= input1_imag(bits-1) & input1_imag(bits-1 downto 1);
+    input2_twiddle_real2 <= input2_twiddle_real(bits-1) & input2_twiddle_real(bits-1 downto 1);
+    input2_twiddle_imag2 <= input2_twiddle_imag(bits-1) & input2_twiddle_imag(bits-1 downto 1);
+  end generate add_regs_3;
 
   -----------------------------------------------------------------------------
   -- Part V: Combile with input1

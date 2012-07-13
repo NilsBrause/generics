@@ -37,6 +37,7 @@ Part B:
 28. Multi-bit shift register (multi_shift_reg.vhd)
 29. Butterfly (butterfly.vhd)
 30. Multiplexer (mux.vhd)
+31. Dual Port RAM (ram.vhd)
 
 
 Part A
@@ -1392,28 +1393,34 @@ hardware multipliers/adders.
 
 Component declaration:
 
-  butterfly_1: entity work.butterfly
-    generic map (
-      bits       => bits,
-      phase_bits => phase_bits)
-    port map (
-      phase        => phase,
-      input1_real  => input1_real,
-      input1_imag  => input1_imag,
-      input2_real  => input2_real,
-      input2_imag  => input2_imag,
-      output1_real => output1_real,
-      output1_imag => output1_imag,
-      output2_real => output2_real,
-      output2_imag => output2_imag);
+  component butterfly is
+    generic (
+      bits       : natural;
+      phase_bits : natural;
+      add_regs   : natural);
+    port (
+      clk          : in  std_logic;
+      reset        : in  std_logic;
+      phase        : in  std_logic_vector(phase_bits-1 downto 0);
+      input1_real  : in  std_logic_vector(bits-1 downto 0);
+      input1_imag  : in  std_logic_vector(bits-1 downto 0);
+      input2_real  : in  std_logic_vector(bits-1 downto 0);
+      input2_imag  : in  std_logic_vector(bits-1 downto 0);
+      output1_real : out std_logic_vector(bits-1 downto 0);
+      output1_imag : out std_logic_vector(bits-1 downto 0);
+      output2_real : out std_logic_vector(bits-1 downto 0);
+      output2_imag : out std_logic_vector(bits-1 downto 0));
+  end component butterfly;
 
 Schematic:
 
    +--------------------------+
-===| input1_real output1_real |===
+---| clk         output1_real |===
+---| reset       output1_imag |===
+===| input1_real output2_real |===
 ===| input1_imag output1_imag |===
-===| input2_real output2_real |===
-===| input2_imag output1_imag |===
+===| input2_real              |
+===| input2_imag              |
 ===| phase                    |
    +--------------------------+
 
@@ -1421,9 +1428,13 @@ Generic description:
 
 - bits: denotes the width of the input and output signals
 - phase_bits: denotes the width of the phase signal
+- add_regs: Number of additional registers for faster clock operation.
+            (Possible values: 0, 1, 2. Default: 0)
 
 Port description:
 
+- clk: clock input
+- reset: asynchronous reset (active low)
 - phase: this is the 'k' from w_k
 - input1_real: real part of the first input
 - input1_imag: imaginary part of the first input
@@ -1471,4 +1482,59 @@ Port description:
 - input: to be multiplexed signal
 - code: signal selector
 - output: multiplexed output signal
+
+31. Dual Port RAM (ram.vhd)
+---------------------------
+
+This is synthesizable true dual port RAM.
+
+Component declaration:
+
+  component ram is
+    generic (
+      bits  : natural;
+      bytes : natural);
+    port (
+      clk1      : in  std_logic;
+      clk2      : in  std_logic;
+      we1       : in  std_logic;
+      we2       : in  std_logic;
+      addr1     : in  std_logic_vector(log2ceil(bytes)-1 downto 0);
+      addr2     : in  std_logic_vector(log2ceil(bytes)-1 downto 0);
+      data1_in  : in  std_logic_vector(bits-1 downto 0);
+      data1_out : out std_logic_vector(bits-1 downto 0);
+      data2_in  : in  std_logic_vector(bits-1 downto 0);
+      data2_out : out std_logic_vector(bits-1 downto 0));
+  end component ram;
+
+Schematic:
+
+   +--------------------+
+---| clk1     data1_out |===
+---| clk2     data2_out |===
+---| we1                |
+---| we2                |
+===| addr1              |
+===| addr2              |
+===| data1_in           |
+===| data2_in           |
+   +--------------------+
+
+Generic description:
+
+- bits: denotes the number of bits per byte
+- bytes: denotes the size of the memory in bytes
+
+Port description:
+
+- clk1: clock input for the first port
+- clk2: clock input for the second port
+- we1: write enable pin for the first port
+- we2: write enable pin for the second port
+- addr1: address input for the first port
+- addr2: address input for the second port
+- data1_in: data input for the first port
+- data2_in: data input for the second port
+- data1_out data output for the first port
+- data2_out data output for the second port
 
