@@ -91,11 +91,11 @@ begin  -- architecture behav
       phase_bits => phase_bits,
       bits       => bits)
     port map (
-      clk   => clk,
-      reset => reset,
-      phase => phase,
-      sin   => sin,
-      cos   => cos);
+      clk    => clk,
+      reset  => reset,
+      phase  => phase,
+      sinout => sin,
+      cosout => cos);
 
   reg_1: entity work.reg
     generic map (

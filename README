@@ -461,9 +461,7 @@ Port description:
 ------------------------------------------
 
 This look up table implements the sine/cosine functions. This can be used to
-implement e.g. a numerically controlled oszillator. Before using the look up
-table if first must be generated with the makelut.cpp program. See the Makefile
-for example useage.
+implement e.g. a numerically controlled oszillator.
 
 Component declaration:
 
@@ -472,16 +470,16 @@ Component declaration:
       phase_bits : natural;
       bits       : natural);
     port (
-      phase : in  std_logic_vector(phase_bits-1 downto 0);
-      sin   : out std_logic_vector(bits-1 downto 0);
-      cos   : out std_logic_vector(bits-1 downto 0));
+      phase  : in  std_logic_vector(phase_bits-1 downto 0);
+      sinout : out std_logic_vector(bits-1 downto 0);
+      cosout : out std_logic_vector(bits-1 downto 0));
   end component sincos;
   
 Schematic:
 
    +--------------+
-===| phase sine   |===
-   |       cosine |===
+===| phase sinout |===
+   |       cosout |===
    +--------------+
 
 Generic description:
@@ -492,8 +490,8 @@ Generic description:
 Port description:
 
 - phase: phase angle input
-- sine: sine function output
-- cosine: cosine function output
+- sinout: sine function output
+- cosout: cosine function output
 
 10. Numerically controlled oscillator (nco.vhd)
 -----------------------------------------------

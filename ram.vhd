@@ -48,7 +48,7 @@ architecture behav of ram is
   
 begin  -- architecture behav
 
-  port1: process is
+  port1: process(clk1) is
   begin
     if rising_edge(clk1) then
       data1_out <= mem(to_integer(unsigned(addr1)));
@@ -58,7 +58,7 @@ begin  -- architecture behav
     end if;
   end process port1;
 
-  port2: process is
+  port2: process(clk2) is
   begin
     if rising_edge(clk2) then
       data2_out <= mem(to_integer(unsigned(addr2)));

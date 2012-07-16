@@ -21,46 +21,49 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.lut.all;
+use ieee.math_real.all;
 
 entity sincos is
   generic (
     phase_bits : natural;
     bits       : natural);
   port (
-    clk   : in  std_logic;
-    reset : in  std_logic;
-    phase : in  std_logic_vector(phase_bits-1 downto 0);
-    sin   : out std_logic_vector(bits-1 downto 0);
-    cos   : out std_logic_vector(bits-1 downto 0));
+    clk    : in  std_logic;
+    reset  : in  std_logic;
+    phase  : in  std_logic_vector(phase_bits-1 downto 0);
+    sinout : out std_logic_vector(bits-1 downto 0);
+    cosout : out std_logic_vector(bits-1 downto 0));
 end entity sincos;
 
 architecture behav of sincos is
 
-  signal phase2    : std_logic_vector(lut_in_bits+1 downto 0) := (others => '0');
+  constant lut_in_bits : natural := phase_bits-2;
+
+  type rom_t is array (0 to 2**lut_in_bits-1) of std_logic_vector(bits-1 downto 0);
+
+  function makelut return rom_t is
+    variable tmp : rom_t;
+    variable x : real;
+  begin
+    for c in 0 to 2**lut_in_bits-1 loop
+      x := cos(real(c)/real(2**lut_in_bits-1)*MATH_PI/real(2))*real(2**(bits-1)-1);
+      tmp(c) := std_logic_vector(to_signed(integer(x), bits));
+    end loop;  -- c
+    return tmp;
+  end makelut;
+
+  constant rom : rom_t := makelut;
+
   signal quadrant  : std_logic_vector(1 downto 0) := (others => '0');
   signal quadrant2 : std_logic_vector(1 downto 0) := (others => '0');
   signal idx       : std_logic_vector(lut_in_bits-1 downto 0) := (others => '0');
-  signal val0      : std_logic_vector(lut_out_bits-1 downto 0) := (others => '0');
-  signal val1      : std_logic_vector(lut_out_bits-1 downto 0) := (others => '0');
-  signal val2      : std_logic_vector(lut_out_bits-1 downto 0) := (others => '0');
-  signal val3      : std_logic_vector(lut_out_bits-1 downto 0) := (others => '0');
-  signal cos_tmp   : std_logic_vector(lut_out_bits-1 downto 0) := (others => '0');
-  signal sin_tmp   : std_logic_vector(lut_out_bits-1 downto 0) := (others => '0');
+  signal val0      : std_logic_vector(bits-1 downto 0) := (others => '0');
+  signal val1      : std_logic_vector(bits-1 downto 0) := (others => '0');
 
 begin  -- architecture behav
 
-  more: if phase_bits > lut_in_bits+2 generate
-    phase2 <= phase(phase_bits-1 downto phase_bits-lut_in_bits-2);
-  end generate more;
-  
-  less: if phase_bits <= lut_in_bits+2 generate
-    phase2(lut_in_bits+1 downto lut_in_bits+2-phase_bits) <= phase;
-    phase2(lut_in_bits-phase_bits+1 downto 0) <= (others => '0');
-  end generate less;
-  
-  quadrant2 <= phase2(lut_in_bits+1 downto lut_in_bits);
-  idx <= phase2(lut_in_bits-1 downto 0);
+  quadrant2 <= phase(phase_bits-1 downto phase_bits-2);
+  idx <= phase(lut_in_bits-1 downto 0);
   
   -- make synthesizable RAM
   lutram: process (clk, reset) is
@@ -81,27 +84,15 @@ begin  -- architecture behav
       data_in  => quadrant2,
       data_out => quadrant);
   
-  cos_tmp <= val0 when quadrant = "00" else
-             not val1 when quadrant = "01" else
-             not val0 when quadrant = "10" else
-             val1 when quadrant = "11" else
-             (others => '0');
-  sin_tmp <= val1 when quadrant = "00" else
-             val0 when quadrant = "01" else
-             not val1 when quadrant = "10" else
-             not val0 when quadrant = "11" else
-             (others => '0');
-
-  more2: if bits > lut_out_bits generate
-    sin(bits-1 downto bits-lut_out_bits) <= sin_tmp;
-    sin(bits-lut_out_bits-1 downto 0) <= (others => '0');
-    cos(bits-1 downto bits-lut_out_bits) <= cos_tmp;
-    cos(bits-lut_out_bits-1 downto 0) <= (others => '0');
-  end generate more2;
-
-  less2: if bits <= lut_out_bits generate
-    sin <= sin_tmp(lut_out_bits-1 downto lut_out_bits-bits);
-    cos <= cos_tmp(lut_out_bits-1 downto lut_out_bits-bits);
-  end generate less2;
+  cosout <= val0 when quadrant = "00" else
+            not val1 when quadrant = "01" else
+            not val0 when quadrant = "10" else
+            val1 when quadrant = "11" else
+            (others => '0');
+  sinout <= val1 when quadrant = "00" else
+            val0 when quadrant = "01" else
+            not val1 when quadrant = "10" else
+            not val0 when quadrant = "11" else
+            (others => '0');
 
 end architecture behav;
