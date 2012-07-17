@@ -45,19 +45,22 @@ begin  -- architecture behav
       output(bits-1 downto bits-value)
         <= (others => '0');
     end generate signed_no;
-    output(bits-value-1 downto 0)
-      <= input(bits-1 downto value);
+    foo: if bits > value generate
+      output(bits-value-1 downto 0)
+        <= input(bits-1 downto value);
+    end generate foo;
   end generate right;
 
   left: if direction = '1' generate
-    output(bits-1 downto value)
-      <= input(bits-value-1 downto 0);
+    bar: if bits > value generate
+      output(bits-1 downto value)
+        <= input(bits-value-1 downto 0);
+    end generate bar;
     output(value-1 downto 0)
       <= (others => '0');
   end generate left;
 
 end architecture behav;
-
 
 library ieee;
 use ieee.std_logic_1164.all;
