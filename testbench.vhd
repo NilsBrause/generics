@@ -247,6 +247,7 @@ begin  -- architecture behav
     port map (
       clk    => clk,
       reset  => reset,
+      seed   => "011000111011",
       output => open);
 
   pidctrl_1: entity work.pidctrl

@@ -27,6 +27,7 @@ entity lfsr is
   port (
     clk    : in  std_logic;
     reset  : in  std_logic;
+    seed   : in  std_logic_vector(bits-1 downto 0);
     output : out std_logic_vector(bits-1 downto 0));
 end lfsr;
 
@@ -35,8 +36,11 @@ architecture behav of lfsr is
   signal srin  : std_logic := '0';
   signal srout : std_logic_vector(bits-1 downto 0) := (others => '0');
   signal to_xnor : std_logic_vector(5 downto 0) := (others => '0');
+  signal nreset : std_logic := '0';
   
 begin  -- behav
+
+  nreset <= not reset;
 
   srin <= to_xnor(0) xnor to_xnor(1) xnor to_xnor(2)
           xnor to_xnor(3) xnor to_xnor(4)  xnor to_xnor(5);
@@ -46,10 +50,10 @@ begin  -- behav
       bits => bits)
     port map (
       clk          => clk,
-      reset        => reset,
-      load         => '0',
+      reset        => '1',
+      load         => nreset,
       serial_in    => srin,
-      parallel_in  => (others => '0'),
+      parallel_in  => seed,
       serial_out   => open,
       parallel_out => srout,
       enable       => '1');
