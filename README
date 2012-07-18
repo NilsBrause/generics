@@ -468,7 +468,8 @@ Component declaration:
   component sincos is
     generic (
       phase_bits : natural;
-      bits       : natural);
+      bits       : natural;
+      lut_type   : natural := 2);
     port (
       phase  : in  std_logic_vector(phase_bits-1 downto 0);
       sinout : out std_logic_vector(bits-1 downto 0);
@@ -486,6 +487,10 @@ Generic description:
 
 - phase_bits: denotes the with of the input phase
 - bits: denotes the width of the outputs
+- lut_type: denotes length of the used look up table:
+  * 1: lut of length 2π
+  * 2: lut of length π  (default)
+  * 4: lut of legth π/2 (might be unprecise with low number of phase_bits)
 
 Port description:
 
