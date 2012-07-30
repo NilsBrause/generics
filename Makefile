@@ -208,7 +208,7 @@ clean:
 	rm -rf $(TOPENTITY)_par.pad $(TOPENTITY)_par_pad.*
 	rm -rf $(TOPENTITY)_par.par $(TOPENTITY)_par.ptwx
 	rm -rf $(TOPENTITY)_par.unroutes $(TOPENTITY)_par.xpi
-	rm -rf $(TOPENTITY)_par.xrpt
+	rm -rf $(TOPENTITY)_par.xrpt par_usage_statistics.html
 #	bit
 	rm -rf $(TOPENTITY).bgn $(TOPENTITY).drc $(TOPENTITY)_bitgen.xwbt
 	rm -rf usage_statistics_webtalk.html
