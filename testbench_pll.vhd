@@ -107,7 +107,9 @@ begin  -- architecture behav
       bits      => nco_bits,
       int_bits  => 40,
       nco_bits  => nco_bits,
-      freq_bits => freq_bits)
+      freq_bits => freq_bits,
+      use_registers   => '1',
+      use_kogge_stone => '1')
     port map (
       clk        => clk,
       reset      => reset,
@@ -115,7 +117,6 @@ begin  -- architecture behav
       i          => open,
       q          => q,
       error      => q,
-      pregain    => "110000",
       pgain      => "001000",
       igain      => "000100",
       dgain      => "100000",

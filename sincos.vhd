@@ -25,9 +25,10 @@ use ieee.math_real.all;
 
 entity sincos is
   generic (
-    phase_bits : natural;
-    bits       : natural;
-    lut_type   : natural := 2);
+    phase_bits    : natural;
+    bits          : natural;
+    use_registers : bit := '0';
+    lut_type      : natural := 2);
   port (
     clk    : in  std_logic;
     reset  : in  std_logic;
@@ -90,6 +91,9 @@ architecture behav of sincos is
   signal val4      : std_logic_vector(bits-1 downto 0) := (others => '0');
   signal val5      : std_logic_vector(bits-1 downto 0) := (others => '0');
 
+  signal sin_tmp : std_logic_vector(bits-1 downto 0);
+  signal cos_tmp : std_logic_vector(bits-1 downto 0);
+
 begin  -- architecture behav
   
   -- make synthesizable RAM
@@ -119,26 +123,53 @@ begin  -- architecture behav
       data_in  => phase(phase_bits-1 downto phase_bits-2),
       data_out => quadrant);
   
-  cosout <= val4 when lut_type = 1 else
-            val2 when quadrant = "00" and lut_type = 2 else
-            val2 when quadrant = "01" and lut_type = 2 else
-            not val2 when quadrant = "10" and lut_type = 2 else
-            not val2 when quadrant = "11" and lut_type = 2 else
-            val0 when quadrant = "00" and lut_type = 4 else
-            not val1 when quadrant = "01" and lut_type = 4 else
-            not val0 when quadrant = "10" and lut_type = 4 else
-            val1 when quadrant = "11" and lut_type = 4 else
-            (others => '0');
+  cos_tmp <= val4 when lut_type = 1 else
+             val2 when quadrant = "00" and lut_type = 2 else
+             val2 when quadrant = "01" and lut_type = 2 else
+             not val2 when quadrant = "10" and lut_type = 2 else
+             not val2 when quadrant = "11" and lut_type = 2 else
+             val0 when quadrant = "00" and lut_type = 4 else
+             not val1 when quadrant = "01" and lut_type = 4 else
+             not val0 when quadrant = "10" and lut_type = 4 else
+             val1 when quadrant = "11" and lut_type = 4 else
+             (others => '0');
   
-  sinout <= val5 when lut_type = 1 else
-            val3 when quadrant = "10" and lut_type = 2 else
-            val3 when quadrant = "01" and lut_type = 2 else
-            not val3 when quadrant = "00" and lut_type = 2 else
-            not val3 when quadrant = "11" and lut_type = 2 else
-            val1 when quadrant = "00" and lut_type = 4 else
-            val0 when quadrant = "01" and lut_type = 4 else
-            not val1 when quadrant = "10" and lut_type = 4 else
-            not val0 when quadrant = "11" and lut_type = 4 else
-            (others => '0');
+  sin_tmp <= val5 when lut_type = 1 else
+             val3 when quadrant = "10" and lut_type = 2 else
+             val3 when quadrant = "01" and lut_type = 2 else
+             not val3 when quadrant = "00" and lut_type = 2 else
+             not val3 when quadrant = "11" and lut_type = 2 else
+             val1 when quadrant = "00" and lut_type = 4 else
+             val0 when quadrant = "01" and lut_type = 4 else
+             not val1 when quadrant = "10" and lut_type = 4 else
+             not val0 when quadrant = "11" and lut_type = 4 else
+             (others => '0');
+
+  use_registers_yes: if use_registers = '1' generate
+    sin_reg: entity work.reg
+      generic map (
+        bits => bits)
+      port map (
+        clk      => clk,
+        reset    => reset,
+        enable   => '1',
+        data_in  => sin_tmp,
+        data_out => sinout);
+    
+    cos_reg: entity work.reg
+      generic map (
+        bits => bits)
+      port map (
+        clk      => clk,
+        reset    => reset,
+        enable   => '1',
+        data_in  => cos_tmp,
+        data_out => cosout);
+  end generate use_registers_yes;
+
+  use_registers_no: if use_registers = '0' generate
+    sinout <= sin_tmp;
+    cosout <= cos_tmp;
+  end generate use_registers_no;
 
 end architecture behav;

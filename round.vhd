@@ -26,8 +26,11 @@ entity round is
     inp_bits        : natural;
     outp_bits       : natural;
     signed_arith    : bit := '1';
+    use_registers   : bit := '0';
     use_kogge_stone : bit := '0');
   port (
+    clk    : in std_logic;
+    reset  : in std_logic;
     input  : in  std_logic_vector(inp_bits-1 downto 0);
     output : out std_logic_vector(outp_bits-1 downto 0));
 end round;
@@ -35,6 +38,7 @@ end round;
 architecture behav of round is
 
   signal roundup : std_logic_vector(outp_bits-1 downto 0) := (others => '0');
+  signal output_tmp : std_logic_vector(outp_bits-1 downto 0);
   
 begin  -- behav
 
@@ -53,40 +57,56 @@ begin  -- behav
         overflow  => open);
     
     signed_yes: if signed_arith = '1' generate
-      output <= roundup
-                when ((input(inp_bits-1) = '0' -- positive sign
-                       and input(inp_bits-outp_bits-1) = '1' -- .5
-                       -- prevent overflow
-                       and not (input(inp_bits-2 downto inp_bits-outp_bits)
-                                = (inp_bits-2 downto
-                                   inp_bits-outp_bits => '1')))
-                      or (input(inp_bits-1) = '1' -- negative sign
-                          and input(inp_bits-outp_bits-1) = '1')) -- .5
-                else input(inp_bits-1 downto inp_bits-outp_bits);
+      output_tmp <= roundup
+                    when ((input(inp_bits-1) = '0' -- positive sign
+                           and input(inp_bits-outp_bits-1) = '1' -- .5
+                           -- prevent overflow
+                           and not (input(inp_bits-2 downto inp_bits-outp_bits)
+                                    = (inp_bits-2 downto
+                                       inp_bits-outp_bits => '1')))
+                          or (input(inp_bits-1) = '1' -- negative sign
+                              and input(inp_bits-outp_bits-1) = '1')) -- .5
+                    else input(inp_bits-1 downto inp_bits-outp_bits);
     end generate signed_yes;
     
     signed_no: if signed_arith = '0' generate
-      output <= roundup
-                when ((input(inp_bits-1) = '0'
-                       and input(inp_bits-outp_bits-1) = '1') -- .5
-                      or (input(inp_bits-1) = '1'
-                          and input(inp_bits-outp_bits-1) = '1' -- .5
-                          -- prevent overflow
-                          and not (input(inp_bits-2 downto inp_bits-outp_bits)
-                                   = (inp_bits-2 downto
-                                      inp_bits-outp_bits => '1'))))
-                else input(inp_bits-1 downto inp_bits-outp_bits);
+      output_tmp <= roundup
+                    when ((input(inp_bits-1) = '0'
+                           and input(inp_bits-outp_bits-1) = '1') -- .5
+                          or (input(inp_bits-1) = '1'
+                              and input(inp_bits-outp_bits-1) = '1' -- .5
+                              -- prevent overflow
+                              and not (input(inp_bits-2 downto inp_bits-outp_bits)
+                                       = (inp_bits-2 downto
+                                          inp_bits-outp_bits => '1'))))
+                    else input(inp_bits-1 downto inp_bits-outp_bits);
     end generate signed_no;
   
   end generate do_round;
 
   same_width: if inp_bits = outp_bits generate
-    output <= input;
+    output_tmp <= input;
   end generate same_width;
 
   extend: if inp_bits < outp_bits generate
-    output(outp_bits-1 downto outp_bits-inp_bits) <= input;
-    output(outp_bits-inp_bits-1 downto 0) <= (others => '0');
+    output_tmp(outp_bits-1 downto outp_bits-inp_bits) <= input;
+    output_tmp(outp_bits-inp_bits-1 downto 0) <= (others => '0');
   end generate extend;
+
+  use_registers_yes: if use_registers = '1' generate
+    reg_1: entity work.reg
+      generic map (
+        bits => outp_bits)
+      port map (
+        clk      => clk,
+        reset    => reset,
+        enable   => '1',
+        data_in  => output_tmp,
+        data_out => output);
+  end generate use_registers_yes;
+
+  use_registers_no: if use_registers = '0' generate
+    output <= output_tmp;
+  end generate use_registers_no;
   
 end behav;

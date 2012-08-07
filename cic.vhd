@@ -103,6 +103,8 @@ begin  -- architecture behav
       signed_arith    => signed_arith,
       use_kogge_stone => use_kogge_stone)
     port map (
+      clk   => clk,
+      reset => reset,
       input  => temp((2*n+2)*bits2-1 downto (2*n+1)*bits2),
       output => output);
 

@@ -24,11 +24,12 @@ use work.log2.all;
 
 entity pll2 is
   generic (
-    bits            : natural := 16;
-    int_bits        : natural := 40;
-    nco_bits        : natural := 12;
-    freq_bits       : natural := 16;
+    bits            : natural;
+    int_bits        : natural;
+    nco_bits        : natural;
+    freq_bits       : natural;
     signed_arith    : bit := '1';
+    use_registers   : bit := '0';
     use_kogge_stone : bit := '0');
   port (
     clk        : in  std_logic;
@@ -37,7 +38,6 @@ entity pll2 is
     i          : out std_logic_vector(bits+nco_bits-1 downto 0);
     q          : out std_logic_vector(bits+nco_bits-1 downto 0);
     error      : in  std_logic_vector(bits+nco_bits-1 downto 0);
-    pregain    : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
     pgain      : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
     igain      : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
     dgain      : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
@@ -49,7 +49,9 @@ end entity pll2;
 architecture behav of pll2 is
 
   signal pid_out : std_logic_vector(bits+nco_bits-1 downto 0) := (others => '0');
+  signal pid_out2 : std_logic_vector(bits+nco_bits-1 downto 0) := (others => '0');
   signal pid_out_round : std_logic_vector(freq_bits-1 downto 0) := (others => '0');
+  signal freq_out_tmp : std_logic_vector(freq_bits-1 downto 0) := (others => '0');
 
 begin  -- architecture behav
 
@@ -59,6 +61,7 @@ begin  -- architecture behav
       nco_bits        => nco_bits,
       freq_bits       => freq_bits,
       signed_arith    => signed_arith,
+      use_registers   => use_registers,
       use_kogge_stone => use_kogge_stone)
     port map (
       clk   => clk,
@@ -73,12 +76,12 @@ begin  -- architecture behav
       bits            => bits+nco_bits,
       int_bits        => int_bits,
       signed_arith    => signed_arith,
+      use_registers   => use_registers,
       use_kogge_stone => use_kogge_stone)
     port map (
       clk     => clk,
       reset   => reset,
       input   => error,
-      pregain => pregain,
       pgain   => pgain,
       igain   => igain,
       dgain   => dgain,
@@ -89,8 +92,11 @@ begin  -- architecture behav
       inp_bits        => bits+nco_bits,
       outp_bits       => freq_bits,
       signed_arith    => signed_arith,
+      use_registers   => use_registers,
       use_kogge_stone => use_kogge_stone)
     port map (
+      clk   => clk,
+      reset => reset,
       input  => pid_out,
       output => pid_out_round);
 
@@ -101,9 +107,25 @@ begin  -- architecture behav
     port map (
       input1    => pid_out_round,
       input2    => start_freq,
-      output    => freq_out,
+      output    => freq_out_tmp,
       carry_in  => '0',
       carry_out => open,
       overflow  => open);
+
+  use_registers_yes: if use_registers = '1' generate
+    reg_1: entity work.reg
+      generic map (
+        bits => bits)
+      port map (
+        clk      => clk,
+        reset    => reset,
+        enable   => '1',
+        data_in  => freq_out_tmp,
+        data_out => freq_out);
+  end generate use_registers_yes;
+
+  use_registers_no: if use_registers = '0' generate
+    freq_out <= freq_out_tmp;
+  end generate use_registers_no;
 
 end architecture behav;

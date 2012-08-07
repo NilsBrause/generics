@@ -27,6 +27,7 @@ entity iqdemod is
     nco_bits        : natural;
     freq_bits       : natural;
     signed_arith    : bit := '1';
+    use_registers   : bit := '0';
     use_kogge_stone : bit := '0');
   port (
     clk   : in  std_logic;
@@ -48,6 +49,7 @@ begin  -- architecture behav
     generic map (
       pir_bits        => freq_bits,
       bits            => nco_bits,
+      use_registers   => use_registers,
       use_kogge_stone => use_kogge_stone)
     port map (
       clk   => clk,
@@ -61,6 +63,7 @@ begin  -- architecture behav
       bits1           => bits,
       bits2           => nco_bits,
       signed_arith    => signed_arith,
+      use_registers   => use_registers,
       use_kogge_stone => use_kogge_stone)
     port map (
       clk    => clk,
@@ -74,6 +77,7 @@ begin  -- architecture behav
       bits1           => bits,
       bits2           => nco_bits,
       signed_arith    => signed_arith,
+      use_registers   => use_registers,
       use_kogge_stone => use_kogge_stone)
     port map (
       clk    => clk,

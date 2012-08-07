@@ -187,6 +187,8 @@ begin  -- architecture behav
       inp_bits  => 8,
       outp_bits => 4)
     port map (
+      clk   => clk,
+      reset => reset,
       input  => cnt_out,
       output => open);
 
@@ -258,7 +260,6 @@ begin  -- architecture behav
       clk     => clk,
       reset   => reset,
       input   => i2,
-      pregain => "101110",
       pgain   => "000011",
       igain   => "000110",
       dgain   => "100000",

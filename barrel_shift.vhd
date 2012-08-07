@@ -67,6 +67,50 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.log2.all;
 
+entity barrel_shift2 is
+  generic (
+    bits         : natural;
+    signed_arith : bit := '1';
+    direction    : bit := '0'); -- '0' = right, '1' = left
+  port (
+    input  : in  std_logic_vector(bits-1 downto 0);
+    amount : in  std_logic_vector(log2ceil(bits)-1 downto 0);
+    output : out std_logic_vector(bits-1 downto 0));
+end entity barrel_shift2;
+
+architecture behav of barrel_shift2 is
+
+  type output_t is array (integer range <>) of std_logic_vector(bits-1 downto 0);
+  signal outputs : output_t(0 to bits);
+  signal iamount : natural;
+
+begin  -- architecture behav
+
+  outputs(0) <= input;
+  
+  shifts: for c in 1 to bits generate
+    barrel_shift_int_1: entity work.barrel_shift_int
+      generic map (
+        bits         => bits,
+        value        => c,
+        signed_arith => signed_arith,
+        direction    => direction)
+      port map (
+        input  => input,
+        output => outputs(c));
+  end generate shifts;
+
+  iamount <= to_integer(unsigned(amount));
+  output <= outputs(iamount) when iamount <= bits else
+            (others => '0');
+  
+end architecture behav;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use work.log2.all;
+
 entity barrel_shift is
   generic (
     bits         : natural;

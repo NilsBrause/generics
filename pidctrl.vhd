@@ -27,12 +27,13 @@ entity pidctrl is
     bits            : natural;
     int_bits        : natural;
     signed_arith    : bit := '1';
+    use_diff        : bit := '0';
+    use_registers   : bit := '0';
     use_kogge_stone : bit := '0');
   port (
     clk      : in  std_logic;
     reset    : in  std_logic;
     input    : in  std_logic_vector(bits-1 downto 0);
-    pregain  : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
     pgain    : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
     igain    : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
     dgain    : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
@@ -41,7 +42,6 @@ end entity pidctrl;
 
 architecture behav of pidctrl is
 
-  signal input2 : std_logic_vector(int_bits-1 downto 0) := (others => '0');
   signal input3 : std_logic_vector(int_bits-1 downto 0) := (others => '0');
   signal input4 : std_logic_vector(int_bits-1 downto 0) := (others => '0');
 
@@ -57,25 +57,14 @@ architecture behav of pidctrl is
 begin  -- architecture behav
 
   -- pre gain
-  
-  round_1: entity work.round
-    generic map (
-      inp_bits        => bits,
-      outp_bits       => int_bits,
-      signed_arith    => signed_arith,
-      use_kogge_stone => use_kogge_stone)
-    port map (
-      input  => input,
-      output => input2);
 
-  barrel_shift_1: entity work.barrel_shift
-    generic map (
-      bits         => int_bits,
-      signed_arith => signed_arith)
-    port map (
-      input  => input2,
-      amount => pregain,
-      output => input3);
+  signed_yes: if signed_arith = '1' generate
+    input3(int_bits-1 downto bits) <= (others => input(bits-1));
+  end generate signed_yes;
+  signed_no: if signed_arith = '0' generate
+    input3(int_bits-1 downto bits) <= (others => '0');
+  end generate signed_no;
+  input3(bits-1 downto 0) <= input;
 
   -- proportional
 
@@ -122,52 +111,75 @@ begin  -- architecture behav
 
   -- differential
 
-  differentiator_1: entity work.differentiator
+  use_diff_yes: if use_diff = '1' generate
+    
+    differentiator_1: entity work.differentiator
+      generic map (
+        bits            => int_bits,
+        use_kogge_stone => use_kogge_stone)
+      port map (
+        clk    => clk,
+        reset  => reset,
+        enable => '1',
+        input  => input3,
+        output => dout);
+    
+    barrel_shift_4: entity work.barrel_shift
+      generic map (
+        bits         => int_bits,
+        signed_arith => signed_arith)
+      port map (
+        input  => dout,
+        amount => dgain,
+        output => dout2);
+    
+    -- sum
+    
+    data(3*int_bits-1 downto 2*int_bits) <= dout2;
+    data(2*int_bits-1 downto int_bits) <= iout;
+    data(int_bits-1 downto 0) <= pout;
+    
+    array_adder_1: entity work.array_adder
+      generic map (
+        bits            => int_bits,
+        width           => 3,
+        signed_arith    => signed_arith,
+        use_registers   => use_registers,
+        use_kogge_stone => use_kogge_stone)
+      port map (
+        clk   => clk,
+        reset => reset,
+        data  => data,
+        sum   => sum);
+
+  end generate use_diff_yes;
+
+  use_diff_no: if use_diff = '0' generate
+    
+  add_1: entity work.add
     generic map (
       bits            => int_bits,
       use_kogge_stone => use_kogge_stone)
     port map (
-      clk    => clk,
-      reset  => reset,
-      enable => '1',
-      input  => input3,
-      output => dout);
-
-  barrel_shift_4: entity work.barrel_shift
-    generic map (
-      bits         => int_bits,
-      signed_arith => signed_arith)
-    port map (
-      input  => dout,
-      amount => dgain,
-      output => dout2);
-
-  -- sum
-
-  data(3*int_bits-1 downto 2*int_bits) <= dout2;
-  data(2*int_bits-1 downto int_bits) <= iout;
-  data(int_bits-1 downto 0) <= pout;
-
-  array_adder_1: entity work.array_adder
-    generic map (
-      bits            => int_bits,
-      width           => 3,
-      signed_arith    => signed_arith,
-      use_registers   => '0',
-      use_kogge_stone => use_kogge_stone)
-    port map (
-      clk   => clk,
-      reset => reset,
-      data  => data,
-      sum   => sum);
+      input1    => iout,
+      input2    => pout,
+      output    => sum(int_bits-1 downto 0),
+      carry_in  => '0',
+      carry_out => open,
+      overflow  => open);
   
+  end generate use_diff_no;
+
   round_2: entity work.round
     generic map (
       inp_bits        => int_bits,
       outp_bits       => bits,
       signed_arith    => signed_arith,
+      use_registers   => use_registers,
       use_kogge_stone => use_kogge_stone)
     port map (
+      clk   => clk,
+      reset => reset,
       input  => sum(int_bits-1 downto 0),
       output => output);
 

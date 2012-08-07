@@ -46,6 +46,7 @@ architecture tree_add of array_adder is
   type tree_t is array (0 to stages-1) of stage_t;
 
   signal tree : tree_t := (others => (others => (others => '0')));
+  signal tmp : tree_t := (others => (others => (others => '0')));
   
 begin  -- tree_add
 
@@ -72,13 +73,27 @@ begin  -- tree_add
         port map (
           input1    => tree(c-1)(2*i),
           input2    => tree(c-1)(2*i+1),
-          output    => tree(c)(i),
+          output    => tmp(c)(i),
           carry_in  => '0',
           carry_out => open,
           overflow  => open);
+      regs_yes: if use_registers = '1' generate
+        reg_1: entity work.reg
+          generic map (
+            bits => sum_bits)
+          port map (
+            clk      => clk,
+            reset    => reset,
+            enable   => '1',
+            data_in  => tmp(c)(i),
+            data_out => tree(c)(i));
+      end generate regs_yes;
+      regs_no: if use_registers = '0' generate
+        tree(c)(i) <= tmp(c)(i);
+      end generate regs_no;
     end generate adds;
   end generate stage;
-
+  
   sum <= tree(stages-1)(0);
 
 end tree_add;
