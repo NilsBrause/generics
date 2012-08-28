@@ -29,6 +29,7 @@ entity pll2 is
     nco_bits        : natural;
     freq_bits       : natural;
     signed_arith    : bit := '1';
+    use_diff        : bit := '0';
     use_registers   : bit := '0';
     use_kogge_stone : bit := '0');
   port (
@@ -48,10 +49,8 @@ end entity pll2;
 
 architecture behav of pll2 is
 
-  signal pid_out : std_logic_vector(bits+nco_bits-1 downto 0) := (others => '0');
-  signal pid_out2 : std_logic_vector(bits+nco_bits-1 downto 0) := (others => '0');
+  signal pid_out : std_logic_vector(int_bits-1 downto 0) := (others => '0');
   signal pid_out_round : std_logic_vector(freq_bits-1 downto 0) := (others => '0');
-  signal freq_out_tmp : std_logic_vector(freq_bits-1 downto 0) := (others => '0');
 
 begin  -- architecture behav
 
@@ -76,6 +75,7 @@ begin  -- architecture behav
       bits            => bits+nco_bits,
       int_bits        => int_bits,
       signed_arith    => signed_arith,
+      use_diff        => use_diff,
       use_registers   => use_registers,
       use_kogge_stone => use_kogge_stone)
     port map (
@@ -89,7 +89,7 @@ begin  -- architecture behav
 
   round_1: entity work.round
     generic map (
-      inp_bits        => bits+nco_bits,
+      inp_bits        => int_bits,
       outp_bits       => freq_bits,
       signed_arith    => signed_arith,
       use_registers   => use_registers,
@@ -103,29 +103,16 @@ begin  -- architecture behav
   add_1: entity work.add
     generic map (
       bits            => freq_bits,
+      use_registers   => use_registers,
       use_kogge_stone => use_kogge_stone)
     port map (
+      clk       => clk,
+      reset     => reset,
       input1    => pid_out_round,
       input2    => start_freq,
-      output    => freq_out_tmp,
+      output    => freq_out,
       carry_in  => '0',
       carry_out => open,
       overflow  => open);
-
-  use_registers_yes: if use_registers = '1' generate
-    reg_1: entity work.reg
-      generic map (
-        bits => bits)
-      port map (
-        clk      => clk,
-        reset    => reset,
-        enable   => '1',
-        data_in  => freq_out_tmp,
-        data_out => freq_out);
-  end generate use_registers_yes;
-
-  use_registers_no: if use_registers = '0' generate
-    freq_out <= freq_out_tmp;
-  end generate use_registers_no;
 
 end architecture behav;

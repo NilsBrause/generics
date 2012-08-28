@@ -61,7 +61,7 @@ begin  -- architecture behav
 -------------------------------------------------------------------------------
 
   -- synchronize reset
-  reset_reg1: entity work.reg1
+  reset_reg1: entity work.reg1(behav)
     port map (
       clk      => clk,
       reset    => '1',
@@ -110,6 +110,8 @@ begin  -- architecture behav
     generic map (
       bits => 8)
     port map (
+      clk       => clk,
+      reset     => reset,
       input1    => "01110011",
       input2    => "01010111",
       output    => open,
@@ -121,6 +123,8 @@ begin  -- architecture behav
     generic map (
       bits => 8)
     port map (
+      clk       => clk,
+      reset     => reset,
       input1     => "11000111",
       input2     => "00011111",
       output     => open,
@@ -150,12 +154,12 @@ begin  -- architecture behav
 
   nco_1: entity work.nco
     generic map (
-      pir_bits => 10,
-      bits     => 10)
+      freq_bits => 10,
+      bits      => 10)
     port map (
       clk   => clk,
       reset => reset,
-      pir   => "0001000000",
+      freq  => "0001000000",
       sin   => sin,
       cos   => open);
 
@@ -301,6 +305,8 @@ begin  -- architecture behav
       bits            => 3,
       use_kogge_stone => '1')
     port map (
+      clk    => clk,
+      reset  => reset,
       input1 => "100",
       input2 => "011",
       equal  => open,

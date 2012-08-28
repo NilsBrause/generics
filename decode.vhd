@@ -39,6 +39,8 @@ begin  -- architecture behav
       generic map (
         bits => bits)
       port map (
+        clk    => '0',
+        reset  => '1',
         input1 => input,
         input2 => std_logic_vector(to_unsigned(c, bits)),
         equal  => output(c),

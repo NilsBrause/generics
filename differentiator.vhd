@@ -52,8 +52,11 @@ begin  -- architecture behav
   sub_1: entity work.sub
     generic map (
       bits            => bits,
+      use_registers   => '0',
       use_kogge_stone => use_kogge_stone)
     port map (
+      clk       => clk,
+      reset     => reset,
       input1     => input,
       input2     => reg_out,
       output     => output,

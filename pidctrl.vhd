@@ -37,15 +37,15 @@ entity pidctrl is
     pgain    : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
     igain    : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
     dgain    : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
-    output   : out std_logic_vector(bits-1 downto 0));
+    output   : out std_logic_vector(int_bits-1 downto 0));
 end entity pidctrl;
 
 architecture behav of pidctrl is
 
   signal input3 : std_logic_vector(int_bits-1 downto 0) := (others => '0');
-  signal input4 : std_logic_vector(int_bits-1 downto 0) := (others => '0');
 
   signal pout : std_logic_vector(int_bits-1 downto 0) := (others => '0');
+  signal pout2 : std_logic_vector(int_bits-1 downto 0) := (others => '0');
   signal aout : std_logic_vector(int_bits-1 downto 0) := (others => '0');
   signal iout : std_logic_vector(int_bits-1 downto 0) := (others => '0');
   signal dout : std_logic_vector(int_bits-1 downto 0) := (others => '0');
@@ -76,14 +76,14 @@ begin  -- architecture behav
       reset    => reset,
       enable   => '1',
       data_in  => input3,
-      data_out => input4);
+      data_out => pout2);
 
   barrel_shift_2: entity work.barrel_shift
     generic map (
       bits         => int_bits,
       signed_arith => signed_arith)
     port map (
-      input  => input4,
+      input  => pout2,
       amount => pgain,
       output => pout);
 
@@ -159,8 +159,11 @@ begin  -- architecture behav
   add_1: entity work.add
     generic map (
       bits            => int_bits,
+      use_registers   => use_registers,
       use_kogge_stone => use_kogge_stone)
     port map (
+      clk       => clk,
+      reset     => reset,
       input1    => iout,
       input2    => pout,
       output    => sum(int_bits-1 downto 0),
@@ -170,17 +173,6 @@ begin  -- architecture behav
   
   end generate use_diff_no;
 
-  round_2: entity work.round
-    generic map (
-      inp_bits        => int_bits,
-      outp_bits       => bits,
-      signed_arith    => signed_arith,
-      use_registers   => use_registers,
-      use_kogge_stone => use_kogge_stone)
-    port map (
-      clk   => clk,
-      reset => reset,
-      input  => sum(int_bits-1 downto 0),
-      output => output);
+  output <= sum(int_bits-1 downto 0);
 
 end architecture behav;

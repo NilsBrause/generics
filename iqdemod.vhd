@@ -47,14 +47,14 @@ begin  -- architecture behav
 
   nco_1: entity work.nco
     generic map (
-      pir_bits        => freq_bits,
+      freq_bits       => freq_bits,
       bits            => nco_bits,
       use_registers   => use_registers,
       use_kogge_stone => use_kogge_stone)
     port map (
       clk   => clk,
       reset => reset,
-      pir   => freq,
+      freq  => freq,
       sin   => sin,
       cos   => cos);
 

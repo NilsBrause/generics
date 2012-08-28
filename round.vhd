@@ -47,8 +47,11 @@ begin  -- behav
     add_1: entity work.add
       generic map (
         bits            => outp_bits,
+        use_registers   => '0',
         use_kogge_stone => use_kogge_stone)
       port map (
+        clk       => clk,
+        reset     => reset,
         input1    => input(inp_bits-1 downto inp_bits-outp_bits),
         input2    => (others => '0'),
         output    => roundup,

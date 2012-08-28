@@ -24,8 +24,11 @@ use ieee.std_logic_1164.all;
 entity comparator is
   generic (
     bits : natural;
+    use_registers   : bit := '0';       --! use additional registers on slow FPGAs
     use_kogge_stone : bit := '0');
   port (
+    clk    : in  std_logic;
+    reset  : in  std_logic;
     input1 : in  std_logic_vector(bits-1 downto 0);
     input2 : in  std_logic_vector(bits-1 downto 0);
     equal  : out std_logic;
@@ -56,8 +59,11 @@ begin  -- architecture behav
   sub_1: entity work.sub
     generic map (
       bits            => bits,
+      use_registers   => '0',
       use_kogge_stone => use_kogge_stone)
     port map (
+      clk        => clk,
+      reset      => reset,
       input1     => input1,
       input2     => input2,
       output     => sub_out,
@@ -71,5 +77,7 @@ begin  -- architecture behav
 
   -- test for unsigned less
   uless <= carry;
+
+  -- TODO: use registers?
   
 end architecture behav;

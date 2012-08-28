@@ -249,6 +249,8 @@ begin  -- architecture behav
     generic map (
       bits => bits)
     port map (
+      clk       => clk,
+      reset     => reset,
       input1    => input2_real_cos,
       input2    => input2_imag_sin,
       output    => input2_twiddle_real,
@@ -260,6 +262,8 @@ begin  -- architecture behav
     generic map (
       bits => bits)
     port map (
+      clk        => clk,
+      reset      => reset,
       input1     => input2_imag_cos,
       input2     => input2_real_sin,
       output     => input2_twiddle_imag,
@@ -333,6 +337,8 @@ begin  -- architecture behav
     generic map (
       bits => bits)
     port map (
+      clk       => clk,
+      reset     => reset,
       input1    => input1_real2,
       input2    => input2_twiddle_real2,
       output    => output1_real,
@@ -344,6 +350,8 @@ begin  -- architecture behav
     generic map (
       bits => bits)
     port map (
+      clk       => clk,
+      reset     => reset,
       input1    => input1_imag2,
       input2    => input2_twiddle_imag2,
       output    => output1_imag,
@@ -355,6 +363,8 @@ begin  -- architecture behav
     generic map (
       bits => bits)
     port map (
+      clk       => clk,
+      reset     => reset,
       input1     => input1_real2,
       input2     => input2_twiddle_real2,
       output     => output2_real,
@@ -366,6 +376,8 @@ begin  -- architecture behav
     generic map (
       bits => bits)
     port map (
+      clk       => clk,
+      reset     => reset,
       input1     => input1_imag2,
       input2     => input2_twiddle_imag2,
       output     => output2_imag,

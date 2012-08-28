@@ -92,12 +92,12 @@ begin  -- architecture behav
  -- generate test signal
   nco_1: entity work.nco
     generic map (
-      pir_bits => freq_bits,
-      bits     => nco_bits)
+      freq_bits => freq_bits,
+      bits      => nco_bits)
     port map (
       clk   => clk,
       reset => reset,
-      pir   => start_freq,
+      freq  => start_freq,
       sin   => sin,
       cos   => open);
 

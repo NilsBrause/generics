@@ -23,38 +23,38 @@ use ieee.std_logic_1164.all;
 
 entity nco is
   generic (
-    pir_bits        : natural;
+    freq_bits       : natural;
     bits            : natural;
     use_registers   : bit := '0';
     use_kogge_stone : bit := '0');
   port (
     clk   : in  std_logic;
     reset : in  std_logic;
-    pir   : in  std_logic_vector(pir_bits-1 downto 0);
+    freq  : in  std_logic_vector(freq_bits-1 downto 0);
     sin   : out std_logic_vector(bits-1 downto 0);
     cos   : out std_logic_vector(bits-1 downto 0));
 end entity nco;
 
 architecture behav of nco is
 
-  signal pa : std_logic_vector(pir_bits-1 downto 0) := (others => '0');
+  signal pa : std_logic_vector(freq_bits-1 downto 0) := (others => '0');
   
 begin  -- architecture behav
 
   pareg : entity work.accumulator
     generic map (
-      bits            => pir_bits,
+      bits            => freq_bits,
       use_kogge_stone => use_kogge_stone)
     port map (
       clk    => clk,
       reset  => reset,
       enable => '1',
-      input  => pir,
+      input  => freq,
       output => pa);
 
   sincos_1: entity work.sincos
     generic map (
-      phase_bits => pir_bits,
+      phase_bits => freq_bits,
       bits       => bits)
     port map (
       clk    => clk,

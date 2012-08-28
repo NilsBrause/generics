@@ -24,8 +24,11 @@ use ieee.std_logic_1164.all;
 entity sub is
   generic (
     bits : natural;
+    use_registers   : bit := '0';
     use_kogge_stone : bit := '0');
   port (
+    clk        : in  std_logic;
+    reset      : in  std_logic;
     input1     : in  std_logic_vector(bits-1 downto 0);
     input2     : in  std_logic_vector(bits-1 downto 0);
     output     : out std_logic_vector(bits-1 downto 0);
@@ -48,8 +51,11 @@ begin  -- architecture behav
   add_1: entity work.add
     generic map (
       bits => bits,
+      use_registers   => use_registers,
       use_kogge_stone => use_kogge_stone)
     port map (
+      clk       => clk,
+      reset     => reset,
       input1    => input1,
       input2    => input2n,
       output    => output,

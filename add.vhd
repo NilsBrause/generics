@@ -25,8 +25,11 @@ use ieee.numeric_std.all;
 entity add is
   generic (
     bits : natural;
+    use_registers   : bit := '0';
     use_kogge_stone : bit := '0');
   port (
+    clk       : in  std_logic;
+    reset     : in  std_logic;
     input1    : in  std_logic_vector(bits-1 downto 0);
     input2    : in  std_logic_vector(bits-1 downto 0);
     output    : out std_logic_vector(bits-1 downto 0);
@@ -40,6 +43,7 @@ architecture behav of add is
   signal input1_tmp : std_logic_vector(bits+1 downto 0) := (others => '0');
   signal input2_tmp : std_logic_vector(bits+1 downto 0) := (others => '0');
   signal output_tmp : std_logic_vector(bits+1 downto 0) := (others => '0');
+  signal overflow_tmp : std_logic;
 
 begin  -- architecture behav
 
@@ -65,11 +69,42 @@ begin  -- architecture behav
         S => output_tmp);
   end generate kogge_stone_yes;
 
-  carry_out <= output_tmp(bits+1);
-  output <= output_tmp(bits downto 1);
+    -- signed overflow
+  overflow_tmp <= (input1(bits-1) xnor input2(bits-1))
+                  and (input1(bits-1) xor output_tmp(bits));
 
-  -- signed overflow
-  overflow <= (input1(bits-1) xnor input2(bits-1))
-              and (input1(bits-1) xor output_tmp(bits));
+  use_registers_yes: if use_registers = '1' generate
+    reg_1: entity work.reg
+      generic map (
+        bits => bits)
+      port map (
+        clk      => clk,
+        reset    => reset,
+        enable   => '1',
+        data_in  => output_tmp(bits downto 1),
+        data_out => output);
+    
+    reg1_1: entity work.reg1
+      port map (
+        clk      => clk,
+        reset    => reset,
+        enable   => '1',
+        data_in  => output_tmp(bits+1),
+        data_out => carry_out);
 
+    reg1_2: entity work.reg1
+      port map (
+        clk      => clk,
+        reset    => reset,
+        enable   => '1',
+        data_in  => overflow_tmp,
+        data_out => overflow);
+end generate use_registers_yes;
+
+  use_registers_no: if use_registers = '0' generate
+    carry_out <= output_tmp(bits+1);
+    output <= output_tmp(bits downto 1);
+    overflow <= overflow_tmp;
+  end generate use_registers_no;
+  
 end architecture behav;
