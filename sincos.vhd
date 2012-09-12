@@ -25,8 +25,8 @@ use ieee.math_real.all;
 
 --! sine/cosine
 
---! This look up table implements the sine/cosine functions.
---! This can be used to implement e.g. a numerically controlled oszillator.
+--! This is a sine/cosine look up table implementation, that can be used to
+--! implement e.g. a numerically controlled oszillator.
 entity sincos is
   generic (
     phase_bits    : natural;            --! width of the phase input
