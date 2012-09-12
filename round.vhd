@@ -21,18 +21,23 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+--! arithmethic rounding
+
+--! The rounder does arithmetic rounding of signed and unsigned
+--! integers without overflowing.
+--! Please note that no rounding occures is outp_bits >= inp_bits.
 entity round is
   generic (
-    inp_bits        : natural;
-    outp_bits       : natural;
-    signed_arith    : bit := '1';
-    use_registers   : bit := '0';
-    use_kogge_stone : bit := '0');
+    inp_bits        : natural;          --! width of input
+    outp_bits       : natural;          --! width of output
+    signed_arith    : bit := '1';       --! assume input is signed
+    use_registers   : bit := '0';       --! use additional registers on slow FPGAs
+    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
   port (
-    clk    : in std_logic;
-    reset  : in std_logic;
-    input  : in  std_logic_vector(inp_bits-1 downto 0);
-    output : out std_logic_vector(outp_bits-1 downto 0));
+    clk    : in std_logic;              --! clock input
+    reset  : in std_logic;              --! asynchronous reset (active low)
+    input  : in  std_logic_vector(inp_bits-1 downto 0);  --! input signal
+    output : out std_logic_vector(outp_bits-1 downto 0));  --! rounded output signal
 end round;
 
 architecture behav of round is

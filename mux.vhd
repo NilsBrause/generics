@@ -21,15 +21,18 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+--! multiplexer
+
+--! A multiplexer multiplexes a signal into a stream of multiple signals.
 entity multiplex is
   generic (
-    bits      : natural;
-    code_bits : natural);
+    bits      : natural;                -- width of input
+    code_bits : natural);               -- 2^code_bits is the number of signals in the multiplex
   port (
-    basein : in  std_logic_vector(2**code_bits*bits-1 downto 0);
-    input  : in  std_logic_vector(bits-1 downto 0);
-    code   : in  std_logic_vector(code_bits-1 downto 0);
-    output : out std_logic_vector(2**code_bits*bits-1 downto 0));
+    basein : in  std_logic_vector(2**code_bits*bits-1 downto 0);  --! signal, where the input will be multiplexed into
+    input  : in  std_logic_vector(bits-1 downto 0);  --! to be multiplexed signal
+    code   : in  std_logic_vector(code_bits-1 downto 0);  --! signal destination 
+    output : out std_logic_vector(2**code_bits*bits-1 downto 0));  --! multiplexed output
 end entity multiplex;
 
 architecture behav of multiplex is

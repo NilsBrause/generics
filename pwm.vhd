@@ -23,16 +23,21 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.log2.all;
 
+--! Pulse width modulation
+
+--! Pulse width modulation (PWM) can be used as a cheap 1 bit digital to analog
+--! converter. The digital values are convertet to pulses of different widths. In
+--! combination with an low pass filter this results in a smooth analog curve.
 entity pwm is
   generic (
-    bits            : natural;
-    use_kogge_stone : bit := '0');
+    bits            : natural;          --! pulse code length
+    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
   port (
-    clk    : in  std_logic;
-    reset  : in  std_logic;
-    enable : in  std_logic;
-    ratio  : in  std_logic_vector(log2ceil(bits)-1 downto 0);
-    output : out std_logic);
+    clk    : in  std_logic;             --! clock input
+    reset  : in  std_logic;             --! asynchronous reset (active low)
+    enable : in  std_logic;             --! enable pin
+    ratio  : in  std_logic_vector(log2ceil(bits)-1 downto 0);  --! high/low ratio of pulse
+    output : out std_logic);            --! 1 bit output
 end entity pwm;
 
 architecture behav of pwm is

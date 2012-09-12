@@ -23,21 +23,24 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.log2.all;
 
+--! random access memory
+
+--! This is synthesizable true dual port RAM.
 entity ram is
   generic (
-    bits  : natural;
-    bytes : natural);
+    bits  : natural;                    --! width if one byte
+    bytes : natural);                   --! number of bytes
   port (
-    clk1      : in  std_logic;
-    clk2      : in  std_logic;
-    we1       : in  std_logic;
-    we2       : in  std_logic;
-    addr1     : in  std_logic_vector(log2ceil(bytes)-1 downto 0);
-    addr2     : in  std_logic_vector(log2ceil(bytes)-1 downto 0);
-    data1_in  : in  std_logic_vector(bits-1 downto 0);
-    data1_out : out std_logic_vector(bits-1 downto 0);
-    data2_in  : in  std_logic_vector(bits-1 downto 0);
-    data2_out : out std_logic_vector(bits-1 downto 0));
+    clk1      : in  std_logic;          --! clock input of first port
+    clk2      : in  std_logic;          --! clock input of second port
+    we1       : in  std_logic;          --! write enable of first port
+    we2       : in  std_logic;          --! write enable of second port
+    addr1     : in  std_logic_vector(log2ceil(bytes)-1 downto 0);  --! address input of first port
+    addr2     : in  std_logic_vector(log2ceil(bytes)-1 downto 0);  --! address input of second port
+    data1_in  : in  std_logic_vector(bits-1 downto 0);  --! data input of first port
+    data2_in  : in  std_logic_vector(bits-1 downto 0);  --! data input of second port
+    data1_out : out std_logic_vector(bits-1 downto 0);  --! data output of first port
+    data2_out : out std_logic_vector(bits-1 downto 0));  --! data output of second port
 end entity ram;
 
 architecture behav of ram is

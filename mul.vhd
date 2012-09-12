@@ -23,19 +23,22 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.log2.all;
 
+--! multiplier
+
+--! The multiplier can mutiply signed or unsigned numbers.
 entity mul is
   generic (
-    bits1           : natural;
-    bits2           : natural;
-    signed_arith    : bit := '1';
-    use_registers   : bit := '0';
-    use_kogge_stone : bit := '0');
+    bits1           : natural;          --! width of first input
+    bits2           : natural;          --! width of second input
+    signed_arith    : bit := '1';       --! use signed arithmetic
+    use_registers   : bit := '0';       --! use additional registers on slow FPGAs
+    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
   port (
-    clk    : in  std_logic;
-    reset  : in  std_logic;
-    input1 : in  std_logic_vector(bits1-1 downto 0);
-    input2 : in  std_logic_vector(bits2-1 downto 0);
-    output : out std_logic_vector(bits1+bits2-1 downto 0));
+    clk    : in  std_logic;             --! clock input
+    reset  : in  std_logic;             --! ansynchronous reset (active low)
+    input1 : in  std_logic_vector(bits1-1 downto 0);  --! multiplicator
+    input2 : in  std_logic_vector(bits2-1 downto 0);  --! multiplicand
+    output : out std_logic_vector(bits1+bits2-1 downto 0));  --! product
 end entity mul;
 
 architecture behav of mul is

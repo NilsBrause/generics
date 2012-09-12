@@ -1,0 +1,7 @@
+PROJECT_NAME           = "generics"
+PROJECT_BRIEF          = multi-purpose generic VHDL components
+OUTPUT_DIRECTORY       = docs
+OPTIMIZE_OUTPUT_VHDL   = YES
+QUIET                  = YES
+EXCLUDE                = testbench.vhd testbench_pll.vhd phasemeter4.vhd
+SOURCE_BROWSER         = YES

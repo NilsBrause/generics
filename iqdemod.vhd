@@ -21,21 +21,26 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+--! I/Q-demodulator#
+
+--! The IQ demudulator is a Frequency downconverter which converts a QAM
+--! modulated high frequency signal into two intermediate frequency signals,
+--! which are 90 degree out of phase (I and Q).
 entity iqdemod is
   generic (
-    bits            : natural;
-    nco_bits        : natural;
-    freq_bits       : natural;
-    signed_arith    : bit := '1';
-    use_registers   : bit := '0';
-    use_kogge_stone : bit := '0');
+    bits            : natural;          --! width of input
+    nco_bits        : natural;          --! width of internal nco
+    freq_bits       : natural;          --! width of frequency input
+    signed_arith    : bit := '1';       --! use signed arithmetic
+    use_registers   : bit := '0';       --! use additional registers on slow FPGAs
+    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
   port (
-    clk   : in  std_logic;
-    reset : in  std_logic;
-    input : in  std_logic_vector(bits-1 downto 0);
-    freq  : in  std_logic_vector(freq_bits-1 downto 0);
-    i     : out std_logic_vector(bits+nco_bits-1 downto 0);
-    q     : out std_logic_vector(bits+nco_bits-1 downto 0));
+    clk   : in  std_logic;              --! clock input
+    reset : in  std_logic;              --! asynchronous reset (active low)
+    input : in  std_logic_vector(bits-1 downto 0);  --! input signal
+    freq  : in  std_logic_vector(freq_bits-1 downto 0);  --! demodulation frequency
+    i     : out std_logic_vector(bits+nco_bits-1 downto 0);  --! in phase signal
+    q     : out std_logic_vector(bits+nco_bits-1 downto 0));  --! out of phase signal
 end entity iqdemod;
 
 architecture behav of iqdemod is

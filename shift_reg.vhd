@@ -21,18 +21,26 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+--! shhift register
+
+--! A shift register can be used to parallelize a serial signal or serialize
+--! a parallel signal. With every clock cycle the Nth bits is put on the serial
+--! output and replaced by the N-1th bit, the 1..N-1th bit is replaced by the
+--! 0..N-2nd bit and the 0th bit is replaced by the serial input. If load is
+--! asserted the contents of the registers are replaced by the value of
+--! parallel_in.
 entity shift_reg is
   generic (
-    bits : natural);
+    bits : natural);                    --! number of bits
   port (
-    clk          : in  std_logic;
-    reset        : in  std_logic;
-    load         : in  std_logic;
-    serial_in    : in  std_logic;
-    serial_out   : out std_logic;
-    parallel_in  : in  std_logic_vector(bits-1 downto 0);
-    parallel_out : out std_logic_vector(bits-1 downto 0);
-    enable       : in  std_logic);
+    clk          : in  std_logic;       --! clock input
+    reset        : in  std_logic;       --! asynchronous reset (active low)
+    load         : in  std_logic;       --! load the the value from parallel_in
+    serial_in    : in  std_logic;       --! serial input
+    serial_out   : out std_logic;       --! serial output
+    parallel_in  : in  std_logic_vector(bits-1 downto 0);  --! parallel input
+    parallel_out : out std_logic_vector(bits-1 downto 0);  --! parallel output
+    enable       : in  std_logic);      --! enable pin
 end entity shift_reg;
 
 architecture behav of shift_reg is

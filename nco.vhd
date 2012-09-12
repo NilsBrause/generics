@@ -21,18 +21,22 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+--! numerically controlled oszillator
+
+--! A numerically controlled oszillator can generate a sinosoidal signal
+--! of arbitrary frequency. It can be used in a direct digital synthesizer.
 entity nco is
   generic (
-    freq_bits       : natural;
-    bits            : natural;
-    use_registers   : bit := '0';
-    use_kogge_stone : bit := '0');
+    freq_bits       : natural;          --! width of freqeuncy input
+    bits            : natural;          --! width of output signals
+    use_registers   : bit := '0';       --! use additional rtegisters on slow FPGAs
+    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
   port (
-    clk   : in  std_logic;
-    reset : in  std_logic;
-    freq  : in  std_logic_vector(freq_bits-1 downto 0);
-    sin   : out std_logic_vector(bits-1 downto 0);
-    cos   : out std_logic_vector(bits-1 downto 0));
+    clk   : in  std_logic;              --! clock input
+    reset : in  std_logic;              --! asynchronous reset (active low)
+    freq  : in  std_logic_vector(freq_bits-1 downto 0);  --! frequency input
+    sin   : out std_logic_vector(bits-1 downto 0);  --! sine output
+    cos   : out std_logic_vector(bits-1 downto 0));  --! cosine output
 end entity nco;
 
 architecture behav of nco is

@@ -21,15 +21,20 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+--! N bit register
+
+--! This is a N bit D-type Flipflip/Regsiter.
+--! A N bit register can store N bit of information.
+--! It works exactly as the 1 bit register but with N bits.
 entity reg is
   generic (
-    bits : natural);
+    bits : natural);                    --! number of bits to be stored
   port (
-    clk      : in  std_logic;
-    reset    : in  std_logic;
-    enable   : in  std_logic;
-    data_in  : in  std_logic_vector(bits-1 downto 0);
-    data_out : out std_logic_vector(bits-1 downto 0));
+    clk      : in  std_logic;           --! clock input
+    reset    : in  std_logic;           --! asynchronous reset (active low)
+    enable   : in  std_logic;           --! enable pin
+    data_in  : in  std_logic_vector(bits-1 downto 0);  --! data input
+    data_out : out std_logic_vector(bits-1 downto 0)); --! data output
 end reg;
 
 architecture behav of reg is

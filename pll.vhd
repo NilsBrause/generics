@@ -22,29 +22,34 @@ library ieee;
 use ieee.std_logic_1164.all;
 use work.log2.all;
 
+--! phase locked loop
+
+--! A phase locked loop (PLL) is a control loop, which lets you track the phase
+--! (and therefore the ferquency) of a sinusoidal signal. For more information
+--! see: GARDNER, FLOYD M.: Phaselock Techniques. WILEY INTERSCIENCE, 2005.
 entity pll2 is
   generic (
-    bits            : natural;
-    int_bits        : natural;
-    nco_bits        : natural;
-    freq_bits       : natural;
-    signed_arith    : bit := '1';
-    use_diff        : bit := '0';
-    use_registers   : bit := '0';
-    use_kogge_stone : bit := '0');
+    bits            : natural;          --! width of input
+    int_bits        : natural;          --! internal signal width
+    nco_bits        : natural;          --! width of nco output
+    freq_bits       : natural;          --! width of frequency input/output
+    signed_arith    : bit := '1';       --! assume input is signed
+    use_diff        : bit := '0';       --! use PID controller instead of PI controller
+    use_registers   : bit := '0';       --! use additional registers on slow FPGAs
+    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
   port (
-    clk        : in  std_logic;
-    reset      : in  std_logic;
-    input      : in  std_logic_vector(bits-1 downto 0);
-    i          : out std_logic_vector(bits+nco_bits-1 downto 0);
-    q          : out std_logic_vector(bits+nco_bits-1 downto 0);
-    error      : in  std_logic_vector(bits+nco_bits-1 downto 0);
-    pgain      : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
-    igain      : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
-    dgain      : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
-    start_freq : in  std_logic_vector(freq_bits-1 downto 0);
-    freq_out   : out std_logic_vector(freq_bits-1 downto 0);
-    freq_in    : in  std_logic_vector(freq_bits-1 downto 0));
+    clk        : in  std_logic;         --! clock input
+    reset      : in  std_logic;         --! asynchronous reset (active low)
+    input      : in  std_logic_vector(bits-1 downto 0);  --! input signal
+    i          : out std_logic_vector(bits+nco_bits-1 downto 0);  --! intensity output
+    q          : out std_logic_vector(bits+nco_bits-1 downto 0);  --! quality output
+    error      : in  std_logic_vector(bits+nco_bits-1 downto 0);  --! error input (connect to q)
+    pgain      : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);  --! proportional gain
+    igain      : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);  --! integral gain
+    dgain      : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);  --! differential gain
+    start_freq : in  std_logic_vector(freq_bits-1 downto 0);  --! start frequency
+    freq_out   : out std_logic_vector(freq_bits-1 downto 0);  --! measured frequency
+    freq_in    : in  std_logic_vector(freq_bits-1 downto 0));  --! frequency input (connect ti freq_in)
 end entity pll2;
 
 architecture behav of pll2 is

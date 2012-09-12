@@ -21,19 +21,22 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+--! serializer
+
+--! This serializer can serialize a parallel signal for targets that need
+--! two clocks (bit clock and byte clock).
 entity serializer is
   generic (
-    bits            : natural;
-    use_kogge_stone : bit := '0');
-
+    bits            : natural;          --! width of input
+    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
   port (
-    clk    : in  std_logic;
-    reset  : in  std_logic;
-    enable : in  std_logic;
-    input  : in  std_logic_vector(bits-1 downto 0);
-    clk1   : out std_logic;
-    clk2   : out std_logic;
-    ser    : out std_logic);
+    clk    : in  std_logic;             --! clock input
+    reset  : in  std_logic;             --! asynchronous reset (active low)
+    enable : in  std_logic;             --! enable pin
+    input  : in  std_logic_vector(bits-1 downto 0);  --! parallel input
+    clk1   : out std_logic;             --! bit clock output
+    clk2   : out std_logic;             --! byte clock output
+    ser    : out std_logic);            --! serial output
 end entity serializer;
 
 architecture behav of serializer is

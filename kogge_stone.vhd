@@ -22,13 +22,16 @@ library ieee;
 use ieee.std_logic_1164.all;
 use work.log2.all;
 
+--! Koge-Stone adder
+
+--! The kogge-stone adder is the most efficient way to imolement an adder.
 entity kogge_stone is
   generic (
-    bits : natural);
+    bits : natural);                    --! width of input
   port (
-    A : in  std_logic_vector(bits-1 downto 0);
-    B : in  std_logic_vector(bits-1 downto 0);
-    S : out std_logic_vector(bits downto 0));
+    A : in  std_logic_vector(bits-1 downto 0);  --! first summand
+    B : in  std_logic_vector(bits-1 downto 0);  --! second summand
+    S : out std_logic_vector(bits downto 0));  --! sum
 end entity kogge_stone;
 
 architecture behav of kogge_stone is

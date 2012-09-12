@@ -23,18 +23,22 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.math_real.all;
 
+--! sine/cosine
+
+--! This look up table implements the sine/cosine functions.
+--! This can be used to implement e.g. a numerically controlled oszillator.
 entity sincos is
   generic (
-    phase_bits    : natural;
-    bits          : natural;
-    use_registers : bit := '0';
-    lut_type      : natural := 2);
+    phase_bits    : natural;            --! width of the phase input
+    bits          : natural;            --! width of the output
+    use_registers : bit := '0';         --! use additional registers on slow FPGAs
+    lut_type      : natural := 2);      --! length of the look up table = 2*pi/n
   port (
-    clk    : in  std_logic;
-    reset  : in  std_logic;
-    phase  : in  std_logic_vector(phase_bits-1 downto 0);
-    sinout : out std_logic_vector(bits-1 downto 0);
-    cosout : out std_logic_vector(bits-1 downto 0));
+    clk    : in  std_logic;             --! clock input
+    reset  : in  std_logic;             --! asynchronous reset (active low)
+    phase  : in  std_logic_vector(phase_bits-1 downto 0);  --! phase input
+    sinout : out std_logic_vector(bits-1 downto 0);  --! sine output
+    cosout : out std_logic_vector(bits-1 downto 0)); --! cosine output
 end entity sincos;
 
 architecture behav of sincos is

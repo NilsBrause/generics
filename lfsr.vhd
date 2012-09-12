@@ -21,14 +21,18 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+--! linear feedback shift register
+
+--! A linear feedback shift register is used to generate random numbers of
+--! various bit width. This implementation supports bit widths of up to 168.
 entity lfsr is
   generic (
-    bits : natural);
+    bits : natural);                    --! bit width
   port (
-    clk    : in  std_logic;
-    reset  : in  std_logic;
-    seed   : in  std_logic_vector(bits-1 downto 0);
-    output : out std_logic_vector(bits-1 downto 0));
+    clk    : in  std_logic;             --! clock input
+    reset  : in  std_logic;             --! ansynchronous reset (active low)
+    seed   : in  std_logic_vector(bits-1 downto 0);  --! starting value
+    output : out std_logic_vector(bits-1 downto 0));  --! pseudo random output
 end lfsr;
 
 architecture behav of lfsr is

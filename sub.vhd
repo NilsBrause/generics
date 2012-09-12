@@ -21,20 +21,24 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+--! Subtractor
+
+--! A subtractor subtracts two unsigned or signed numbers and outputs the result.
+--! It also includes borrow logic and signed underflow detection.
 entity sub is
   generic (
-    bits : natural;
-    use_registers   : bit := '0';
-    use_kogge_stone : bit := '0');
+    bits : natural;                     --! number of bits
+    use_registers   : bit := '0';       --! use additional registers on slow FPGAs
+    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
   port (
-    clk        : in  std_logic;
-    reset      : in  std_logic;
-    input1     : in  std_logic_vector(bits-1 downto 0);
-    input2     : in  std_logic_vector(bits-1 downto 0);
-    output     : out std_logic_vector(bits-1 downto 0);
-    borrow_in  : in  std_logic;
-    borrow_out : out std_logic;
-    underflow  : out std_logic);
+    clk        : in  std_logic;         --! clock input
+    reset      : in  std_logic;         --! asynchronous reset (active low)
+    input1     : in  std_logic_vector(bits-1 downto 0);  --! minuend
+    input2     : in  std_logic_vector(bits-1 downto 0);  --! subtrahend
+    output     : out std_logic_vector(bits-1 downto 0);  --! difference
+    borrow_in  : in  std_logic;         --! borrow input
+    borrow_out : out std_logic;         --! borrow output or unsigned underflow indicator
+    underflow  : out std_logic);        --! signed underflow indicator
 end entity sub;
 
 architecture behav of sub is

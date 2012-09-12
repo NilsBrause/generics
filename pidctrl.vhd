@@ -22,22 +22,27 @@ library ieee;
 use ieee.std_logic_1164.all;
 use work.log2.all;
 
+--! proportional integral differential controller
+
+--! This is a Proportional Integral Differential (PID) controller.
+--! You can adjust each gain (P, I and D) separatly. An pre-gain of
+--! 2^(bits-int_bits) is applied to prevent overflows.
 entity pidctrl is
   generic (
-    bits            : natural;
-    int_bits        : natural;
-    signed_arith    : bit := '1';
-    use_diff        : bit := '0';
-    use_registers   : bit := '0';
-    use_kogge_stone : bit := '0');
+    bits            : natural;          --! width of input
+    int_bits        : natural;          --! internal signal width
+    signed_arith    : bit := '1';       --! assume input is signed
+    use_diff        : bit := '0';       --! use PID controller instead of PI controller
+    use_registers   : bit := '0';       --! use additional registers on alow fpgas
+    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
   port (
-    clk      : in  std_logic;
-    reset    : in  std_logic;
-    input    : in  std_logic_vector(bits-1 downto 0);
-    pgain    : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
-    igain    : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
-    dgain    : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);
-    output   : out std_logic_vector(int_bits-1 downto 0));
+    clk      : in  std_logic;           --! clock input
+    reset    : in  std_logic;           --! asynchronous reset (active low)
+    input    : in  std_logic_vector(bits-1 downto 0);  --! input signal
+    pgain    : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);  --! proportial gain
+    igain    : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);  --! integral gain
+    dgain    : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);  --! differential gain
+    output   : out std_logic_vector(int_bits-1 downto 0));  --! output signal
 end entity pidctrl;
 
 architecture behav of pidctrl is

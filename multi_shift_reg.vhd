@@ -21,19 +21,23 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+--! multi bit shift register
+
+--! This multi bit shift register behaves just like the normal shift register
+--! shift_reg, bit shift a whole byte at every clock cycle
 entity multi_shift_reg is
   generic (
-    bits  : natural;
-    bytes : natural);
+    bits  : natural;                    --! number of bits per byte
+    bytes : natural);                   --! length of shift register
   port (
-    clk          : in  std_logic;
-    reset        : in  std_logic;
-    load         : in  std_logic;
-    serial_in    : in  std_logic_vector(bits-1 downto 0);
-    serial_out   : out std_logic_vector(bits-1 downto 0);
-    parallel_in  : in  std_logic_vector(bytes*bits-1 downto 0);
-    parallel_out : out std_logic_vector(bytes*bits-1 downto 0);
-    enable       : in  std_logic);
+    clk          : in  std_logic;       --! clock input
+    reset        : in  std_logic;       --! asynchronous reset (active low)
+    load         : in  std_logic;       --! load the the value from parallel_in
+    serial_in    : in  std_logic_vector(bits-1 downto 0);  --! serial input
+    serial_out   : out std_logic_vector(bits-1 downto 0);  --! serial output
+    parallel_in  : in  std_logic_vector(bytes*bits-1 downto 0);  --! parallel input
+    parallel_out : out std_logic_vector(bytes*bits-1 downto 0);  --! parallel output
+    enable       : in  std_logic);      --! enable pin
 end entity multi_shift_reg;
 
 architecture behav of multi_shift_reg is
