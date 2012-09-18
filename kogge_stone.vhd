@@ -31,6 +31,7 @@ entity kogge_stone is
   port (
     A : in  std_logic_vector(bits-1 downto 0);  --! first summand
     B : in  std_logic_vector(bits-1 downto 0);  --! second summand
+    C : in  std_logic;                  --! carry in
     S : out std_logic_vector(bits downto 0));  --! sum
 end entity kogge_stone;
 
@@ -43,7 +44,10 @@ architecture behav of kogge_stone is
 
 begin  -- architecture behav
 
-  stage0: for i in 0 to bits-1 generate
+  P(0) <= A(0) xor B(0) xor C;
+  G(0) <= (A(0) and B(0)) or (C and (A(0) xor B(0)));
+  
+  stage0: for i in 1 to bits-1 generate
     P(0*bits + i) <= A(i) xor B(i);
     G(0*bits + i) <= A(i) and B(i);
   end generate stage0;

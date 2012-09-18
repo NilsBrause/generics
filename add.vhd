@@ -62,11 +62,12 @@ begin  -- architecture behav
   kogge_stone_yes: if use_kogge_stone = '1' generate
     kogge_stone_1: entity work.kogge_stone
       generic map (
-        bits => bits+1)
+        bits => bits)
       port map (
-        A => input1_tmp(bits downto 0),
-        B => input2_tmp(bits downto 0),
-        S => output_tmp);
+        A => input1_tmp(bits downto 1),
+        B => input2_tmp(bits downto 1),
+        C => carry_in,
+        S => output_tmp(bits+1 downto 1));
   end generate kogge_stone_yes;
 
     -- signed overflow

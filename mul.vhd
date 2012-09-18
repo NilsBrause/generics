@@ -58,13 +58,29 @@ begin  -- architecture behavb
   kogge_stone_no: if use_kogge_stone = '0' generate
 
     signed_yes: if signed_arith = '1' generate
-      output <= std_logic_vector(signed(input1) * signed(input2));
+      tmp(bits1+bits2-1 downto 0) <= std_logic_vector(signed(input1) * signed(input2));
     end generate signed_yes;
 
     signed_no: if signed_arith = '0' generate
-      output <= std_logic_vector(unsigned(input1) * unsigned(input2));
+      tmp(bits1+bits2-1 downto 0) <= std_logic_vector(unsigned(input1) * unsigned(input2));
     end generate signed_no;
 
+    registers_yes: if use_registers = '1' generate
+      reg_1: entity work.reg
+        generic map (
+          bits => bits1+bits2)
+        port map (
+          clk      => clk,
+          reset    => reset,
+          enable   => '1',
+          data_in  => tmp(bits1+bits2-1 downto 0),
+          data_out => output);
+    end generate registers_yes;
+
+    registers_no: if use_registers = '0' generate
+      output <= tmp(bits1+bits2-1 downto 0);
+    end generate registers_no;
+    
   end generate kogge_stone_no;
 
   kogge_stone_yes: if use_kogge_stone = '1' generate
