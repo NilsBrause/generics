@@ -40,6 +40,7 @@ architecture behav of clkdiv is
   signal one : std_logic_vector(log2ceil(div)-1 downto 0) := (others => '0');
   signal half : std_logic_vector(log2ceil(div)-1 downto 0) := (others => '0');
   signal ratio : std_logic_vector(log2ceil(div)-1 downto 0) := (others => '0');
+  signal gated : std_logic;
 
 begin  -- architecture behav
 
@@ -68,7 +69,16 @@ begin  -- architecture behav
       reset  => reset,
       enable => enable,
       ratio  => ratio,
-      output => clk_out);
+      output => gated);
   end generate div_yes;
+
+  -- convert gated clock to derived clock
+  reg1_1: entity work.reg1
+    port map (
+      clk      => clk,
+      reset    => reset,
+      enable   => enable,
+      data_in  => gated,
+      data_out => clk_out);
 
 end architecture behav;

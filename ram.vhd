@@ -28,7 +28,7 @@ use work.log2.all;
 --! This is synthesizable true dual port RAM.
 entity ram is
   generic (
-    bits  : natural;                    --! width if one byte
+    bits  : natural;                    --! width of one byte
     bytes : natural);                   --! number of bytes
   port (
     clk1      : in  std_logic;          --! clock input of first port
