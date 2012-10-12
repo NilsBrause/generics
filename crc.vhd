@@ -21,17 +21,21 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+--! Cyclic redundancy check
+
+--! This is a CRC module with variable checksum width and runtime controllable
+--! polynom. It is able to consume multiple bits in one clock cycle.
 entity crc is
   generic (
-    in_bits   : natural := 8;
-    crc_width : natural := 32);
+    in_bits   : natural := 8;           --! width of input signal
+    crc_width : natural := 32);         --! width of crc checksum
   port (
-    clk     : in  std_logic;
-    reset   : in  std_logic;
-    enable  : in  std_logic;
-    input   : in  std_logic_vector(in_bits-1 downto 0);
-    polynom : in  std_logic_vector(crc_width-1 downto 0);
-    output  : out std_logic_vector(crc_width-1 downto 0));
+    clk     : in  std_logic;            --! clock input
+    reset   : in  std_logic;            --! asynchronous reset
+    enable  : in  std_logic;            --! enable pin
+    input   : in  std_logic_vector(in_bits-1 downto 0);  --! input signal
+    polynom : in  std_logic_vector(crc_width-1 downto 0);  --! crc polynom
+    output  : out std_logic_vector(crc_width-1 downto 0));  --! checksum output
 end entity crc;
 
 architecture behav of crc is

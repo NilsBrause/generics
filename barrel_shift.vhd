@@ -69,7 +69,7 @@ use work.log2.all;
 
 entity barrel_shift2 is
   generic (
-    bits         : natural;
+    bits         : natural;             --! width of input
     signed_arith : bit := '1';
     direction    : bit := '0'); -- '0' = right, '1' = left
   port (
@@ -111,14 +111,20 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.log2.all;
 
+--! Barrel shifter
+
+--! A barel shift can be used to efficiently multipliy or divide by powers of
+--! two. Whwn shifting to the right, the top most bit will either be filled
+--! with zeros (unsigned) od the the former most significant bit (sigend).
 entity barrel_shift is
   generic (
-    bits         : natural;
-    signed_arith : bit := '1');
+    bits         : natural;             --! number of bits to shift
+    signed_arith : bit := '1');         --! use signed arithmetic
   port (
-    input  : in  std_logic_vector(bits-1 downto 0);
+    input  : in  std_logic_vector(bits-1 downto 0);  --! input value
+    --! amount of bits to shift (positive = left, negative = rigt)
     amount : in  std_logic_vector(log2ceil(bits)-1 downto 0);
-    output : out std_logic_vector(bits-1 downto 0));
+    output : out std_logic_vector(bits-1 downto 0));  --! shifted output
 end entity barrel_shift;
 
 architecture behav of barrel_shift is

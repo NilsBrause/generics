@@ -22,20 +22,26 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+--! Adder
+
+--! This adder adds two signed or unsigned numbers and outputs the result. It
+--! also includes carry logic and signed overflow detection. On slow FPGAs the
+--! use of and register can be enabled. In that case you have to supply a clock
+--! and reset signal.
 entity add is
   generic (
-    bits : natural;
-    use_registers   : bit := '0';
-    use_kogge_stone : bit := '0');
+    bits : natural;                     --! width of input
+    use_registers   : bit := '0';       --! use additional registers on slow FPGAs
+    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
   port (
-    clk       : in  std_logic;
-    reset     : in  std_logic;
-    input1    : in  std_logic_vector(bits-1 downto 0);
-    input2    : in  std_logic_vector(bits-1 downto 0);
-    output    : out std_logic_vector(bits-1 downto 0);
-    carry_in  : in  std_logic;
-    carry_out : out std_logic;
-    overflow  : out std_logic);
+    clk       : in  std_logic;          --! input clock
+    reset     : in  std_logic;          --! asynchronous reset
+    input1    : in  std_logic_vector(bits-1 downto 0);  --! first summand
+    input2    : in  std_logic_vector(bits-1 downto 0);  --! second summand
+    output    : out std_logic_vector(bits-1 downto 0);  --! output sum
+    carry_in  : in  std_logic;          --! carry imput 
+    carry_out : out std_logic;          --! carry output
+    overflow  : out std_logic);         --! signed overflow
 end entity add;
 
 architecture behav of add is

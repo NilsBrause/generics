@@ -22,20 +22,26 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+--! Enhanced Parallel Port client interface
+
+--! This is an EPP interface for the client side. Since EPP is an address based
+--! protocol, the user side of the interface can directly be attached to a
+--! block ram or register file. Please note, that all transfers are initiated
+--! by the host. A host interface won't be implemented in the near future.
 entity epp is
   port (
-    clk        : in    std_logic;
-    reset      : in    std_logic;
-    epp_nwrite : in    std_logic;
-    epp_ndata  : in    std_logic;
-    epp_naddr  : in    std_logic;
-    epp_nwait  : out   std_logic;
-    epp_data   : inout std_logic_vector(7 downto 0);
-    epp_dir    : out   std_logic;
-    data_in    : in    std_logic_vector(7 downto 0);
-    data_out   : out   std_logic_vector(7 downto 0);
-    addr       : out   std_logic_vector(7 downto 0);
-    wr         : out   std_logic);
+    clk        : in    std_logic;       --! clock input
+    reset      : in    std_logic;       --! asynchronous reset (active low)
+    epp_nwrite : in    std_logic;       --! EPP write strobe
+    epp_ndata  : in    std_logic;       --! EPP data strobe
+    epp_naddr  : in    std_logic;       --! EPP address strobe
+    epp_nwait  : out   std_logic;       --! EPP client busy signal
+    epp_data   : inout std_logic_vector(7 downto 0);  --! EPP data port
+    epp_dir    : out   std_logic;       --! data direction ('1' = write)
+    data_in    : in    std_logic_vector(7 downto 0);  --! data from client to host
+    data_out   : out   std_logic_vector(7 downto 0);  --! data from host to client
+    addr       : out   std_logic_vector(7 downto 0);  --! address
+    wr         : out   std_logic);      --! '1' = write, '0' = read
 end entity epp;
 
 architecture behav of epp is

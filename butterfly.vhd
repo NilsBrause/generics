@@ -21,23 +21,28 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+--! A FFT butterfly
+
+--! A butterfly is an essential part of a fast fourier transformation. Please
+--! note that this implementation can at the moment only be used on devices
+--! with hardware multipliers/adders.
 entity butterfly is
   generic (
-    bits       : natural;
-    phase_bits : natural;
-    add_regs   : natural := 0);
+    bits       : natural;               --! width of input and output signals
+    phase_bits : natural;               --! width of phase input
+    add_regs   : natural := 0);         --! additional registers (0, 1 or 2)
   port (
-    clk          : in  std_logic;
-    reset        : in  std_logic;
-    phase        : in  std_logic_vector(phase_bits-1 downto 0);
-    input1_real  : in  std_logic_vector(bits-1 downto 0);
-    input1_imag  : in  std_logic_vector(bits-1 downto 0);
-    input2_real  : in  std_logic_vector(bits-1 downto 0);
-    input2_imag  : in  std_logic_vector(bits-1 downto 0);
-    output1_real : out std_logic_vector(bits-1 downto 0);
-    output1_imag : out std_logic_vector(bits-1 downto 0);
-    output2_real : out std_logic_vector(bits-1 downto 0);
-    output2_imag : out std_logic_vector(bits-1 downto 0));
+    clk          : in  std_logic;       --! clock input
+    reset        : in  std_logic;       --! asynchronous reset (active low)
+    phase        : in  std_logic_vector(phase_bits-1 downto 0);  --! phase input
+    input1_real  : in  std_logic_vector(bits-1 downto 0);  --! Re(x1)
+    input1_imag  : in  std_logic_vector(bits-1 downto 0);  --! Im(x1)
+    input2_real  : in  std_logic_vector(bits-1 downto 0);  --! Re(x2)
+    input2_imag  : in  std_logic_vector(bits-1 downto 0);  --! Im(x2)
+    output1_real : out std_logic_vector(bits-1 downto 0);  --! Re(y1)
+    output1_imag : out std_logic_vector(bits-1 downto 0);  --! Im(y1)
+    output2_real : out std_logic_vector(bits-1 downto 0);  --! Re(y2)
+    output2_imag : out std_logic_vector(bits-1 downto 0));  --! Im(y2)
 end entity butterfly;
 
 architecture behav of butterfly is

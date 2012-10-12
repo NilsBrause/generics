@@ -21,16 +21,21 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+--! An accumulator
+
+--! This is a standard accumulator. It accumulates the input value at every
+--! clock cycle. The resulting accumulated value is put out. If it reaches the
+--! maximal value it overflows.
 entity accumulator is
   generic (
-    bits : natural;
-    use_kogge_stone : bit := '0');
+    bits : natural;                     --! width of input signal
+    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
   port (
-    clk    : in  std_logic;
-    reset  : in  std_logic;
-    enable : in  std_logic;
-    input  : in  std_logic_vector(bits-1 downto 0);
-    output : out std_logic_vector(bits-1 downto 0));
+    clk    : in  std_logic;             --! clock input
+    reset  : in  std_logic;             --! asynchronous reset
+    enable : in  std_logic;             --! enable pin
+    input  : in  std_logic_vector(bits-1 downto 0);  --! input signal
+    output : out std_logic_vector(bits-1 downto 0));  --! accumulated output
 end entity accumulator;
 
 architecture behav of accumulator is

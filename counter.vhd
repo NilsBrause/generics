@@ -21,15 +21,19 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+--! Multi direction counter
+
+--! This is a counter, that can either count up- or downwards at every clock
+--! cycle. If it reaches its maximal value it restarts at zero.
 entity counter is
   generic (
-    bits            : natural;
-    direction       : bit;
-    use_kogge_stone : bit := '0');
+    bits            : natural;          --! width of counter output
+    direction       : bit;              --! '1' = up, '0' = down
+    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
   port (
-    clk    : in  std_logic;
-    reset  : in  std_logic;
-    enable : in  std_logic;
+    clk    : in  std_logic;             --! clock input
+    reset  : in  std_logic;             --! asynchronous reset
+    enable : in  std_logic;             --! enable pin
     output : out std_logic_vector(bits-1 downto 0));
 end entity counter;
 

@@ -21,14 +21,17 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+--! Bidirectional interface
+
+--! The bidir component can be used to easily interface an inout port.
 entity bidir is
   generic (
-    bits : natural);
+    bits : natural);                    --! port width
   port (
-    pins   : inout std_logic_vector(bits-1 downto 0);
-    output : in    std_logic_vector(bits-1 downto 0);
-    input  : out   std_logic_vector(bits-1 downto 0);
-    dir    : in    std_logic);          -- 1 = in, 0 = out
+    pins   : inout std_logic_vector(bits-1 downto 0);  --! connect to inout port
+    output : in    std_logic_vector(bits-1 downto 0);  --! output to port
+    input  : out   std_logic_vector(bits-1 downto 0);  --! input from port
+    dir    : in    std_logic);          --! '1' = in, '0' = out
 end entity bidir;
 
 architecture behav of bidir is

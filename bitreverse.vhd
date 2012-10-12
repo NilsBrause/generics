@@ -22,12 +22,16 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+--! Bit reverser
+
+--! This component reverses the bit order. This is, the msb will be the ldb and
+--! and vice versa and so on snd so forth.
 entity bitreverse is
   generic (
-    bits : natural);
+    bits : natural);                    --! width of input signal
   port (
-    input  : in std_logic_vector(bits-1 downto 0);
-    output : out std_logic_vector(bits-1 downto 0));
+    input  : in std_logic_vector(bits-1 downto 0);  --! input signal
+    output : out std_logic_vector(bits-1 downto 0));  --! reversed output signal
 end bitreverse;
 
 architecture behav of bitreverse is

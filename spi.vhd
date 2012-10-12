@@ -24,22 +24,27 @@ use ieee.numeric_std.all;
 library work;
 use work.log2.all;
 
+--! Serial Peripheral Interface
+
+--! SPI is a synchronous serial bus, which is used to communicate with all
+--! sorts of devices. The standard allows four operation modes which cn be
+--! choosen via cpol and cpha (see wikipedia for more infos).
 entity spi is
   generic (
-    bits : natural := 32);
+    bits : natural := 32);              --! bits per transfer
   port (
-    clk      : in  std_logic;
-    reset    : in  std_logic;
-    data_out : in  std_logic_vector(bits-1 downto 0);
-    data_in  : out std_logic_vector(bits-1 downto 0);
-    ready    : out std_logic;
-    enable   : in  std_logic;
-    cs       : out std_logic;
-    sck      : out std_logic;
-    mosi     : out std_logic;
-    miso     : in  std_logic;
-    cpol     : in  std_logic;
-    cpha     : in  std_logic);
+    clk      : in  std_logic;           --! clock input
+    reset    : in  std_logic;           --! asynchronous reset (active low)
+    data_out : in  std_logic_vector(bits-1 downto 0);  --! data to send
+    data_in  : out std_logic_vector(bits-1 downto 0);  --! received data
+    ready    : out std_logic;           --! indicates no running transfer
+    enable   : in  std_logic;           --! enable pin
+    cs       : out std_logic;           --! client select output
+    sck      : out std_logic;           --! synchronous clock output
+    mosi     : out std_logic;           --! serial data output
+    miso     : in  std_logic;           --! serial data input
+    cpol     : in  std_logic;           --! clock polarization
+    cpha     : in  std_logic);          --! clock phase
 end entity spi;
 
 architecture behav of spi is

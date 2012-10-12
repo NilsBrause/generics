@@ -23,16 +23,20 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.log2.all;
 
+--! clock divider
+
+--! This clock divider can be used to generate a slower clock from a fast clock by
+--! dividing its frequency by N, where N doesn't have to be a power of two.
 entity clkdiv is
   generic (
-    div : natural;
+    div : natural;                      --! clock divider
     duty_cycle : bit := '1'; -- 0 = almost 0%, 1 = about 50%
-    use_kogge_stone : bit := '0');
+    use_kogge_stone : bit := '0'); --! use an optimized Kogge Stone adder
   port (
-    clk     : in  std_logic;
-    reset   : in  std_logic;
-    enable  : in  std_logic;
-    clk_out : out std_logic);
+    clk     : in  std_logic;            --! clock input
+    reset   : in  std_logic;            --! asynchronous reset (active low)
+    enable  : in  std_logic;            --! enable pin
+    clk_out : out std_logic);           --! divided clock output
 end entity clkdiv;
 
 architecture behav of clkdiv is

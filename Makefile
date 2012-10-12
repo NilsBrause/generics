@@ -113,7 +113,7 @@ help:
 $(TESTBENCH).ghw: $(patsubst %.vhd,%.o,$(HDLFILES))  $(patsubst %.vhd,%.o,$(TBHDLFILES)) Makefile config.mk
 	ghdl -a -Wc,-g $(TESTBENCH).vhd
 	ghdl -e -Wc,-g $(TESTBENCH)
-	ghdl -r $(TESTBENCH) --stop-time=30us --wave=$@
+	ghdl -r $(TESTBENCH) --stop-time=5000ms --wave=$@
 
 %.o: %.vhd Makefile
 	ghdl -a -Wc,-g $<
@@ -216,6 +216,8 @@ clean:
 	rm -rf $(TOPENTITY).twx
 #       tsim
 	rm -rf $(TOPENTITY)_par.nlf
+#	impact
+	rm -rf *auto_project* *impact*
 #	misc
 	rm -rf *~
 

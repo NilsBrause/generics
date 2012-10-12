@@ -21,16 +21,20 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+--! A differatiator
+
+--! This is a standard differentiator. Every clock cycle, it outputs the
+--! the difference of the last two inputs.
 entity differentiator is
   generic (
-    bits : natural;
-    use_kogge_stone : bit := '0');
+    bits : natural;                     --! width of input signal
+    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
   port (
-    clk    : in  std_logic;
-    reset  : in  std_logic;
-    enable : in  std_logic;
-    input  : in  std_logic_vector(bits-1 downto 0);
-    output : out std_logic_vector(bits-1 downto 0));
+    clk    : in  std_logic;             --! clock input
+    reset  : in  std_logic;             --! asynchronous reset (active low)
+    enable : in  std_logic;             --! enable pin
+    input  : in  std_logic_vector(bits-1 downto 0);  --! signal input
+    output : out std_logic_vector(bits-1 downto 0));  --! differentiator output
 end entity differentiator;
 
 architecture behav of differentiator is

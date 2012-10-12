@@ -21,20 +21,26 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+--! Cascaded integrator comb filter
+
+--! A CIC-filter can be used to convert a signal from one samplerate s to
+--! another samplerate s/2^r without aliasing. The number of samples per
+--! filter stage is fixed to one at the moment, but the number of filter
+--! stages is configurable.
 entity cic is
   generic (
-    bits            : natural;
-    r               : natural;
-    n               : natural;
-    signed_arith    : bit := '1';
-    use_kogge_stone : bit := '0');
+    bits            : natural;          --! width of the input signal
+    r               : natural;          --! samplerate divider
+    n               : natural;          --! number of filter stages
+    signed_arith    : bit := '1';       --! use sigend arithmetic
+    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
   port (
-    clk     : in  std_logic;
-    clk2    : in  std_logic;
-    reset   : in  std_logic;
-    input   : in  std_logic_vector(bits-1 downto 0);
-    output  : out std_logic_vector(bits-1 downto 0);
-    output2  : out std_logic_vector(n*r+bits-1 downto 0));
+    clk     : in  std_logic;            --! input clock (frequency f)
+    clk2    : in  std_logic;            --! output clock (must be f/2**r)
+    reset   : in  std_logic;            --! asynchronous reset (active low)
+    input   : in  std_logic_vector(bits-1 downto 0);  --! input signal
+    output  : out std_logic_vector(bits-1 downto 0);  --! output signal
+    output2  : out std_logic_vector(n*r+bits-1 downto 0));  --! full width output
 end entity cic;
 
 architecture behav of cic is

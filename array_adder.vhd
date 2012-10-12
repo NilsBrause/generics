@@ -22,18 +22,24 @@ library ieee;
 use ieee.std_logic_1164.all;
 use work.log2.all;
 
+--! Array Adder
+
+--! The most efficient way to add a large amaount of numbers is in a tree.
+--! This array adder does exactly that. On slow FPGAs the use of registers
+--! afer every adder can be enabled. In that case you have to supply a clock
+--! and reset signal. Please note that there is no carry/overflow logic.
 entity array_adder is
   generic (
-    bits            : natural;
-    width           : natural;
-    signed_arith    : bit := '1';
-    use_registers   : bit := '0';
-    use_kogge_stone : bit := '0');
+    bits            : natural;          --! width of input signal
+    width           : natural;          --! number of summands
+    signed_arith    : bit := '1';       --! use signed aeithmetic
+    use_registers   : bit := '0';       --! use additional registers on slow FPGAs
+    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
   port (
-    clk   : in  std_logic;
-    reset : in  std_logic;
-    data  : in  std_logic_vector(width*bits-1 downto 0);
-    sum   : out std_logic_vector(log2ceil(width)+bits-1 downto 0));
+    clk   : in  std_logic;              --! input clock
+    reset : in  std_logic;              --! asynchronous reset (active low)
+    data  : in  std_logic_vector(width*bits-1 downto 0);  --! summands
+    sum   : out std_logic_vector(log2ceil(width)+bits-1 downto 0));  --! sum
 end array_adder;
 
 architecture tree_add of array_adder is
