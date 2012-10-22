@@ -22,12 +22,16 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+--! Decoder
+
+--! A decoder transforms an arbitrary b bit number n into a 2^b bit vector
+--! with the nth bit is set to '1' and all other bits are '0'.
 entity decoder is
   generic (
-    bits : natural);
+    bits : natural);                    --! width of input signal
   port (
-    input  : in  std_logic_vector(bits-1 downto 0);
-    output : out std_logic_vector(2**bits-1 downto 0));
+    input  : in  std_logic_vector(bits-1 downto 0);  --! input signal
+    output : out std_logic_vector(2**bits-1 downto 0));  --! decoded output
 end entity decoder;
 
 architecture behav of decoder is
@@ -35,17 +39,8 @@ architecture behav of decoder is
 begin  -- architecture behav
 
   my_little_loopy: for c in 0 to 2**bits-1 generate
-    comparator_1: entity work.comparator
-      generic map (
-        bits => bits)
-      port map (
-        clk    => '0',
-        reset  => '1',
-        input1 => input,
-        input2 => std_logic_vector(to_unsigned(c, bits)),
-        equal  => output(c),
-        uless  => open,
-        sless  => open);
+    output(c) <= '1' when input = std_logic_vector(to_unsigned(c, bits)) else
+                 '0';
   end generate my_little_loopy;
 
 end architecture behav;
