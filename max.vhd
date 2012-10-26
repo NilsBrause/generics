@@ -25,7 +25,7 @@ use ieee.numeric_std.all;
 --! Maximum detector
 
 --! The maximum detector receives a set of number-value pairs and gives out the
---! the number of the highest value.
+--! the number of the highest value and the value itself.
 entity maximum is
   generic (
     value_bits : natural;
@@ -38,6 +38,7 @@ entity maximum is
     input_valid : in  std_logic;        --! value and number are valid
     input_last  : in  std_logic;        --! last value-number pair
     maximum     : out std_logic_vector(num_bits-1 downto 0);  --! max. number
+    max_value   : out std_logic_vector(value_bits-1 downto 0);  --! max. value
     new_maximum : out std_logic);       --! maximum computation finished
 end entity maximum;
 
@@ -48,6 +49,7 @@ architecture behav of maximum is
   signal max_num_in  : std_logic_vector(num_bits-1 downto 0);
   signal max_num_out : std_logic_vector(num_bits-1 downto 0);
   signal last        : std_logic;
+  signal done        : std_logic;
 
 begin  -- architecture behav
 
@@ -79,16 +81,43 @@ begin  -- architecture behav
       data_in  => max_num_in,
       data_out => max_num_out);
 
-  maximum <= max_num_out;
-
   last <= input_last and input_valid;
 
-  reg1_1: entity work.reg1
+  -- 'done' asserts just after the last number-value pair.
+  reg1_last: entity work.reg1
     port map (
       clk      => clk,
       reset    => reset,
       enable   => '1',
       data_in  => last,
+      data_out => done);
+  
+  reg1_new_max: entity work.reg1
+    port map (
+      clk      => clk,
+      reset    => reset,
+      enable   => '1',
+      data_in  => done,
       data_out => new_maximum);
   
+  reg_val2: entity work.reg
+    generic map (
+      bits => value_bits)
+    port map (
+      clk      => clk,
+      reset    => reset,
+      enable   => done,
+      data_in  => max_val_out,
+      data_out => max_value);
+
+  reg_num2: entity work.reg
+    generic map (
+      bits => num_bits)
+    port map (
+      clk      => clk,
+      reset    => reset,
+      enable   => done,
+      data_in  => max_num_out,
+      data_out => maximum);
+
 end architecture behav;
