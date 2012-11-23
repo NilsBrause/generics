@@ -37,6 +37,7 @@ entity maximum is
     input_num   : in  std_logic_vector(num_bits-1 downto 0);  --! number
     input_valid : in  std_logic;        --! value and number are valid
     input_last  : in  std_logic;        --! last value-number pair
+    exclude1    : in  std_logic_vector(num_bits-1 downto 0);  --! excluded num
     maximum     : out std_logic_vector(num_bits-1 downto 0);  --! max. number
     max_value   : out std_logic_vector(value_bits-1 downto 0);  --! max. value
     new_maximum : out std_logic);       --! maximum computation finished
@@ -44,23 +45,28 @@ end entity maximum;
 
 architecture behav of maximum is
 
-  signal max_val_in  : std_logic_vector(value_bits-1 downto 0);
-  signal max_val_out : std_logic_vector(value_bits-1 downto 0);
-  signal max_num_in  : std_logic_vector(num_bits-1 downto 0);
-  signal max_num_out : std_logic_vector(num_bits-1 downto 0);
-  signal last        : std_logic;
-  signal done        : std_logic;
+  signal max_val_in    : std_logic_vector(value_bits-1 downto 0);
+  signal max_val_out   : std_logic_vector(value_bits-1 downto 0);
+  signal max_num_in    : std_logic_vector(num_bits-1 downto 0);
+  signal max_num_out   : std_logic_vector(num_bits-1 downto 0);
+  signal last          : std_logic;
+  signal done          : std_logic;
+  signal found_new_max : std_logic;
 
 begin  -- architecture behav
 
-  max_val_in <= input_value when (to_integer(unsigned(input_num)) = 0 and input_valid = '1')
-                or (unsigned(input_value) > unsigned(max_val_out) and input_valid = '1') else
+  found_new_max <= '1' when (unsigned(input_num) = 0
+                             or unsigned(input_value) > unsigned(max_val_out))
+                   and input_valid = '1' and input_num /= exclude1 else '0';
+
+  max_val_in <= input_value when found_new_max = '1' else
+                (others => '0') when unsigned(input_num) = 0 else
                 max_val_out;
-
-  max_num_in <= input_num when (to_integer(unsigned(input_num)) = 0 and input_valid = '1')
-                or (unsigned(input_value) > unsigned(max_val_out) and input_valid = '1') else
+  
+  max_num_in <= input_num when found_new_max = '1' else
+                (others => '0') when unsigned(input_num) = 0 else
                 max_num_out;
-
+  
   reg_val: entity work.reg
     generic map (
       bits => value_bits)
