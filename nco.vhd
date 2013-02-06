@@ -36,7 +36,8 @@ entity nco is
     reset : in  std_logic;              --! asynchronous reset (active low)
     freq  : in  std_logic_vector(freq_bits-1 downto 0);  --! frequency input
     sin   : out std_logic_vector(bits-1 downto 0);  --! sine output
-    cos   : out std_logic_vector(bits-1 downto 0));  --! cosine output
+    cos   : out std_logic_vector(bits-1 downto 0);  --! cosine output
+    saw   : out std_logic_vector(freq_bits-1 downto 0));  --! sawtooth output
 end entity nco;
 
 architecture behav of nco is
@@ -66,5 +67,7 @@ begin  -- architecture behav
       phase  => pa,
       sinout => sin,
       cosout => cos);
+
+  saw <= pa;
 
 end architecture behav;

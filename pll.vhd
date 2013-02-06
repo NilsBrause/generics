@@ -47,7 +47,8 @@ entity pll2 is
     igain      : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);  --! integral gain
     start_freq : in  std_logic_vector(freq_bits-1 downto 0);  --! start frequency
     freq_out   : out std_logic_vector(freq_bits-1 downto 0);  --! measured frequency
-    freq_in    : in  std_logic_vector(freq_bits-1 downto 0));  --! frequency input (connect ti freq_in)
+    freq_in    : in  std_logic_vector(freq_bits-1 downto 0);  --! frequency input (connect to freq_in)
+    phase      : out std_logic_vector(freq_bits-1 downto 0));  --! optinal phase output
 end entity pll2;
 
 architecture behav of pll2 is
@@ -71,7 +72,8 @@ begin  -- architecture behav
       input => input,
       freq  => freq_in,
       i     => i,
-      q     => q);
+      q     => q,
+      phase => phase);
 
   pidctrl_1: entity work.pidctrl
     generic map (

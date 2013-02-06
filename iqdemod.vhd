@@ -40,7 +40,8 @@ entity iqdemod is
     input : in  std_logic_vector(bits-1 downto 0);  --! input signal
     freq  : in  std_logic_vector(freq_bits-1 downto 0);  --! demodulation frequency
     i     : out std_logic_vector(bits+nco_bits-1 downto 0);  --! in phase signal
-    q     : out std_logic_vector(bits+nco_bits-1 downto 0));  --! out of phase signal
+    q     : out std_logic_vector(bits+nco_bits-1 downto 0);  --! out of phase signal
+    phase : out std_logic_vector(freq_bits-1 downto 0));  -- ! optional phase output 
 end entity iqdemod;
 
 architecture behav of iqdemod is
@@ -61,7 +62,8 @@ begin  -- architecture behav
       reset => reset,
       freq  => freq,
       sin   => sin,
-      cos   => cos);
+      cos   => cos,
+      saw   => phase);
 
   mul_1: entity work.mul
     generic map (
