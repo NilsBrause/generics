@@ -34,7 +34,6 @@ entity pll2 is
     nco_bits        : natural;          --! width of nco output
     freq_bits       : natural;          --! width of frequency input/output
     signed_arith    : bit := '1';       --! assume input is signed
-    use_diff        : bit := '0';       --! use PID controller instead of PI controller
     use_registers   : bit := '0';       --! use additional registers on slow FPGAs
     use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
   port (
@@ -46,7 +45,6 @@ entity pll2 is
     error      : in  std_logic_vector(bits+nco_bits-1 downto 0);  --! error input (connect to q)
     pgain      : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);  --! proportional gain
     igain      : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);  --! integral gain
-    dgain      : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);  --! differential gain
     start_freq : in  std_logic_vector(freq_bits-1 downto 0);  --! start frequency
     freq_out   : out std_logic_vector(freq_bits-1 downto 0);  --! measured frequency
     freq_in    : in  std_logic_vector(freq_bits-1 downto 0));  --! frequency input (connect ti freq_in)
@@ -80,7 +78,10 @@ begin  -- architecture behav
       bits            => bits+nco_bits,
       int_bits        => int_bits,
       signed_arith    => signed_arith,
-      use_diff        => use_diff,
+      gains_first     => '1',
+      use_prop        => '1',
+      use_int         => '1',
+      use_diff        => '0',
       use_registers   => use_registers,
       use_kogge_stone => use_kogge_stone)
     port map (
@@ -89,7 +90,7 @@ begin  -- architecture behav
       input   => error,
       pgain   => pgain,
       igain   => igain,
-      dgain   => dgain,
+      dgain   => (others => '0'),
       output  => pid_out);
 
   round_1: entity work.round

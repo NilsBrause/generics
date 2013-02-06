@@ -32,7 +32,10 @@ entity pidctrl is
     bits            : natural;          --! width of input
     int_bits        : natural;          --! internal signal width
     signed_arith    : bit := '1';       --! assume input is signed
-    use_diff        : bit := '0';       --! use PID controller instead of PI controller
+    gains_first     : bit := '1';       --! apply gains before integrator/differentiator
+    use_prop        : bit := '1';       --! use proportional
+    use_int         : bit := '1';       --! use integrator
+    use_diff        : bit := '0';       --! use differentiator
     use_registers   : bit := '0';       --! use additional registers on alow fpgas
     use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
   port (
@@ -94,29 +97,57 @@ begin  -- architecture behav
 
   -- integral
 
-  accumulator_1: entity work.accumulator
-    generic map (
-      bits            => int_bits,
-      use_kogge_stone => use_kogge_stone)
-    port map (
-      clk    => clk,
-      reset  => reset,
-      enable => '1',
-      input  => input3,
-      output => aout);
-  
-  barrel_shift_3: entity work.barrel_shift
-    generic map (
-      bits         => int_bits,
-      signed_arith => signed_arith)
-    port map (
-      input  => aout,
-      amount => igain,
-      output => iout);
+  int_gains_first_no: if gains_first = '0' generate
+    
+    accumulator_1: entity work.accumulator
+      generic map (
+        bits            => int_bits,
+        use_kogge_stone => use_kogge_stone)
+      port map (
+        clk    => clk,
+        reset  => reset,
+        enable => '1',
+        input  => input3,
+        output => aout);
+    
+    barrel_shift_3: entity work.barrel_shift
+      generic map (
+        bits         => int_bits,
+        signed_arith => signed_arith)
+      port map (
+        input  => aout,
+        amount => igain,
+        output => iout);
+    
+  end generate int_gains_first_no;
+
+  int_gains_first_yes: if gains_first = '1' generate
+
+    barrel_shift_3: entity work.barrel_shift
+      generic map (
+        bits         => int_bits,
+        signed_arith => signed_arith)
+      port map (
+        input  => input3,
+        amount => igain,
+        output => aout);
+    
+    accumulator_1: entity work.accumulator
+      generic map (
+        bits            => int_bits,
+        use_kogge_stone => use_kogge_stone)
+      port map (
+        clk    => clk,
+        reset  => reset,
+        enable => '1',
+        input  => aout,
+        output => iout);
+    
+  end generate int_gains_first_yes;
 
   -- differential
 
-  use_diff_yes: if use_diff = '1' generate
+  diff_gains_first_no: if gains_first = '0' generate
     
     differentiator_1: entity work.differentiator
       generic map (
@@ -138,7 +169,35 @@ begin  -- architecture behav
         amount => dgain,
         output => dout2);
     
-    -- sum
+  end generate diff_gains_first_no;
+  
+  diff_gains_first_yes: if gains_first = '1' generate
+    
+    barrel_shift_4: entity work.barrel_shift
+      generic map (
+        bits         => int_bits,
+        signed_arith => signed_arith)
+      port map (
+        input  => input3,
+        amount => dgain,
+        output => dout);
+    
+    differentiator_1: entity work.differentiator
+      generic map (
+        bits            => int_bits,
+        use_kogge_stone => use_kogge_stone)
+      port map (
+        clk    => clk,
+        reset  => reset,
+        enable => '1',
+        input  => dout,
+        output => dout2);
+    
+  end generate diff_gains_first_yes;
+    
+  -- sum
+
+  pid: if use_diff = '1' and use_int = '1' and use_prop = '1' generate
     
     data(3*int_bits-1 downto 2*int_bits) <= dout2;
     data(2*int_bits-1 downto int_bits) <= iout;
@@ -157,26 +216,76 @@ begin  -- architecture behav
         data  => data,
         sum   => sum);
 
-  end generate use_diff_yes;
-
-  use_diff_no: if use_diff = '0' generate
+  end generate pid;
     
-  add_1: entity work.add
-    generic map (
-      bits            => int_bits,
-      use_registers   => use_registers,
-      use_kogge_stone => use_kogge_stone)
-    port map (
-      clk       => clk,
-      reset     => reset,
-      input1    => iout,
-      input2    => pout,
-      output    => sum(int_bits-1 downto 0),
-      carry_in  => '0',
-      carry_out => open,
-      overflow  => open);
-  
-  end generate use_diff_no;
+  pi: if use_diff = '0' and use_int = '1' and use_prop = '1' generate
+    
+    add_1: entity work.add
+      generic map (
+        bits            => int_bits,
+        use_registers   => use_registers,
+        use_kogge_stone => use_kogge_stone)
+      port map (
+        clk       => clk,
+        reset     => reset,
+        input1    => iout,
+        input2    => pout,
+        output    => sum(int_bits-1 downto 0),
+        carry_in  => '0',
+        carry_out => open,
+        overflow  => open);
+    
+  end generate pi;
+
+  pd: if use_diff = '1' and use_int = '0' and use_prop = '1' generate
+    
+    add_1: entity work.add
+      generic map (
+        bits            => int_bits,
+        use_registers   => use_registers,
+        use_kogge_stone => use_kogge_stone)
+      port map (
+        clk       => clk,
+        reset     => reset,
+        input1    => dout,
+        input2    => pout,
+        output    => sum(int_bits-1 downto 0),
+        carry_in  => '0',
+        carry_out => open,
+        overflow  => open);
+    
+  end generate pd;
+
+  id: if use_diff = '1' and use_int = '1' and use_prop = '0' generate
+    
+    add_1: entity work.add
+      generic map (
+        bits            => int_bits,
+        use_registers   => use_registers,
+        use_kogge_stone => use_kogge_stone)
+      port map (
+        clk       => clk,
+        reset     => reset,
+        input1    => dout,
+        input2    => iout,
+        output    => sum(int_bits-1 downto 0),
+        carry_in  => '0',
+        carry_out => open,
+        overflow  => open);
+    
+  end generate id;
+
+  p: if use_diff = '0' and use_int = '0' and use_prop = '1' generate
+    sum(int_bits-1 downto 0) <= pout;
+  end generate p;
+
+  i: if use_diff = '0' and use_int = '1' and use_prop = '0' generate
+    sum(int_bits-1 downto 0) <= iout;
+  end generate i;
+
+  d: if use_diff = '1' and use_int = '0' and use_prop = '0' generate
+    sum(int_bits-1 downto 0) <= dout;
+  end generate d;
 
   output <= sum(int_bits-1 downto 0);
 
