@@ -59,8 +59,9 @@ begin  -- architecture behav
 
   sincos_1: entity work.sincos
     generic map (
-      phase_bits => freq_bits,
-      bits       => bits)
+      phase_bits    => freq_bits,
+      use_registers => use_registers,
+      bits          => bits)
     port map (
       clk    => clk,
       reset  => reset,
