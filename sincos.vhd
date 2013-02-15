@@ -32,7 +32,7 @@ entity sincos is
     phase_bits    : natural;            --! width of the phase input
     bits          : natural;            --! width of the output
     use_registers : bit := '0';         --! use additional registers on slow FPGAs
-    lut_type      : natural := 2);      --! length of the look up table = 2*pi/n
+    lut_type      : natural := 1);      --! length of the look up table = 2*pi/n
   port (
     clk    : in  std_logic;             --! clock input
     reset  : in  std_logic;             --! asynchronous reset (active low)

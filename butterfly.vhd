@@ -30,7 +30,7 @@ entity butterfly is
   generic (
     bits       : natural;               --! width of input and output signals
     phase_bits : natural;               --! width of phase input
-    add_regs   : natural := 0);         --! additional registers (0, 1 or 2)
+    add_regs   : natural := 1);         --! additional registers (0, 1 or 2)
   port (
     clk          : in  std_logic;       --! clock input
     reset        : in  std_logic;       --! asynchronous reset (active low)
@@ -88,13 +88,14 @@ begin  -- architecture behav
   -- (a + i*b)(c - i*s) = a*c + b*s + i*(b*c - a*s)
 
   -----------------------------------------------------------------------------
-  -- Part I: calculate sine/cosine & delay input
+  -- Part I: calculate sine/cosine & delay input (RAM takes one clock period)
   -----------------------------------------------------------------------------
 
   sincos_1: entity work.sincos
     generic map (
-      phase_bits => phase_bits,
-      bits       => bits)
+      phase_bits    => phase_bits,
+      bits          => bits,
+      use_registers => '0')
     port map (
       clk    => clk,
       reset  => reset,
