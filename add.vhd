@@ -26,8 +26,8 @@ use ieee.numeric_std.all;
 
 --! This adder adds two signed or unsigned numbers and outputs the result. It
 --! also includes carry logic and signed overflow detection. On slow FPGAs the
---! use of and register can be enabled. In that case you have to supply a clock
---! and reset signal.
+--! use of additional registers can be enabled. In that case you have to supply
+--! a clock and reset signal.
 entity add is
   generic (
     bits : natural;                     --! width of input

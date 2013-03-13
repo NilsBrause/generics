@@ -26,7 +26,7 @@ use work.log2.all;
 --! Pulse width modulation
 
 --! Pulse width modulation (PWM) can be used as a cheap 1 bit digital to analog
---! converter. The digital values are convertet to pulses of different widths. In
+--! converter. The digital values are converted to pulses of different widths. In
 --! combination with an low pass filter this results in a smooth analog curve.
 entity pwm is
   generic (
