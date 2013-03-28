@@ -73,6 +73,12 @@ architecture behav of spi is
   constant low  : state_t := x"2";
   constant high : state_t := x"3";
   constant done : state_t := x"4";
+  constant w8   : state_t := x"5";
+
+  signal cs_tmp : std_logic;
+  signal sck_tmp : std_logic;
+  signal mosi_tmp : std_logic;
+  signal ready_tmp : std_logic;
   
 begin  -- architecture behav
 
@@ -124,15 +130,16 @@ begin  -- architecture behav
       data_in  => next_state,
       data_out => state);
 
-  next_state <= idle when reset = '0' or state = done else
+  next_state <= idle when reset = '0' or state = w8 else
                 load when enable = '1' and state = idle else
                 low  when state = load or (state = high and count_out /= count_max) else
                 high when state = low else
                 done when state = high and count_out = count_max else
+                w8   when state = done else
                 state;
 
-  ready <= '1' when state = idle and reset = '1' else
-           '0';
+  ready_tmp <= '1' when state = idle and reset = '1' else
+               '0';
   
   shift_load <= '1' when state = load else
                 '0';
@@ -146,15 +153,49 @@ begin  -- architecture behav
   count_enable <= '1' when state = high else
                   '0';
 
-  cs <= '0' when state /= idle else
-        '1';
+  cs_tmp <= '0' when state /= idle else
+            '1';
 
   spi_clk <= '1' when state = high else
              '0';
 
-  sck <= spi_clk xor cpol;
+  sck_tmp <= spi_clk xor cpol;
 
-  mosi <= spi_out when cpha = '0' else
-          spi_out2;
+  mosi_tmp <= spi_out when cpha = '0' else
+              spi_out2;
+
+  -- synchonize output signals
+
+  reg1_cs: entity work.reg1
+    port map (
+      clk      => clk,
+      reset    => reset,
+      enable   => '1',
+      data_in  => cs_tmp,
+      data_out => cs);
+
+  reg1_sck: entity work.reg1
+    port map (
+      clk      => clk,
+      reset    => reset,
+      enable   => '1',
+      data_in  => sck_tmp,
+      data_out => sck);
+
+  reg1_mosi: entity work.reg1
+    port map (
+      clk      => clk,
+      reset    => reset,
+      enable   => '1',
+      data_in  => mosi_tmp,
+      data_out => mosi);
+
+  reg1_ready: entity work.reg1
+    port map (
+      clk      => clk,
+      reset    => reset,
+      enable   => '1',
+      data_in  => ready_tmp,
+      data_out => ready);
 
 end architecture behav;
