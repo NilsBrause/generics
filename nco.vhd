@@ -35,6 +35,7 @@ entity nco is
     clk   : in  std_logic;              --! clock input
     reset : in  std_logic;              --! asynchronous reset (active low)
     freq  : in  std_logic_vector(freq_bits-1 downto 0);  --! frequency input
+    pm    : in  std_logic_vector(freq_bits-1 downto 0);  --! phase modulation
     sin   : out std_logic_vector(bits-1 downto 0);  --! sine output
     cos   : out std_logic_vector(bits-1 downto 0);  --! cosine output
     saw   : out std_logic_vector(freq_bits-1 downto 0));  --! sawtooth output
@@ -43,6 +44,7 @@ end entity nco;
 architecture behav of nco is
 
   signal pa : std_logic_vector(freq_bits-1 downto 0) := (others => '0');
+  signal pam : std_logic_vector(freq_bits-1 downto 0) := (others => '0');
   
 begin  -- architecture behav
 
@@ -57,6 +59,21 @@ begin  -- architecture behav
       input  => freq,
       output => pa);
 
+  add_1: entity work.add
+    generic map (
+      bits            => freq_bits,
+      use_registers   => use_registers,
+      use_kogge_stone => use_kogge_stone)
+    port map (
+      clk       => clk,
+      reset     => reset,
+      input1    => pa,
+      input2    => pm,
+      output    => pam,
+      carry_in  => '0',
+      carry_out => open,
+      overflow  => open);
+
   sincos_1: entity work.sincos
     generic map (
       phase_bits    => freq_bits,
@@ -65,10 +82,10 @@ begin  -- architecture behav
     port map (
       clk    => clk,
       reset  => reset,
-      phase  => pa,
+      phase  => pam,
       sinout => sin,
       cosout => cos);
 
-  saw <= pa;
+  saw <= pam;
 
 end architecture behav;

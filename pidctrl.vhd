@@ -41,6 +41,7 @@ entity pidctrl is
   port (
     clk      : in  std_logic;           --! clock input
     reset    : in  std_logic;           --! asynchronous reset (active low)
+    enable   : in  std_logic;           --! enable pin
     input    : in  std_logic_vector(bits-1 downto 0);  --! input signal
     pgain    : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);  --! proportial gain
     igain    : in  std_logic_vector(log2ceil(int_bits)-1 downto 0);  --! integral gain
@@ -82,7 +83,7 @@ begin  -- architecture behav
     port map (
       clk      => clk,
       reset    => reset,
-      enable   => '1',
+      enable   => enable,
       data_in  => input3,
       data_out => pout2);
 
@@ -106,7 +107,7 @@ begin  -- architecture behav
       port map (
         clk    => clk,
         reset  => reset,
-        enable => '1',
+        enable => enable,
         input  => input3,
         output => aout);
     
@@ -139,7 +140,7 @@ begin  -- architecture behav
       port map (
         clk    => clk,
         reset  => reset,
-        enable => '1',
+        enable => enable,
         input  => aout,
         output => iout);
     
@@ -156,7 +157,7 @@ begin  -- architecture behav
       port map (
         clk    => clk,
         reset  => reset,
-        enable => '1',
+        enable => enable,
         input  => input3,
         output => dout);
     
@@ -189,7 +190,7 @@ begin  -- architecture behav
       port map (
         clk    => clk,
         reset  => reset,
-        enable => '1',
+        enable => enable,
         input  => dout,
         output => dout2);
     

@@ -24,8 +24,7 @@ use work.log2.all;
 
 --! Koge-Stone adder
 
---! The kogge-stone adder is the most efficient way to implement an adder. It
---! should not be used directly. Use the "add" component instead.
+--! The kogge-stone adder is the most efficient way to imolement an adder.
 entity kogge_stone is
   generic (
     bits : natural);                    --! width of input

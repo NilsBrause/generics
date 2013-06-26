@@ -27,9 +27,10 @@ use ieee.std_logic_1164.all;
 --! another samplerate s/2^r without aliasing. The number of samples per
 --! filter stage is fixed to one at the moment, but the number of filter
 --! stages is configurable.
-entity cic is
+entity gcic is
   generic (
     bits            : natural;          --! width of the input signal
+    out_bits        : natural;          --! width of the output signal
     r               : natural;          --! samplerate divider
     n               : natural;          --! number of filter stages
     signed_arith    : bit := '1';       --! use sigend arithmetic
@@ -39,15 +40,15 @@ entity cic is
     clk2    : in  std_logic;            --! output clock (must be f/2**r)
     reset   : in  std_logic;            --! asynchronous reset (active low)
     input   : in  std_logic_vector(bits-1 downto 0);  --! input signal
-    output  : out std_logic_vector(bits-1 downto 0);  --! output signal
-    output2  : out std_logic_vector(n*r+bits-1 downto 0));  --! full width output
-end entity cic;
+    output  : out std_logic_vector(out_bits-1 downto 0));  --! output signal
+end entity gcic;
 
-architecture behav of cic is
+architecture behav of gcic is
 
   constant bits2 : natural := n*r + bits;
   signal input2  : std_logic_vector(bits-1 downto 0) := (others => '0');
-  signal temp    : std_logic_vector((2*n+2)*bits2-1 downto 0) := (others => '0');
+  signal temp    : std_logic_vector((n+1)*bits2-1 downto 0) := (others => '0');
+  signal temp2   : std_logic_vector((n+1)*out_bits-1 downto 0) := (others => '0');
 
 begin  -- architecture behav
 
@@ -77,41 +78,33 @@ begin  -- architecture behav
         output => temp((c+1)*bits2-1 downto c*bits2));
   end generate integrators;
 
+  -- truncating here instead of at the end saves
+  -- a lot of logic and does not intruduce noise.
+  -- truncation instead of rounding leads to a 0.5 DC offset
+  -- which does not propagate through the differetiators
   reg_2: entity work.reg
     generic map (
-      bits => bits2)
+      bits => out_bits)
     port map (
       clk      => clk2,
       reset    => reset,
       enable   => '1',
-      data_in  => temp((n+1)*bits2-1 downto n*bits2),
-      data_out => temp((n+2)*bits2-1 downto (n+1)*bits2));
+      data_in  => temp((n+1)*bits2-1 downto (n+1)*bits2-out_bits),
+      data_out => temp2(out_bits-1 downto 0));
 
   combs: for c in 1 to n generate
     differentiator_1: entity work.differentiator
       generic map (
-        bits            => bits2,
+        bits            => out_bits,
         use_kogge_stone => use_kogge_stone)
       port map (
         clk    => clk2,
         reset  => reset,
         enable => '1',
-        input  => temp((n+1+c)*bits2-1 downto (n+1+c-1)*bits2),
-        output => temp((n+1+c+1)*bits2-1 downto (n+1+c)*bits2));
+        input  => temp2(c*out_bits-1 downto (c-1)*out_bits),
+        output => temp2((c+1)*out_bits-1 downto c*out_bits));
   end generate combs;
 
-  output2 <= temp((2*n+2)*bits2-1 downto (2*n+1)*bits2);
-
-  round_1: entity work.round
-    generic map (
-      inp_bits        => bits2,
-      outp_bits       => bits,
-      signed_arith    => signed_arith,
-      use_kogge_stone => use_kogge_stone)
-    port map (
-      clk   => clk,
-      reset => reset,
-      input  => temp((2*n+2)*bits2-1 downto (2*n+1)*bits2),
-      output => output);
+  output <= temp2((n+1)*out_bits-1 downto n*out_bits);
 
 end architecture behav;

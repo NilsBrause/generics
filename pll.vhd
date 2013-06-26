@@ -89,6 +89,7 @@ begin  -- architecture behav
     port map (
       clk     => clk,
       reset   => reset,
+      enable  => '1',
       input   => error,
       pgain   => pgain,
       igain   => igain,

@@ -40,6 +40,7 @@ end entity differentiator;
 architecture behav of differentiator is
 
   signal reg_out : std_logic_vector(bits-1 downto 0) := (others => '0');
+  signal sub_out : std_logic_vector(bits-1 downto 0) := (others => '0');
 
 begin  -- architecture behav
 
@@ -63,9 +64,19 @@ begin  -- architecture behav
       reset     => reset,
       input1     => input,
       input2     => reg_out,
-      output     => output,
+      output     => sub_out,
       borrow_in  => '0',
       borrow_out => open,
       underflow  => open);
+
+  reg_2: entity work.reg
+    generic map (
+      bits => bits)
+    port map (
+      clk      => clk,
+      reset    => reset,
+      enable   => enable,
+      data_in  => sub_out,
+      data_out => output);
   
 end architecture behav;

@@ -61,6 +61,7 @@ begin  -- architecture behav
       clk   => clk,
       reset => reset,
       freq  => freq,
+      pm    => (others => '0'),
       sin   => sin,
       cos   => cos,
       saw   => phase);
