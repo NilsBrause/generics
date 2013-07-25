@@ -40,10 +40,10 @@ begin  -- behav
 
   reg: process (clk, reset)
   begin
-    if reset = '0' then
-      data_out <= '0';
-    elsif rising_edge(clk) then
-      if enable = '1' then
+    if rising_edge(clk) then
+      if reset = '0' then
+        data_out <= '0';
+      elsif enable = '1' then
         data_out <= data_in;
       end if;
     end if;
