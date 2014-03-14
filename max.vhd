@@ -37,7 +37,14 @@ entity maximum is
     input_num   : in  std_logic_vector(num_bits-1 downto 0);  --! number
     input_valid : in  std_logic;        --! value and number are valid
     input_last  : in  std_logic;        --! last value-number pair
-    exclude1    : in  std_logic_vector(num_bits-1 downto 0);  --! excluded num
+    exclude0    : in  std_logic_vector(num_bits-1 downto 0);  --! excluded num0
+    exclude1    : in  std_logic_vector(num_bits-1 downto 0);  --! excluded num1
+    exclude2    : in  std_logic_vector(num_bits-1 downto 0);  --! excluded num2
+    exclude3    : in  std_logic_vector(num_bits-1 downto 0);  --! excluded num3
+    exclude4    : in  std_logic_vector(num_bits-1 downto 0);  --! excluded num4
+    exclude5    : in  std_logic_vector(num_bits-1 downto 0);  --! excluded num5
+    exclude6    : in  std_logic_vector(num_bits-1 downto 0);  --! excluded num6
+    exclude7    : in  std_logic_vector(num_bits-1 downto 0);  --! excluded num7
     maximum     : out std_logic_vector(num_bits-1 downto 0);  --! max. number
     max_value   : out std_logic_vector(value_bits-1 downto 0);  --! max. value
     new_maximum : out std_logic);       --! maximum computation finished
@@ -55,9 +62,17 @@ architecture behav of maximum is
 
 begin  -- architecture behav
 
-  found_new_max <= '1' when (unsigned(input_num) = 0
-                             or unsigned(input_value) > unsigned(max_val_out))
-                   and input_valid = '1' and input_num /= exclude1 else '0';
+  found_new_max <= '1' when unsigned(input_value) > unsigned(max_val_out)
+                   and input_valid = '1'
+                   and input_num /= exclude0
+                   and input_num /= exclude1
+                   and input_num /= exclude2
+                   and input_num /= exclude3
+                   and input_num /= exclude4
+                   and input_num /= exclude5
+                   and input_num /= exclude6
+                   and input_num /= exclude7
+                   else '0';
 
   max_val_in <= input_value when found_new_max = '1' else
                 (others => '0') when unsigned(input_num) = 0 else

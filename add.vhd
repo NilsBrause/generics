@@ -32,7 +32,7 @@ entity add is
   generic (
     bits : natural;                     --! width of input
     use_registers   : bit := '0';       --! use additional registers on slow FPGAs
-    use_kogge_stone : bit := '1');      --! use an optimized Kogge Stone adder
+    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
   port (
     clk       : in  std_logic;          --! input clock
     reset     : in  std_logic;          --! asynchronous reset
