@@ -31,6 +31,7 @@ entity pll2 is
   generic (
     bits            : natural;          --! width of input
     int_bits        : natural;          --! internal signal width
+    lut_bits        : natural;          --! width of LUT input
     nco_bits        : natural;          --! width of nco output
     freq_bits       : natural;          --! width of frequency input/output
     signed_arith    : bit := '1';       --! assume input is signed
@@ -63,6 +64,7 @@ begin  -- architecture behav
       bits            => bits,
       nco_bits        => nco_bits,
       freq_bits       => freq_bits,
+      lut_bits        => lut_bits,
       signed_arith    => signed_arith,
       use_registers   => use_registers,
       use_kogge_stone => use_kogge_stone)

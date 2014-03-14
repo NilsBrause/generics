@@ -31,6 +31,7 @@ entity iqdemod is
     bits            : natural;          --! width of input
     nco_bits        : natural;          --! width of internal nco
     freq_bits       : natural;          --! width of frequency input
+    lut_bits        : natural;          --! width of LUT input
     signed_arith    : bit := '1';       --! use signed arithmetic
     use_registers   : bit := '0';       --! use additional registers on slow FPGAs
     use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
@@ -54,6 +55,7 @@ begin  -- architecture behav
   nco_1: entity work.nco
     generic map (
       freq_bits       => freq_bits,
+      lut_bits        => lut_bits,
       bits            => nco_bits,
       use_registers   => use_registers,
       use_kogge_stone => use_kogge_stone)

@@ -28,6 +28,7 @@ use ieee.std_logic_1164.all;
 entity nco is
   generic (
     freq_bits       : natural;          --! width of freqeuncy input
+    lut_bits        : natural;          --! width of LUT input
     bits            : natural;          --! width of output signals
     use_registers   : bit := '0';       --! use additional rtegisters on slow FPGAs
     use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
@@ -76,13 +77,13 @@ begin  -- architecture behav
 
   sincos_1: entity work.sincos
     generic map (
-      phase_bits    => freq_bits,
+      phase_bits    => lut_bits,
       use_registers => use_registers,
       bits          => bits)
     port map (
       clk    => clk,
       reset  => reset,
-      phase  => pam,
+      phase  => pam(freq_bits-1 downto freq_bits-lut_bits),
       sinout => sin,
       cosout => cos);
 
