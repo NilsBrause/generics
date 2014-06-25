@@ -1,17 +1,12 @@
 1. Introduction
 ---------------
 
-This folder contains various extremly useful generic VHDL compoments.
-Documentation for each component can be found in the following sections.
-If you add a component, you have to conform to the existing coding conventions
-and you have to append a section to this document. If you fail to do so, your
-component will be deleted without further notice.
-
+This folder contains various useful generic VHDL compoments.
 
 2. Legal notice
 ---------------
 
-Copyright (c) 2012, Nils Christopher Brause
+Copyright (c) 2012-2014, Nils Christopher Brause
 All rights reserved.
 
 Permission to use, copy, modify, and/or distribute this software for any
