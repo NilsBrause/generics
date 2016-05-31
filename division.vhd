@@ -1,4 +1,4 @@
--- Copyright (c) 2012, 1013 Nils Christopher Brause
+-- Copyright (c) 2012-2016, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -22,53 +22,93 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+-- used internally
+
 entity div_int is
   generic (
     bits            : natural;
-    i               : natural;
-    use_registers   : bit := '0';       --! use additional registers on slow FPGAs
-    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
+    use_registers   : bit := '0';
+    use_kogge_stone : bit := '0';
+    c               : natural);
   port (
-    clk   : in  std_logic;          --! clock input
-    reset : in  std_logic;          --! asynchronous reset (active low)
-    N     : in  std_logic_vector(bits-1 downto 0);
+    clk   : in std_logic;
+    reset : in std_logic;
     D     : in  std_logic_vector(bits-1 downto 0);
-    R_in  : in  std_logic_vector(bits-1 downto 0);
-    R_out : out std_logic_vector(bits-1 downto 0);
-    Qi    : out std_logic);
+    Nin   : in  std_logic_vector(bits-1 downto 0);
+    Nout  : out std_logic_vector(bits-1 downto 0);
+    Qin   : in  std_logic_vector(bits-1 downto 0);
+    Qout  : out std_logic_vector(bits-1 downto 0));
 end entity div_int;
 
 architecture behav of div_int is
 
-  signal Rsh : std_logic_vector(bits-1 downto 0);
-  signal RshmD : std_logic_vector(bits-1 downto 0);
-  signal borrow : std_logic;
-  signal RgeD : std_logic;
-  signal RmD : std_logic_vector(bits-1 downto 0);
-  
+  subtype bits_t is std_logic_vector(bits-1 downto 0);
+
+  constant zero : bits_t := (others => '0');
+
+  signal Ds        : bits_t;
+  signal NmDs      : bits_t;
+  signal borrow    : std_logic;
+  signal divides   : boolean;
+  signal N2        : bits_t;
+  signal Q2        : bits_t;
+
 begin  -- architecture behav
 
-  Rsh(bits-1 downto 1) <= R_in(bits-2 downto 0);
-  Rsh(0) <= N(i);
-  
+  -- (D << c)
+  Ds(bits-1 downto c) <= D(bits-1-c downto 0);
+  Ds(c-1 downto 0) <= (others => '0');
+
+  -- N -= (D << c);
   sub_1: entity work.sub
     generic map (
       bits            => bits,
-      use_registers   => use_registers,
+      use_registers   => '0',
       use_kogge_stone => use_kogge_stone)
     port map (
       clk        => clk,
       reset      => reset,
-      input1     => Rsh,
-      input2     => D,
-      output     => RshmD,
+      input1     => Nin,
+      input2     => Ds,
+      output     => NmDs,
       borrow_in  => '0',
       borrow_out => borrow,
       underflow  => open);
-  
-  RgeD <= not borrow;
-  R_out <= RshmD when RgeD = '1' else Rsh;
-  Qi <= RgeD;
+
+  -- N >= (D << c) && D >> (31-c) == 0
+  divides <= borrow = '0' and D(bits-1 downto bits-c-1) = zero(bits-1 downto bits-c-1);  
+
+  Q2(bits-1 downto c+1) <= Qin(bits-1 downto c+1);
+  Q2(c) <= '1' when divides else '0';
+  Q2(c-1 downto 0) <= Qin(c-1 downto 0);
+  N2 <= NmDs when divides else Nin;
+
+  use_registers_yes: if use_registers = '1' generate
+    reg_1: entity work.reg
+      generic map (
+        bits => bits)
+      port map (
+        clk      => clk,
+        reset    => reset,
+        enable   => '1',
+        data_in  => Q2,
+        data_out => Qout);
+
+    reg_2: entity work.reg
+      generic map (
+        bits => bits)
+      port map (
+        clk      => clk,
+        reset    => reset,
+        enable   => '1',
+        data_in  => N2,
+        data_out => Nout);
+  end generate use_registers_yes;
+
+  use_registers_no: if use_registers = '0' generate
+    Qout <= Q2;
+    Nout <= Nin;
+  end generate use_registers_no;
 
 end architecture behav;
 
@@ -76,49 +116,215 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
---! Division
+--! Divider
 
---! This is a integer division with remainder support.
-entity division is
+entity div is
   generic (
-    bits            : natural;          --! width of signals
+    bits            : natural;          --! width of input/output
+    signed_arith    : bit := '1';       --! use signed arithmetic
     use_registers   : bit := '0';       --! use additional registers on slow FPGAs
     use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
   port (
-    clk       : in  std_logic;          --! clock input
-    reset     : in  std_logic;          --! asynchronous reset (active low)
-    dividend  : in  std_logic_vector(bits-1 downto 0);  --! Dividend
-    divisor   : in  std_logic_vector(bits-1 downto 0);  --! Divisor
-    quotient  : out std_logic_vector(bits-1 downto 0);  --! Quotient
-    remainder : out std_logic_vector(bits-1 downto 0));  --! Remainder
-end entity division;
+    clk       : in  std_logic;
+    reset     : in  std_logic;
+    divident  : in  std_logic_vector(bits-1 downto 0);   --! nominator
+    divisor   : in  std_logic_vector(bits-1 downto 0);   --! denominator
+    quotient  : out std_logic_vector(bits-1 downto 0);   --! quotient
+    remainder : out std_logic_vector(bits-1 downto 0));  --! rest
+end entity div;
 
-architecture behav of division is
+architecture behav of div is
 
-  type R_array is array (natural range <>) of std_logic_vector(bits-1 downto 0);
-  signal Rs : R_array(bits downto 0);
+  subtype bits_t is std_logic_vector(bits-1 downto 0);
+  type bits_vector is array (natural range <>) of bits_t;
+
+  signal dividentisneg : std_logic;
+  signal divisorisneg : std_logic;
+  signal dividentisneg2 : std_logic;
+  signal divisorisneg2 : std_logic;
+  signal ndivident : bits_t;
+  signal ndivisor : bits_t;
+  signal nom_tmp : bits_t;
+  signal denom_tmp : bits_t;
+  signal nom : bits_t;
+  signal denom : bits_t;
+  signal N : bits_vector(0 to bits);
+  signal Q : bits_vector(0 to bits);
+  signal quot : bits_t;
+  signal nquot : bits_t;
+  signal rest : bits_t;
+  signal nrest : bits_t;
+  signal quot_tmp : bits_t;
+  signal rest_tmp : bits_t;
 
 begin  -- architecture behav
 
-  Rs(bits) <= (others => '0');
+  signed_arith_no: if signed_arith = '0' generate
+    nom <= divident;
+    denom <= divisor;
+    quotient <= quot;
+    remainder <= rest;
+  end generate signed_arith_no;
 
-  bits_loop: for c in bits-1 downto 0 generate
+  signed_arith_yes: if signed_arith = '1' generate
+
+    dividentisneg <= '1' when divident(bits-1) = '1' else '0';
+    divisorisneg <= '1' when divisor(bits-1) = '1' else '0';
+
+    divident_neg: entity work.neg
+      generic map (
+        bits            => bits,
+        use_registers   => '0',
+        use_kogge_stone => use_kogge_stone)
+      port map (
+        clk       => clk,
+        reset     => reset,
+        input     => divident,
+        output    => ndivident,
+        underflow => open);
+
+    divisor_neg: entity work.neg
+      generic map (
+        bits            => bits,
+        use_registers   => '0',
+        use_kogge_stone => use_kogge_stone)
+      port map (
+        clk       => clk,
+        reset     => reset,
+        input     => divisor,
+        output    => ndivisor,
+        underflow => open);
+
+    nom_tmp <= ndivident when dividentisneg = '1' else divident;
+    denom_tmp <= ndivisor when divisorisneg = '1' else divisor;
+
+    use_registers_yes: if use_registers = '1' generate
+
+      nom_reg: entity work.reg
+        generic map (
+          bits => bits)
+        port map (
+          clk      => clk,
+          reset    => reset,
+          enable   => '1',
+          data_in  => nom_tmp,
+          data_out => nom);
+      
+      denom_reg: entity work.reg
+        generic map (
+          bits => bits)
+        port map (
+          clk      => clk,
+          reset    => reset,
+          enable   => '1',
+          data_in  => denom_tmp,
+          data_out => denom);
+      
+      divisorisneg_delay_reg: entity work.delay_reg
+        generic map (
+          bits  => 1,
+          delay => bits+1)
+        port map (
+          clk      => clk,
+          reset    => reset,
+          enable   => '1',
+          data_in(0)  => divisorisneg,
+          data_out(0) => divisorisneg2);
+
+      dividentisneg_delay_reg: entity work.delay_reg
+        generic map (
+          bits  => 1,
+          delay => bits+1)
+        port map (
+          clk      => clk,
+          reset    => reset,
+          enable   => '1',
+          data_in(0)  => dividentisneg,
+          data_out(0) => dividentisneg2);
+
+      quot_reg: entity work.reg
+        generic map (
+          bits => bits)
+        port map (
+          clk      => clk,
+          reset    => reset,
+          enable   => '1',
+          data_in  => quot_tmp,
+          data_out => quotient);
+      
+      rest_reg: entity work.reg
+        generic map (
+          bits => bits)
+        port map (
+          clk      => clk,
+          reset    => reset,
+          enable   => '1',
+          data_in  => rest_tmp,
+          data_out => remainder);
+      
+    end generate use_registers_yes;
+
+    use_registers_no: if use_registers = '0' generate
+      nom <= nom_tmp;
+      denom <= denom_tmp;
+      divisorisneg2 <= divisorisneg;
+      dividentisneg2 <= dividentisneg;
+      quotient <= quot_tmp;
+      remainder <= rest_tmp;
+    end generate use_registers_no;
+
+    quot_neg: entity work.neg
+      generic map (
+        bits            => bits,
+        use_registers   => '0',
+        use_kogge_stone => use_kogge_stone)
+      port map (
+        clk       => clk,
+        reset     => reset,
+        input     => quot,
+        output    => nquot,
+        underflow => open);
+
+    rest_neg: entity work.neg
+      generic map (
+        bits            => bits,
+        use_registers   => '0',
+        use_kogge_stone => use_kogge_stone)
+      port map (
+        clk       => clk,
+        reset     => reset,
+        input     => rest,
+        output    => nrest,
+        underflow => open);
+
+    quot_tmp <= nquot when (dividentisneg2 = '1' and divisorisneg2 = '0')
+                or (dividentisneg2 = '0' and divisorisneg2 = '1') else quot;
+
+    rest_tmp <= nrest when dividentisneg2 = '1' else rest;
+
+  end generate signed_arith_yes;
+
+  Q(bits) <= (others => '0');
+  N(bits) <= nom;
+
+  loopy: for c in bits-1 downto 0 generate
     div_int_1: entity work.div_int
       generic map (
         bits            => bits,
-        i               => c,
         use_registers   => use_registers,
-        use_kogge_stone => use_kogge_stone)
+        use_kogge_stone => use_kogge_stone,
+        c               => c)
       port map (
         clk   => clk,
         reset => reset,
-        N     => dividend,
-        D     => divisor,
-        R_in  => Rs(c+1),
-        R_out => Rs(c),
-        Qi    => quotient(c));
-  end generate bits_loop;
+        D     => denom,
+        Nin   => N(c+1),
+        Nout  => N(c),
+        Qin   => Q(c+1),
+        Qout  => Q(c));
+  end generate loopy;
 
-  remainder <= Rs(0);
+  quot <= Q(0);
+  rest <= N(0);
 
 end architecture behav;
