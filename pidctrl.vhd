@@ -32,7 +32,7 @@ entity pidctrl is
     bits            : natural;          --! width of input
     int_bits        : natural;          --! internal signal width
     signed_arith    : bit := '1';       --! assume input is signed
-    gains_first     : bit := '1';       --! apply gains before integrator/differentiator
+    gains_first     : bit := '1';       --! (ignored)
     use_prop        : bit := '1';       --! use proportional
     use_int         : bit := '1';       --! use integrator
     use_diff        : bit := '0';       --! use differentiator
@@ -51,31 +51,35 @@ end entity pidctrl;
 
 architecture behav of pidctrl is
 
-  signal input3 : std_logic_vector(int_bits-1 downto 0) := (others => '0');
+  signal input2: std_logic_vector(int_bits-1 downto 0) := (others => '0');
+  signal inputp: std_logic_vector(int_bits-1 downto 0) := (others => '0');
+  signal inputi: std_logic_vector(int_bits-1 downto 0) := (others => '0');
+  signal inputd: std_logic_vector(int_bits-1 downto 0) := (others => '0');
 
   signal pout : std_logic_vector(int_bits-1 downto 0) := (others => '0');
-  signal pout2 : std_logic_vector(int_bits-1 downto 0) := (others => '0');
-  signal aout : std_logic_vector(int_bits-1 downto 0) := (others => '0');
   signal iout : std_logic_vector(int_bits-1 downto 0) := (others => '0');
   signal dout : std_logic_vector(int_bits-1 downto 0) := (others => '0');
-  signal dout2 : std_logic_vector(int_bits-1 downto 0) := (others => '0');
 
   signal data : std_logic_vector(3*int_bits-1 downto 0) := (others => '0');
   signal sum : std_logic_vector(int_bits+2-1 downto 0) := (others => '0');
   
 begin  -- architecture behav
 
-  -- pre gain
+  -- resize
 
-  signed_yes: if signed_arith = '1' generate
-    input3(int_bits-1 downto bits) <= (others => input(bits-1));
-  end generate signed_yes;
-  signed_no: if signed_arith = '0' generate
-    input3(int_bits-1 downto bits) <= (others => '0');
-  end generate signed_no;
-  input3(bits-1 downto 0) <= input;
+  input2(int_bits-1 downto int_bits-bits) <= input;
+  input2(int_bits-bits-1 downto 0) <= (others => '0');
 
   -- proportional
+
+  barrel_shift_p: entity work.barrel_shift
+    generic map (
+      bits         => int_bits,
+      signed_arith => signed_arith)
+    port map (
+      input  => input2,
+      amount => pgain,
+      output => inputp);
 
   reg_1: entity work.reg
     generic map (
@@ -84,123 +88,58 @@ begin  -- architecture behav
       clk      => clk,
       reset    => reset,
       enable   => enable,
-      data_in  => input3,
-      data_out => pout2);
+      data_in  => inputp,
+      data_out => pout);
 
-  barrel_shift_2: entity work.barrel_shift
+  -- integral
+
+  barrel_shift_i: entity work.barrel_shift
     generic map (
       bits         => int_bits,
       signed_arith => signed_arith)
     port map (
-      input  => pout2,
-      amount => pgain,
-      output => pout);
-
-  -- integral
-
-  int_gains_first_no: if gains_first = '0' generate
-    
-    accumulator_1: entity work.accumulator
-      generic map (
-        bits            => int_bits,
-        use_kogge_stone => use_kogge_stone)
-      port map (
-        clk    => clk,
-        reset  => reset,
-        enable => enable,
-        input  => input3,
-        output => aout);
-    
-    barrel_shift_3: entity work.barrel_shift
-      generic map (
-        bits         => int_bits,
-        signed_arith => signed_arith)
-      port map (
-        input  => aout,
-        amount => igain,
-        output => iout);
-    
-  end generate int_gains_first_no;
-
-  int_gains_first_yes: if gains_first = '1' generate
-
-    barrel_shift_3: entity work.barrel_shift
-      generic map (
-        bits         => int_bits,
-        signed_arith => signed_arith)
-      port map (
-        input  => input3,
-        amount => igain,
-        output => aout);
-    
-    accumulator_1: entity work.accumulator
-      generic map (
-        bits            => int_bits,
-        use_kogge_stone => use_kogge_stone)
-      port map (
-        clk    => clk,
-        reset  => reset,
-        enable => enable,
-        input  => aout,
-        output => iout);
-    
-  end generate int_gains_first_yes;
-
+      input  => input2,
+      amount => igain,
+      output => inputi);
+  
+  accumulator_1: entity work.accumulator
+    generic map (
+      bits            => int_bits,
+      use_kogge_stone => use_kogge_stone)
+    port map (
+      clk    => clk,
+      reset  => reset,
+      enable => enable,
+      input  => inputi,
+      output => iout);
+  
   -- differential
 
-  diff_gains_first_no: if gains_first = '0' generate
-    
-    differentiator_1: entity work.differentiator
-      generic map (
-        bits            => int_bits,
-        use_kogge_stone => use_kogge_stone)
-      port map (
-        clk    => clk,
-        reset  => reset,
-        enable => enable,
-        input  => input3,
-        output => dout);
-    
-    barrel_shift_4: entity work.barrel_shift
-      generic map (
-        bits         => int_bits,
-        signed_arith => signed_arith)
-      port map (
-        input  => dout,
-        amount => dgain,
-        output => dout2);
-    
-  end generate diff_gains_first_no;
+  barrel_shift_d: entity work.barrel_shift
+    generic map (
+      bits         => int_bits,
+      signed_arith => signed_arith)
+    port map (
+      input  => input2,
+      amount => dgain,
+      output => inputd);
   
-  diff_gains_first_yes: if gains_first = '1' generate
-    
-    barrel_shift_4: entity work.barrel_shift
-      generic map (
-        bits         => int_bits,
-        signed_arith => signed_arith)
-      port map (
-        input  => input3,
-        amount => dgain,
-        output => dout);
-    
-    differentiator_1: entity work.differentiator
-      generic map (
-        bits            => int_bits,
-        use_kogge_stone => use_kogge_stone)
-      port map (
-        clk    => clk,
-        reset  => reset,
-        enable => enable,
-        input  => dout,
-        output => dout2);
-    
-  end generate diff_gains_first_yes;
+  differentiator_1: entity work.differentiator
+    generic map (
+      bits            => int_bits,
+      use_kogge_stone => use_kogge_stone)
+    port map (
+      clk    => clk,
+      reset  => reset,
+      enable => enable,
+      input  => inputd,
+      output => dout);
     
   -- sum
 
   pid: if use_diff = '1' and use_int = '1' and use_prop = '1' generate
     
-    data(3*int_bits-1 downto 2*int_bits) <= dout2;
+    data(3*int_bits-1 downto 2*int_bits) <= dout;
     data(2*int_bits-1 downto int_bits) <= iout;
     data(int_bits-1 downto 0) <= pout;
     
