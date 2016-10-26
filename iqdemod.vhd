@@ -49,6 +49,8 @@ architecture behav of iqdemod is
 
   signal sin : std_logic_vector(nco_bits-1 downto 0) := (others => '0');
   signal cos : std_logic_vector(nco_bits-1 downto 0) := (others => '0');
+  signal i_tmp : std_logic_vector(bits+nco_bits-1 downto 0) := (others => '0');
+  signal q_tmp : std_logic_vector(bits+nco_bits-1 downto 0) := (others => '0');
 
 begin  -- architecture behav
 
@@ -80,7 +82,7 @@ begin  -- architecture behav
       reset  => reset,
       input1 => input,
       input2 => sin,
-      output => i);
+      output => i_tmp);
 
   mul_2: entity work.mul
     generic map (
@@ -94,6 +96,16 @@ begin  -- architecture behav
       reset  => reset,
       input1 => input,
       input2 => cos,
-      output => q);
+      output => q_tmp);
+
+  signed_yes: if signed_arith = '1' generate
+    i <= i_tmp(bits+nco_bits-2 downto 0) & '0';
+    q <= q_tmp(bits+nco_bits-2 downto 0) & '0';
+  end generate signed_yes;
+
+  signed_no: if signed_arith = '0' generate
+    i <= i_tmp;
+    q <= q_tmp;
+  end generate signed_no;
 
 end architecture behav;
