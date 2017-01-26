@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
 {
   if(argc < 2)
     {
-      std::cout << "Usage: " << argv[0] << " bits [full|hald|quarter] > lut.vhd" << std::endl;
+      std::cout << "Usage: " << argv[0] << " bits > lut.vhd" << std::endl;
       return 1;
     }
 
@@ -90,24 +90,6 @@ int main(int argc, char* argv[])
       return 2;
     }
 
-  unsigned int size = 1;
-  if(argc > 2)
-    {
-      if(std::string(argv[2]) == "full")
-        size = 1;
-      else if(std::string(argv[2]) == "half")
-        size = 2;
-      else if(std::string(argv[2]) == "quater")
-        size = 4;
-      else
-        {
-          std::cerr << "Unknowen size: " << argv[2] << std::endl;
-          return 3;
-        }
-    }
-  else
-    std::cerr << "Defaulting to full wave." << std::endl;
-
   if(argc > 3)
     std::cerr << "Extra arguments ignored." << std::endl;
 
@@ -118,7 +100,9 @@ int main(int argc, char* argv[])
 	    << "  constant lut_bits : natural := "
 	    << bits << ";" << std::endl;
 
-  makelut(bits, size);
+  makelut(bits, 1);
+  makelut(bits, 2);
+  makelut(bits, 4);
 
   std::cout << "end lut;" << std::endl;
 
