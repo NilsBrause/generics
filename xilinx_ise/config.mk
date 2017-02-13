@@ -1,0 +1,1 @@
+HDLFILES = ../*/*.vhd
