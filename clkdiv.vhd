@@ -1,4 +1,4 @@
--- Copyright (c) 2012, Nils Christopher Brause
+-- Copyright (c) 2012-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -29,9 +29,7 @@ use work.log2.all;
 --! dividing its frequency by N, where N doesn't have to be a power of two.
 entity clkdiv is
   generic (
-    div : natural;                      --! clock divider
-    duty_cycle : bit := '1'; -- 0 = almost 0%, 1 = about 50%
-    use_kogge_stone : bit := '0'); --! use an optimized Kogge Stone adder
+    div : natural);                     --! clock divider
   port (
     clk     : in  std_logic;            --! clock input
     reset   : in  std_logic;            --! asynchronous reset (active low)
@@ -41,30 +39,18 @@ end entity clkdiv;
 
 architecture behav of clkdiv is
 
-  signal one : std_logic_vector(log2ceil(div)-1 downto 0) := (others => '0');
-  signal half : std_logic_vector(log2ceil(div)-1 downto 0) := (others => '0');
   signal ratio : std_logic_vector(log2ceil(div)-1 downto 0) := (others => '0');
   signal gated : std_logic;
 
 begin  -- architecture behav
 
-  one(0) <= '1';
-  one(log2ceil(div)-1 downto 1) <= (others => '0');
-  half <= std_logic_vector(to_unsigned(div/2, log2ceil(div)));
-
-  almost0: if duty_cycle = '0' generate
-    ratio <= one;
-  end generate almost0;
+  ratio <= std_logic_vector(to_unsigned(div/2, log2ceil(div)));
   
-  about50: if duty_cycle = '1' generate
-    ratio <= half;
-  end generate about50;
-  
-  div_no: if div = 0 generate
+  div_01: if div = 0 or div = 1 generate
     clk_out <= clk;
-  end generate div_no;
+  end generate div_01;
 
-  div_yes: if div > 0 generate
+  div_much: if div > 1 generate
   pwm_1: entity work.pwm
     generic map (
       bits => div)
@@ -74,7 +60,6 @@ begin  -- architecture behav
       enable => enable,
       ratio  => ratio,
       output => gated);
-  end generate div_yes;
 
   -- convert gated clock to derived clock
   reg1_1: entity work.reg1
@@ -84,5 +69,6 @@ begin  -- architecture behav
       enable   => enable,
       data_in  => gated,
       data_out => clk_out);
+  end generate div_much;
 
 end architecture behav;

@@ -1,4 +1,4 @@
--- Copyright (c) 2012, Nils Christopher Brause
+-- Copyright (c) 2012-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -66,9 +66,8 @@ begin  -- architecture behav
 
   add_1: entity work.add
     generic map (
-      bits            => bits+avgs,
-      use_registers   => '0',
-      use_kogge_stone => '0')
+      bits          => bits+avgs,
+      use_registers => false)
     port map (
       clk       => clk,
       reset     => reset,
@@ -81,9 +80,8 @@ begin  -- architecture behav
 
   sub_1: entity work.sub
     generic map (
-      bits            => bits+avgs,
-      use_registers   => '0',
-      use_kogge_stone => '0')
+      bits          => bits+avgs,
+      use_registers => false)
     port map (
       clk        => clk,
       reset      => reset,

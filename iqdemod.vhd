@@ -1,4 +1,4 @@
--- Copyright (c) 2012, Nils Christopher Brause
+-- Copyright (c) 2012-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -28,13 +28,12 @@ use ieee.std_logic_1164.all;
 --! which are 90 degree out of phase (I and Q).
 entity iqdemod is
   generic (
-    bits            : natural;          --! width of input
-    nco_bits        : natural;          --! width of internal nco
-    freq_bits       : natural;          --! width of frequency input
-    lut_bits        : natural;          --! width of LUT input
-    signed_arith    : bit := '1';       --! use signed arithmetic
-    use_registers   : bit := '0';       --! use additional registers on slow FPGAs
-    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
+    bits          : natural;            --! width of input
+    nco_bits      : natural;            --! width of internal nco
+    freq_bits     : natural;            --! width of frequency input
+    lut_bits      : natural;            --! width of LUT input
+    signed_arith  : boolean := true;    --! use signed arithmetic
+    use_registers : boolean := false);  --! use additional registers on slow FPGAs
   port (
     clk   : in  std_logic;              --! clock input
     reset : in  std_logic;              --! asynchronous reset (active low)
@@ -56,11 +55,10 @@ begin  -- architecture behav
 
   nco_1: entity work.nco
     generic map (
-      freq_bits       => freq_bits,
-      lut_bits        => lut_bits,
-      bits            => nco_bits,
-      use_registers   => use_registers,
-      use_kogge_stone => use_kogge_stone)
+      freq_bits     => freq_bits,
+      lut_bits      => lut_bits,
+      bits          => nco_bits,
+      use_registers => use_registers)
     port map (
       clk   => clk,
       reset => reset,
@@ -72,11 +70,10 @@ begin  -- architecture behav
 
   mul_1: entity work.mul
     generic map (
-      bits1           => bits,
-      bits2           => nco_bits,
-      signed_arith    => signed_arith,
-      use_registers   => use_registers,
-      use_kogge_stone => use_kogge_stone)
+      bits1         => bits,
+      bits2         => nco_bits,
+      signed_arith  => signed_arith,
+      use_registers => use_registers)
     port map (
       clk    => clk,
       reset  => reset,
@@ -86,11 +83,10 @@ begin  -- architecture behav
 
   mul_2: entity work.mul
     generic map (
-      bits1           => bits,
-      bits2           => nco_bits,
-      signed_arith    => signed_arith,
-      use_registers   => use_registers,
-      use_kogge_stone => use_kogge_stone)
+      bits1         => bits,
+      bits2         => nco_bits,
+      signed_arith  => signed_arith,
+      use_registers => use_registers)
     port map (
       clk    => clk,
       reset  => reset,
@@ -98,12 +94,12 @@ begin  -- architecture behav
       input2 => cos,
       output => q_tmp);
 
-  signed_yes: if signed_arith = '1' generate
+  signed_yes: if signed_arith generate
     i <= i_tmp(bits+nco_bits-2 downto 0) & '0';
     q <= q_tmp(bits+nco_bits-2 downto 0) & '0';
   end generate signed_yes;
 
-  signed_no: if signed_arith = '0' generate
+  signed_no: if not signed_arith generate
     i <= i_tmp;
     q <= q_tmp;
   end generate signed_no;

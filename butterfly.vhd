@@ -1,4 +1,4 @@
--- Copyright (c) 2014, Nils Christopher Brause
+-- Copyright (c) 2014-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -23,15 +23,15 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.math_real.all;
 
+--! FFT butterfly
 entity butterfly is
   generic (
-    bits            : natural;
-    k               : natural := 0;
-    N               : natural := 1;
-    use_kn          : bit := '0';       --! use k & N or provides sin/cos
-    signed_arith    : bit := '1';       --! use signed arithmetic
-    use_registers   : bit := '1';       --! use additional registers on slow FPGAs
-    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
+    bits          : natural;
+    k             : natural := 0;
+    N             : natural := 1;
+    use_kn        : boolean := false;   --! use k & N or provides sin/cos
+    signed_arith  : boolean := true;    --! use signed arithmetic
+    use_registers : boolean := false);  --! use additional registers on slow FPGAs
   port (
     clk          : in  std_logic;
     reset        : in  std_logic;
@@ -87,18 +87,17 @@ begin  -- architecture behav
   -- y1 = x0 - t
 
   -- calculate wk = exp(-2*pi*i*k) = cos(2*pi*k) - i*sin(2*pi*k)
-  cos2 <= icos(k, N) when use_kn = '1' else cos_in;
-  msin2 <= std_logic_vector(-signed(isin(k, N))) when use_kn = '1' else msin_in;
+  cos2 <= icos(k, N) when use_kn else cos_in;
+  msin2 <= std_logic_vector(-signed(isin(k, N))) when use_kn else msin_in;
   
   -- calculate t = x1 * wk
   cmplx_mul_1: entity work.cmplx_mul
     generic map (
-      bits1           => bits,
-      bits2           => bits,
-      out_bits        => bits,
-      signed_arith    => signed_arith,
-      use_registers   => '0',
-      use_kogge_stone => use_kogge_stone)
+      bits1         => bits,
+      bits2         => bits,
+      out_bits      => bits,
+      signed_arith  => signed_arith,
+      use_registers => false)
     port map (
       clk         => clk,
       reset       => reset,
@@ -112,7 +111,7 @@ begin  -- architecture behav
   input1_real2 <= input1_real;
   input1_imag2 <= input1_imag;
 
-  use_registers_yes: if use_registers = '1' generate
+  use_registers_yes: if use_registers generate
     reg_input1_real: entity work.reg
       generic map (
         bits  => bits)
@@ -154,7 +153,7 @@ begin  -- architecture behav
         data_out => input2_imag3);
   end generate use_registers_yes;
   
-  use_registers_no: if use_registers = '0' generate
+  use_registers_no: if not use_registers generate
     input1_real3 <= input1_real2;
     input1_imag3 <= input1_imag2;
     input2_real3 <= input1_real2;
@@ -170,9 +169,8 @@ begin  -- architecture behav
   -- calculate y0 = x0 + t
   cmplx_add_1: entity work.cmplx_add
     generic map (
-      bits            => bits,
-      use_registers   => '0',
-      use_kogge_stone => use_kogge_stone)
+      bits          => bits,
+      use_registers => false)
     port map (
       clk         => clk,
       reset       => reset,
@@ -187,9 +185,8 @@ begin  -- architecture behav
   -- calculate y1 = x0 - t
   cmplx_sub_1: entity work.cmplx_sub
     generic map (
-      bits            => bits,
-      use_registers   => '0',
-      use_kogge_stone => use_kogge_stone)
+      bits          => bits,
+      use_registers => false)
     port map (
       clk         => clk,
       reset       => reset,

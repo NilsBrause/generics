@@ -1,4 +1,4 @@
--- Copyright (c) 2013, Nils Christopher Brause
+-- Copyright (c) 2013-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -23,6 +23,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.log2.all;
 
+--! First In First Out
 entity fifo is
   generic (
     bits : natural;
@@ -48,9 +49,8 @@ begin  -- architecture behav
 
   counter_1: entity work.counter
     generic map (
-      bits            => log2ceil(size),
-      direction       => '1',
-      use_kogge_stone => '0')
+      bits         => log2ceil(size),
+      direction_up => true)
     port map (
       clk    => clk,
       reset  => reset,
@@ -59,9 +59,8 @@ begin  -- architecture behav
 
   counter_2: entity work.counter
     generic map (
-      bits            => log2ceil(size),
-      direction       => '1',
-      use_kogge_stone => '0')
+      bits         => log2ceil(size),
+      direction_up => true)
     port map (
       clk    => clk,
       reset  => reset,
@@ -86,9 +85,8 @@ begin  -- architecture behav
 
   sub_1: entity work.sub
     generic map (
-      bits            => log2ceil(size),
-      use_registers   => '0',
-      use_kogge_stone => '0')
+      bits          => log2ceil(size),
+      use_registers => false)
     port map (
       clk        => clk,
       reset      => reset,

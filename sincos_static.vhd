@@ -1,4 +1,4 @@
--- Copyright (c) 2012, Nils Christopher Brause
+-- Copyright (c) 2012-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -34,8 +34,8 @@ entity sincos_static is
   generic (
     phase_bits    : natural;            --! width of the phase input
     bits          : natural;            --! width of the output
-    use_registers : bit := '0';         --! use additional registers on slow FPGAs
-    lut_type      : natural := 2);      --! length of the look up table = 2*pi/n
+    use_registers : boolean := false;   --! use additional registers on slow FPGAs
+    lut_type      : natural := 1);      --! length of the look up table = 2*pi/n
   port (
     clk    : in  std_logic;             --! clock input
     reset  : in  std_logic;             --! asynchronous reset (active low)
@@ -71,7 +71,7 @@ begin  -- architecture behav
     generic map (
       inp_bits        => phase_bits,
       outp_bits       => lut_bits,
-      signed_arith    => '0')
+      signed_arith    => false)
     port map (
       clk    => clk,
       reset  => reset,
@@ -97,9 +97,9 @@ begin  -- architecture behav
   
   round_2: entity work.round
     generic map (
-      inp_bits        => lut_bits,
-      outp_bits       => bits,
-      signed_arith    => '0')
+      inp_bits     => lut_bits,
+      outp_bits    => bits,
+      signed_arith => false)
     port map (
       clk    => clk,
       reset  => reset,
@@ -108,9 +108,9 @@ begin  -- architecture behav
   
   round_3: entity work.round
     generic map (
-      inp_bits        => lut_bits,
-      outp_bits       => bits,
-      signed_arith    => '0')
+      inp_bits     => lut_bits,
+      outp_bits    => bits,
+      signed_arith => false)
     port map (
       clk    => clk,
       reset  => reset,
@@ -119,9 +119,9 @@ begin  -- architecture behav
   
   round_4: entity work.round
     generic map (
-      inp_bits        => lut_bits,
-      outp_bits       => bits,
-      signed_arith    => '0')
+      inp_bits     => lut_bits,
+      outp_bits    => bits,
+      signed_arith => false)
     port map (
       clk    => clk,
       reset  => reset,
@@ -130,9 +130,9 @@ begin  -- architecture behav
   
   round_5: entity work.round
     generic map (
-      inp_bits        => lut_bits,
-      outp_bits       => bits,
-      signed_arith    => '0')
+      inp_bits     => lut_bits,
+      outp_bits    => bits,
+      signed_arith => false)
     port map (
       clk    => clk,
       reset  => reset,
@@ -141,9 +141,9 @@ begin  -- architecture behav
   
   round_6: entity work.round
     generic map (
-      inp_bits        => lut_bits,
-      outp_bits       => bits,
-      signed_arith    => '0')
+      inp_bits     => lut_bits,
+      outp_bits    => bits,
+      signed_arith => false)
     port map (
       clk    => clk,
       reset  => reset,
@@ -152,9 +152,9 @@ begin  -- architecture behav
   
   round_7: entity work.round
     generic map (
-      inp_bits        => lut_bits,
-      outp_bits       => bits,
-      signed_arith    => '0')
+      inp_bits     => lut_bits,
+      outp_bits    => bits,
+      signed_arith => false)
     port map (
       clk    => clk,
       reset  => reset,
@@ -193,7 +193,7 @@ begin  -- architecture behav
              not val0 when quadrant = "11" and lut_type = 4 else
              (others => '0');
 
-  use_registers_yes: if use_registers = '1' generate
+  use_registers_yes: if use_registers generate
     sin_reg: entity work.reg
       generic map (
         bits => bits)
@@ -215,7 +215,7 @@ begin  -- architecture behav
         data_out => cosout);
   end generate use_registers_yes;
 
-  use_registers_no: if use_registers = '0' generate
+  use_registers_no: if not use_registers generate
     sinout <= sin_tmp;
     cosout <= cos_tmp;
   end generate use_registers_no;

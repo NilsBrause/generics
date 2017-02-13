@@ -1,4 +1,4 @@
--- Copyright (c) 2012, Nils Christopher Brause
+-- Copyright (c) 2012-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -28,8 +28,7 @@ use ieee.std_logic_1164.all;
 --! maximal value it overflows.
 entity accumulator is
   generic (
-    bits : natural;                     --! width of input signal
-    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
+    bits : natural);                    --! width of input signal
   port (
     clk    : in  std_logic;             --! clock input
     reset  : in  std_logic;             --! asynchronous reset
@@ -48,9 +47,8 @@ begin  -- architecture behav
 
   add_1: entity work.add
     generic map (
-      bits => bits,
-      use_registers   => '0',
-      use_kogge_stone => use_kogge_stone)
+      bits          => bits,
+      use_registers => false)
     port map (
       clk       => clk,
       reset     => reset,

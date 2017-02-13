@@ -1,4 +1,4 @@
--- Copyright (c) 2012, Nils Christopher Brause
+-- Copyright (c) 2012-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -103,9 +103,8 @@ begin  -- architecture behav
 
   counter_1: entity work.counter
     generic map (
-      bits            => count_bits,
-      direction       => '1',
-      use_kogge_stone => '0')
+      bits         => count_bits,
+      direction_up => true)
     port map (
       clk    => clk,
       reset  => count_reset,

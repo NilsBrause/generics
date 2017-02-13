@@ -1,4 +1,4 @@
--- Copyright (c) 2013, Nils Christopher Brause
+-- Copyright (c) 2013-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -28,9 +28,8 @@ use ieee.numeric_std.all;
 --! and outputs the result. There is no borrow logic.
 entity cmplx_sub is
   generic (
-    bits : natural;                     --! width of input
-    use_registers   : bit := '0';       --! use additional registers on slow FPGAs
-    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
+    bits          : natural;              --! width of input
+    use_registers : boolean := false);          --! use additional registers on slow FPGAs
   port (
     clk         : in  std_logic;          --! input clock
     reset       : in  std_logic;          --! asynchronous reset
@@ -52,9 +51,8 @@ begin  -- architecture behav
 
   sub_real: entity work.sub
     generic map (
-      bits            => bits,
-      use_registers   => use_registers,
-      use_kogge_stone => use_kogge_stone)
+      bits          => bits,
+      use_registers => use_registers)
     port map (
       clk        => clk,
       reset      => reset,
@@ -67,9 +65,8 @@ begin  -- architecture behav
 
   sub_imag: entity work.sub
     generic map (
-      bits            => bits,
-      use_registers   => use_registers,
-      use_kogge_stone => use_kogge_stone)
+      bits          => bits,
+      use_registers => use_registers)
     port map (
       clk        => clk,
       reset      => reset,

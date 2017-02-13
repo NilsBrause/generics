@@ -1,4 +1,4 @@
--- Copyright (c) 2013, Nils Christopher Brause
+-- Copyright (c) 2013-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any

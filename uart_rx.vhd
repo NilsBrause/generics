@@ -1,4 +1,4 @@
--- Copyright (c) 2013, Nils Christopher Brause
+-- Copyright (c) 2013-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -144,9 +144,8 @@ begin  -- architecture behav
 
   baud_counter: entity work.counter
     generic map (
-      bits            => bd_cnt_bits,
-      direction       => '1',
-      use_kogge_stone => '0')
+      bits         => bd_cnt_bits,
+      direction_up => true)
     port map (
       clk    => clk,
       reset  => bd_cnt_reset,
@@ -155,9 +154,8 @@ begin  -- architecture behav
   
   bit_counter: entity work.counter
     generic map (
-      bits            => 4,
-      direction       => '1',
-      use_kogge_stone => '0')
+      bits         => 4,
+      direction_up => true)
     port map (
       clk    => clk,
       reset  => bit_cnt_reset,

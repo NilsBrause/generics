@@ -1,4 +1,4 @@
--- Copyright (c) 2012, Nils Christopher Brause
+-- Copyright (c) 2012-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -27,9 +27,8 @@ use ieee.std_logic_1164.all;
 --! cycle. If it reaches its maximal value it restarts at zero.
 entity counter is
   generic (
-    bits            : natural;          --! width of counter output
-    direction       : bit;              --! '1' = up, '0' = down
-    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
+    bits         : natural;             --! width of counter output
+    direction_up : boolean := true);    --! true = up, false = down
   port (
     clk    : in  std_logic;             --! clock input
     reset  : in  std_logic;             --! asynchronous reset
@@ -47,11 +46,10 @@ begin  -- architecture behav
   one(0) <= '1';
   one(bits-1 downto 1) <= (others => '0');
 
-  up: if direction = '1' generate
+  up: if direction_up generate
     accumulator_1: entity work.accumulator
       generic map (
-        bits            => bits,
-        use_kogge_stone => use_kogge_stone)
+        bits => bits)
       port map (
         clk    => clk,
         reset  => reset,
@@ -60,11 +58,10 @@ begin  -- architecture behav
         output => output);
   end generate up;
 
-  down: if direction = '0' generate
+  down: if not direction_up generate
     accumulator_1: entity work.accumulator
       generic map (
-        bits            => bits,
-        use_kogge_stone => use_kogge_stone)
+        bits => bits)
       port map (
         clk    => clk,
         reset  => reset,

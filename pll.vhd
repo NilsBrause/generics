@@ -1,4 +1,4 @@
--- Copyright (c) 2012, Nils Christopher Brause
+-- Copyright (c) 2012-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -29,14 +29,13 @@ use work.log2.all;
 --! see: GARDNER, FLOYD M.: Phaselock Techniques. WILEY INTERSCIENCE, 2005.
 entity pll2 is
   generic (
-    bits            : natural;          --! width of input
-    int_bits        : natural;          --! internal signal width
-    lut_bits        : natural;          --! width of LUT input
-    nco_bits        : natural;          --! width of nco output
-    freq_bits       : natural;          --! width of frequency input/output
-    signed_arith    : bit := '1';       --! assume input is signed
-    use_registers   : bit := '0';       --! use additional registers on slow FPGAs
-    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
+    bits          : natural;            --! width of input
+    int_bits      : natural;            --! internal signal width
+    lut_bits      : natural;            --! width of LUT input
+    nco_bits      : natural;            --! width of nco output
+    freq_bits     : natural;            --! width of frequency input/output
+    signed_arith  : boolean := true;    --! assume input is signed
+    use_registers : boolean := false);  --! use additional registers on slow FPGAs
   port (
     clk        : in  std_logic;         --! clock input
     reset      : in  std_logic;         --! asynchronous reset (active low)
@@ -66,8 +65,7 @@ begin  -- architecture behav
       freq_bits       => freq_bits,
       lut_bits        => lut_bits,
       signed_arith    => signed_arith,
-      use_registers   => use_registers,
-      use_kogge_stone => use_kogge_stone)
+      use_registers   => use_registers)
     port map (
       clk   => clk,
       reset => reset,
@@ -82,12 +80,11 @@ begin  -- architecture behav
       bits            => bits+nco_bits,
       int_bits        => int_bits,
       signed_arith    => signed_arith,
-      gains_first     => '1',
-      use_prop        => '1',
-      use_int         => '1',
-      use_diff        => '0',
-      use_registers   => use_registers,
-      use_kogge_stone => use_kogge_stone)
+      gains_first     => true,
+      use_prop        => true,
+      use_int         => true,
+      use_diff        => false,
+      use_registers   => use_registers)
     port map (
       clk     => clk,
       reset   => reset,
@@ -103,8 +100,7 @@ begin  -- architecture behav
       inp_bits        => int_bits,
       outp_bits       => freq_bits,
       signed_arith    => signed_arith,
-      use_registers   => use_registers,
-      use_kogge_stone => use_kogge_stone)
+      use_registers   => use_registers)
     port map (
       clk   => clk,
       reset => reset,
@@ -114,8 +110,7 @@ begin  -- architecture behav
   add_1: entity work.add
     generic map (
       bits            => freq_bits,
-      use_registers   => use_registers,
-      use_kogge_stone => use_kogge_stone)
+      use_registers   => use_registers)
     port map (
       clk       => clk,
       reset     => reset,

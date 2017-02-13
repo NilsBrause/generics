@@ -1,4 +1,4 @@
--- Copyright (c) 2012-2016, Nils Christopher Brause
+-- Copyright (c) 2012-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -26,10 +26,9 @@ use ieee.numeric_std.all;
 
 entity div_int is
   generic (
-    bits            : natural;
-    use_registers   : bit := '0';
-    use_kogge_stone : bit := '0';
-    c               : natural);
+    bits          : natural;
+    use_registers : boolean := false;
+    c             : natural);
   port (
     clk   : in std_logic;
     reset : in std_logic;
@@ -62,9 +61,8 @@ begin  -- architecture behav
   -- N -= (D << c);
   sub_1: entity work.sub
     generic map (
-      bits            => bits,
-      use_registers   => '0',
-      use_kogge_stone => use_kogge_stone)
+      bits          => bits,
+      use_registers => false)
     port map (
       clk        => clk,
       reset      => reset,
@@ -83,7 +81,7 @@ begin  -- architecture behav
   Q2(c-1 downto 0) <= Qin(c-1 downto 0);
   N2 <= NmDs when divides else Nin;
 
-  use_registers_yes: if use_registers = '1' generate
+  use_registers_yes: if use_registers generate
     reg_1: entity work.reg
       generic map (
         bits => bits)
@@ -105,7 +103,7 @@ begin  -- architecture behav
         data_out => Nout);
   end generate use_registers_yes;
 
-  use_registers_no: if use_registers = '0' generate
+  use_registers_no: if not use_registers generate
     Qout <= Q2;
     Nout <= Nin;
   end generate use_registers_no;
@@ -120,10 +118,9 @@ use ieee.numeric_std.all;
 
 entity div is
   generic (
-    bits            : natural;          --! width of input/output
-    signed_arith    : bit := '1';       --! use signed arithmetic
-    use_registers   : bit := '0';       --! use additional registers on slow FPGAs
-    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
+    bits          : natural;            --! width of input/output
+    signed_arith  : boolean := true;    --! use signed arithmetic
+    use_registers : boolean := false);  --! use additional registers on slow FPGAs
   port (
     clk       : in  std_logic;
     reset     : in  std_logic;
@@ -159,23 +156,22 @@ architecture behav of div is
 
 begin  -- architecture behav
 
-  signed_arith_no: if signed_arith = '0' generate
+  signed_arith_no: if not signed_arith generate
     nom <= divident;
     denom <= divisor;
     quotient <= quot;
     remainder <= rest;
   end generate signed_arith_no;
 
-  signed_arith_yes: if signed_arith = '1' generate
+  signed_arith_yes: if signed_arith generate
 
     dividentisneg <= '1' when divident(bits-1) = '1' else '0';
     divisorisneg <= '1' when divisor(bits-1) = '1' else '0';
 
     divident_neg: entity work.neg
       generic map (
-        bits            => bits,
-        use_registers   => '0',
-        use_kogge_stone => use_kogge_stone)
+        bits          => bits,
+        use_registers => false)
       port map (
         clk       => clk,
         reset     => reset,
@@ -185,9 +181,8 @@ begin  -- architecture behav
 
     divisor_neg: entity work.neg
       generic map (
-        bits            => bits,
-        use_registers   => '0',
-        use_kogge_stone => use_kogge_stone)
+        bits          => bits,
+        use_registers => false)
       port map (
         clk       => clk,
         reset     => reset,
@@ -198,7 +193,7 @@ begin  -- architecture behav
     nom_tmp <= ndivident when dividentisneg = '1' else divident;
     denom_tmp <= ndivisor when divisorisneg = '1' else divisor;
 
-    use_registers_yes: if use_registers = '1' generate
+    use_registers_yes: if use_registers generate
 
       nom_reg: entity work.reg
         generic map (
@@ -264,7 +259,7 @@ begin  -- architecture behav
       
     end generate use_registers_yes;
 
-    use_registers_no: if use_registers = '0' generate
+    use_registers_no: if not use_registers generate
       nom <= nom_tmp;
       denom <= denom_tmp;
       divisorisneg2 <= divisorisneg;
@@ -275,9 +270,8 @@ begin  -- architecture behav
 
     quot_neg: entity work.neg
       generic map (
-        bits            => bits,
-        use_registers   => '0',
-        use_kogge_stone => use_kogge_stone)
+        bits          => bits,
+        use_registers => false)
       port map (
         clk       => clk,
         reset     => reset,
@@ -287,9 +281,8 @@ begin  -- architecture behav
 
     rest_neg: entity work.neg
       generic map (
-        bits            => bits,
-        use_registers   => '0',
-        use_kogge_stone => use_kogge_stone)
+        bits          => bits,
+        use_registers => false)
       port map (
         clk       => clk,
         reset     => reset,
@@ -310,10 +303,9 @@ begin  -- architecture behav
   loopy: for c in bits-1 downto 0 generate
     div_int_1: entity work.div_int
       generic map (
-        bits            => bits,
-        use_registers   => use_registers,
-        use_kogge_stone => use_kogge_stone,
-        c               => c)
+        bits          => bits,
+        use_registers => use_registers,
+        c             => c)
       port map (
         clk   => clk,
         reset => reset,

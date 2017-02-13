@@ -1,4 +1,4 @@
--- Copyright (c) 2012, Nils Christopher Brause
+-- Copyright (c) 2012-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -30,9 +30,8 @@ use ieee.numeric_std.all;
 --! and reset signal.
 entity add is
   generic (
-    bits : natural;                     --! width of input
-    use_registers   : bit := '0';       --! use additional registers on slow FPGAs
-    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
+    bits          : natural;            --! width of input
+    use_registers : boolean := false);  --! use additional registers on slow FPGAs
   port (
     clk       : in  std_logic;          --! input clock
     reset     : in  std_logic;          --! asynchronous reset
@@ -61,26 +60,13 @@ begin  -- architecture behav
   input2_tmp(bits downto 1) <= input2;
   input2_tmp(0) <= carry_in;
 
-  kogge_stone_no: if use_kogge_stone = '0' generate
-    output_tmp <= std_logic_vector(unsigned(input1_tmp) + unsigned(input2_tmp));
-  end generate kogge_stone_no;
-
-  kogge_stone_yes: if use_kogge_stone = '1' generate
-    kogge_stone_1: entity work.kogge_stone
-      generic map (
-        bits => bits)
-      port map (
-        A => input1_tmp(bits downto 1),
-        B => input2_tmp(bits downto 1),
-        C => carry_in,
-        S => output_tmp(bits+1 downto 1));
-  end generate kogge_stone_yes;
+  output_tmp <= std_logic_vector(unsigned(input1_tmp) + unsigned(input2_tmp));
 
     -- signed overflow
   overflow_tmp <= (input1(bits-1) xnor input2(bits-1))
                   and (input1(bits-1) xor output_tmp(bits));
 
-  use_registers_yes: if use_registers = '1' generate
+  use_registers_yes: if use_registers generate
     reg_1: entity work.reg
       generic map (
         bits => bits)
@@ -106,9 +92,9 @@ begin  -- architecture behav
         enable   => '1',
         data_in  => overflow_tmp,
         data_out => overflow);
-end generate use_registers_yes;
+  end generate use_registers_yes;
 
-  use_registers_no: if use_registers = '0' generate
+  use_registers_no: if not use_registers generate
     carry_out <= output_tmp(bits+1);
     output <= output_tmp(bits downto 1);
     overflow <= overflow_tmp;

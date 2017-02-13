@@ -1,4 +1,4 @@
--- Copyright (c) 2013, Nils Christopher Brause
+-- Copyright (c) 2013-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -28,11 +28,10 @@ use ieee.numeric_std.all;
 --! The subtractor for the imaginary part may generate an underflow.
 entity cmplx_abs_sq is
   generic (
-    bits : natural;                     --! width of input
-    out_bits : natural;                 --! width of output
-    signed_arith    : bit := '1';       --! use signed arithmetic
-    use_registers   : bit := '0';       --! use additional registers on slow FPGAs
-    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
+    bits          : natural;              --! width of input
+    out_bits      : natural;              --! width of output
+    signed_arith  : boolean := true;      --! use signed arithmetic
+    use_registers : boolean := false);    --! use additional registers on slow FPGAs
   port (
     clk         : in  std_logic;          --! input clock
     reset       : in  std_logic;          --! asynchronous reset
@@ -53,7 +52,7 @@ architecture behav of cmplx_abs_sq is
 
 begin  -- architecture behav
 
-  use_registers_yes: if use_registers = '1' generate
+  use_registers_yes: if use_registers generate
     reg_input_real: entity work.reg
       generic map (
         bits => bits)
@@ -75,16 +74,15 @@ begin  -- architecture behav
         data_out => input_imag2);
   end generate use_registers_yes;
   
-  use_registers_no: if use_registers = '0' generate
+  use_registers_no: if not use_registers generate
     input_real2 <= input_real;
     input_imag2 <= input_imag;
   end generate use_registers_no;
 
   cmplx_conj_1: entity work.cmplx_conj
     generic map (
-      bits            => bits,
-      use_registers   => use_registers,
-      use_kogge_stone => use_kogge_stone)
+      bits          => bits,
+      use_registers => use_registers)
     port map (
       clk         => clk,
       reset       => reset,
@@ -96,12 +94,11 @@ begin  -- architecture behav
 
   cmplx_mul_1: entity work.cmplx_mul
     generic map (
-      bits1           => bits,
-      bits2           => bits,
-      out_bits        => out_bits,
-      signed_arith    => signed_arith,
-      use_registers   => use_registers,
-      use_kogge_stone => use_kogge_stone)
+      bits1         => bits,
+      bits2         => bits,
+      out_bits      => out_bits,
+      signed_arith  => signed_arith,
+      use_registers => use_registers)
     port map (
       clk         => clk,
       reset       => reset,

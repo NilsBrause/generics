@@ -1,4 +1,4 @@
--- Copyright (c) 2013, Nils Christopher Brause
+-- Copyright (c) 2013-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -26,9 +26,8 @@ use ieee.std_logic_1164.all;
 --! This component can be used to compute the absolute value of an signed signal
 entity absolute is
   generic (
-    bits            : natural;          --! width of input
-    use_registers   : bit := '0';       --! use additional registers on slow FPGAs
-    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
+    bits          : natural;            --! width of input
+    use_registers : boolean := false);  --! use additional registers on slow FPGAs
   port (
     clk    : in  std_logic;             --! input clock
     reset  : in  std_logic;             --! asynchronous reset (active low)
@@ -45,9 +44,8 @@ begin  -- architecture behav
 
   sub_1: entity work.sub
     generic map (
-      bits            => bits,
-      use_registers   => use_registers,
-      use_kogge_stone => use_kogge_stone)
+      bits          => bits,
+      use_registers => use_registers)
     port map (
       clk        => clk,
       reset      => reset,
@@ -58,7 +56,7 @@ begin  -- architecture behav
       borrow_out => open,
       underflow  => open);
 
-  use_registers_yes: if use_registers = '1' generate
+  use_registers_yes: if use_registers generate
     reg_1: entity work.reg
       generic map (
         bits => bits)
@@ -70,7 +68,7 @@ begin  -- architecture behav
         data_out => tmp2);
   end generate use_registers_yes;
 
-  use_registers_no: if use_registers = '0' generate
+  use_registers_no: if not use_registers generate
     tmp2 <= input;
   end generate use_registers_no;
 

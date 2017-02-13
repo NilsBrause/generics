@@ -1,4 +1,4 @@
--- Copyright (c) 2012, Nils Christopher Brause
+-- Copyright (c) 2012-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -29,15 +29,14 @@ use work.log2.all;
 --! 2^(bits-int_bits) is applied to prevent overflows.
 entity pidctrl is
   generic (
-    bits            : natural;          --! width of input
-    int_bits        : natural;          --! internal signal width
-    signed_arith    : bit := '1';       --! assume input is signed
-    gains_first     : bit := '1';       --! (ignored)
-    use_prop        : bit := '1';       --! use proportional
-    use_int         : bit := '1';       --! use integrator
-    use_diff        : bit := '0';       --! use differentiator
-    use_registers   : bit := '0';       --! use additional registers on alow fpgas
-    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
+    bits          : natural;            --! width of input
+    int_bits      : natural;            --! internal signal width
+    signed_arith  : boolean := true;    --! assume input is signed
+    gains_first   : boolean := true;    --! (ignored)
+    use_prop      : boolean := true;    --! use proportional
+    use_int       : boolean := true;    --! use integrator
+    use_diff      : boolean := false;   --! use differentiator
+    use_registers : boolean := false);  --! use additional registers on alow fpgas
   port (
     clk      : in  std_logic;           --! clock input
     reset    : in  std_logic;           --! asynchronous reset (active low)
@@ -104,8 +103,7 @@ begin  -- architecture behav
   
   accumulator_1: entity work.accumulator
     generic map (
-      bits            => int_bits,
-      use_kogge_stone => use_kogge_stone)
+      bits => int_bits)
     port map (
       clk    => clk,
       reset  => reset,
@@ -126,8 +124,7 @@ begin  -- architecture behav
   
   differentiator_1: entity work.differentiator
     generic map (
-      bits            => int_bits,
-      use_kogge_stone => use_kogge_stone)
+      bits => int_bits)
     port map (
       clk    => clk,
       reset  => reset,
@@ -137,7 +134,7 @@ begin  -- architecture behav
     
   -- sum
 
-  pid: if use_diff = '1' and use_int = '1' and use_prop = '1' generate
+  pid: if use_diff and use_int and use_prop generate
     
     data(3*int_bits-1 downto 2*int_bits) <= dout;
     data(2*int_bits-1 downto int_bits) <= iout;
@@ -145,11 +142,10 @@ begin  -- architecture behav
     
     array_adder_1: entity work.array_adder
       generic map (
-        bits            => int_bits,
-        width           => 3,
-        signed_arith    => signed_arith,
-        use_registers   => use_registers,
-        use_kogge_stone => use_kogge_stone)
+        bits          => int_bits,
+        width         => 3,
+        signed_arith  => signed_arith,
+        use_registers => use_registers)
       port map (
         clk   => clk,
         reset => reset,
@@ -158,13 +154,12 @@ begin  -- architecture behav
 
   end generate pid;
     
-  pi: if use_diff = '0' and use_int = '1' and use_prop = '1' generate
+  pi: if not use_diff and use_int and use_prop generate
     
     add_1: entity work.add
       generic map (
-        bits            => int_bits,
-        use_registers   => use_registers,
-        use_kogge_stone => use_kogge_stone)
+        bits          => int_bits,
+        use_registers => use_registers)
       port map (
         clk       => clk,
         reset     => reset,
@@ -177,13 +172,12 @@ begin  -- architecture behav
     
   end generate pi;
 
-  pd: if use_diff = '1' and use_int = '0' and use_prop = '1' generate
+  pd: if use_diff and not use_int and use_prop generate
     
     add_1: entity work.add
       generic map (
-        bits            => int_bits,
-        use_registers   => use_registers,
-        use_kogge_stone => use_kogge_stone)
+        bits          => int_bits,
+        use_registers => use_registers)
       port map (
         clk       => clk,
         reset     => reset,
@@ -196,13 +190,12 @@ begin  -- architecture behav
     
   end generate pd;
 
-  id: if use_diff = '1' and use_int = '1' and use_prop = '0' generate
+  id: if use_diff and use_int and not use_prop generate
     
     add_1: entity work.add
       generic map (
-        bits            => int_bits,
-        use_registers   => use_registers,
-        use_kogge_stone => use_kogge_stone)
+        bits          => int_bits,
+        use_registers => use_registers)
       port map (
         clk       => clk,
         reset     => reset,
@@ -215,15 +208,15 @@ begin  -- architecture behav
     
   end generate id;
 
-  p: if use_diff = '0' and use_int = '0' and use_prop = '1' generate
+  p: if not use_diff and not use_int and use_prop generate
     sum(int_bits-1 downto 0) <= pout;
   end generate p;
 
-  i: if use_diff = '0' and use_int = '1' and use_prop = '0' generate
+  i: if not use_diff and use_int and not use_prop generate
     sum(int_bits-1 downto 0) <= iout;
   end generate i;
 
-  d: if use_diff = '1' and use_int = '0' and use_prop = '0' generate
+  d: if use_diff and not use_int and not use_prop generate
     sum(int_bits-1 downto 0) <= dout;
   end generate d;
 

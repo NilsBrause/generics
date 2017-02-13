@@ -1,4 +1,4 @@
--- Copyright (c) 2013, Nils Christopher Brause
+-- Copyright (c) 2013-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -21,6 +21,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+--! Syncronize slow pulses to a faster clock
 entity pulse_sync is
   port (
     clk    : in  std_logic;

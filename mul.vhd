@@ -1,4 +1,4 @@
--- Copyright (c) 2012, Nils Christopher Brause
+-- Copyright (c) 2012-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -28,11 +28,10 @@ use work.log2.all;
 --! The multiplier can mutiply signed or unsigned numbers.
 entity mul is
   generic (
-    bits1           : natural;          --! width of first input
-    bits2           : natural;          --! width of second input
-    signed_arith    : bit := '1';       --! use signed arithmetic
-    use_registers   : bit := '0';       --! use additional registers on slow FPGAs
-    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
+    bits1         : natural;            --! width of first input
+    bits2         : natural;            --! width of second input
+    signed_arith  : boolean := true;    --! use signed arithmetic
+    use_registers : boolean := false);  --! use additional registers on slow FPGAs
   port (
     clk    : in  std_logic;             --! clock input
     reset  : in  std_logic;             --! ansynchronous reset (active low)
@@ -55,82 +54,28 @@ architecture behav of mul is
 
 begin  -- architecture behavb
 
-  kogge_stone_no: if use_kogge_stone = '0' generate
+  signed_yes: if signed_arith generate
+    tmp(bits1+bits2-1 downto 0) <= std_logic_vector(signed(input1) * signed(input2));
+  end generate signed_yes;
 
-    signed_yes: if signed_arith = '1' generate
-      tmp(bits1+bits2-1 downto 0) <= std_logic_vector(signed(input1) * signed(input2));
-    end generate signed_yes;
+  signed_no: if not signed_arith generate
+    tmp(bits1+bits2-1 downto 0) <= std_logic_vector(unsigned(input1) * unsigned(input2));
+  end generate signed_no;
 
-    signed_no: if signed_arith = '0' generate
-      tmp(bits1+bits2-1 downto 0) <= std_logic_vector(unsigned(input1) * unsigned(input2));
-    end generate signed_no;
-
-    registers_yes: if use_registers = '1' generate
-      reg_1: entity work.reg
-        generic map (
-          bits => bits1+bits2)
-        port map (
-          clk      => clk,
-          reset    => reset,
-          enable   => '1',
-          data_in  => tmp(bits1+bits2-1 downto 0),
-          data_out => output);
-    end generate registers_yes;
-
-    registers_no: if use_registers = '0' generate
-      output <= tmp(bits1+bits2-1 downto 0);
-    end generate registers_no;
-    
-  end generate kogge_stone_no;
-
-  kogge_stone_yes: if use_kogge_stone = '1' generate
-
-    signed_yes: if signed_arith = '1' generate
-      minput1 <= std_logic_vector(-signed(input1));
-      minput2 <= std_logic_vector(-signed(input2));
-      ninput1 <= input1 when input1(bits1-1) = '0' else minput1;
-      ninput2 <= input2 when input1(bits1-1) = '0' else minput2;
-    end generate signed_yes;
-
-    signed_no: if signed_arith = '0' generate
-      ninput1 <= input1;
-      ninput2 <= input2;
-    end generate signed_no;
-
-    shifts: for i in 0 to bits1-1 generate
-      
-      signed_yes: if signed_arith = '1' generate
-        summands(i*sum_bits + sum_bits-1 downto i*sum_bits + bits2+i)
-          <= (others => ninput2(bits2-1)) when ninput1(i) = '1' else (others => '0');
-      end generate signed_yes;
-      
-      signed_no: if signed_arith = '0' generate
-        summands(i*sum_bits + sum_bits-1 downto i*sum_bits + bits2+i)
-          <= (others => '0');
-      end generate signed_no;
-      
-      summands(i*sum_bits + bits2+i-1 downto i*sum_bits + i)
-        <= ninput2 when ninput1(i) = '1' else (others => '0');
-      summands(i*sum_bits + i-1 downto i*sum_bits + 0)
-        <= (others => '0');
-      
-    end generate shifts;
-
-    array_adder_1: entity work.array_adder
+  registers_yes: if use_registers generate
+    reg_1: entity work.reg
       generic map (
-        bits            => sum_bits,
-        width           => bits1,
-        signed_arith    => signed_arith,
-        use_registers   => use_registers,
-        use_kogge_stone => use_kogge_stone)
+        bits => bits1+bits2)
       port map (
-        clk   => clk,
-        reset => reset,
-        data  => summands,
-        sum   => tmp);
+        clk      => clk,
+        reset    => reset,
+        enable   => '1',
+        data_in  => tmp(bits1+bits2-1 downto 0),
+        data_out => output);
+  end generate registers_yes;
 
-    output <= tmp((bits1+bits2)-1 downto 0);
-
-  end generate kogge_stone_yes;
+  registers_no: if not use_registers generate
+    output <= tmp(bits1+bits2-1 downto 0);
+  end generate registers_no;
 
 end architecture behav;

@@ -1,4 +1,4 @@
--- Copyright (c) 2012, Nils Christopher Brause
+-- Copyright (c) 2012-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -29,12 +29,10 @@ use ieee.std_logic_1164.all;
 --! stages is configurable.
 entity gcic is
   generic (
-    bits            : natural;          --! width of the input signal
-    out_bits        : natural;          --! width of the output signal
-    r               : natural;          --! samplerate divider
-    n               : natural;          --! number of filter stages
-    signed_arith    : bit := '1';       --! use sigend arithmetic
-    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
+    bits         : natural;             --! width of the input signal
+    out_bits     : natural;             --! width of the output signal
+    r            : natural;             --! samplerate divider
+    n            : natural);            --! number of filter stages
   port (
     clk     : in  std_logic;            --! input clock (frequency f)
     clk2    : in  std_logic;            --! output clock (must be f/2**r)
@@ -68,8 +66,7 @@ begin  -- architecture behav
   integrators: for c in 1 to n generate
     accumulator_1: entity work.accumulator
       generic map (
-        bits            => bits2,
-        use_kogge_stone => use_kogge_stone)
+        bits => bits2)
       port map (
         clk    => clk,
         reset  => reset,
@@ -95,8 +92,7 @@ begin  -- architecture behav
   combs: for c in 1 to n generate
     differentiator_1: entity work.differentiator
       generic map (
-        bits            => out_bits,
-        use_kogge_stone => use_kogge_stone)
+        bits => out_bits)
       port map (
         clk    => clk2,
         reset  => reset,

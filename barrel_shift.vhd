@@ -1,4 +1,4 @@
--- Copyright (c) 2012, Nils Christopher Brause
+-- Copyright (c) 2012-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -23,10 +23,10 @@ use ieee.std_logic_1164.all;
 
 entity barrel_shift_int is
   generic (
-    bits         : natural;
-    value        : natural;
-    signed_arith : bit := '1';
-    direction    : bit := '0'); -- '0' = right, '1' = left
+    bits           : natural;
+    value          : natural;
+    signed_arith   : boolean := true;
+    direction_left : boolean := false); --! false = right, true = left
   port (
     input  : in  std_logic_vector(bits-1 downto 0);
     output : out std_logic_vector(bits-1 downto 0));
@@ -36,12 +36,12 @@ architecture behav of barrel_shift_int is
 
 begin  -- architecture behav
 
-  right: if direction = '0' generate
-    signed_yes: if signed_arith = '1' generate
+  right: if not direction_left generate
+    signed_yes: if signed_arith generate
       output(bits-1 downto bits-value)
         <= (others => input(bits-1));
     end generate signed_yes;
-    signed_no: if signed_arith = '0' generate
+    signed_no: if not signed_arith generate
       output(bits-1 downto bits-value)
         <= (others => '0');
     end generate signed_no;
@@ -51,7 +51,7 @@ begin  -- architecture behav
     end generate foo;
   end generate right;
 
-  left: if direction = '1' generate
+  left: if direction_left generate
     bar: if bits > value generate
       output(bits-1 downto value)
         <= input(bits-value-1 downto 0);
@@ -69,9 +69,9 @@ use work.log2.all;
 
 entity barrel_shift2 is
   generic (
-    bits         : natural;             --! width of input
-    signed_arith : bit := '1';
-    direction    : bit := '0'); -- '0' = right, '1' = left
+    bits           : natural;             --! width of input
+    signed_arith   : boolean := true;
+    direction_left : boolean := false); --! false = right, true = left
   port (
     input  : in  std_logic_vector(bits-1 downto 0);
     amount : in  std_logic_vector(log2ceil(bits)-1 downto 0);
@@ -91,10 +91,10 @@ begin  -- architecture behav
   shifts: for c in 1 to bits generate
     barrel_shift_int_1: entity work.barrel_shift_int
       generic map (
-        bits         => bits,
-        value        => c,
-        signed_arith => signed_arith,
-        direction    => direction)
+        bits           => bits,
+        value          => c,
+        signed_arith   => signed_arith,
+        direction_left => direction_left)
       port map (
         input  => input,
         output => outputs(c));
@@ -119,7 +119,7 @@ use work.log2.all;
 entity barrel_shift is
   generic (
     bits         : natural;             --! number of bits to shift
-    signed_arith : bit := '1');         --! use signed arithmetic
+    signed_arith : boolean := true);    --! use signed arithmetic
   port (
     input  : in  std_logic_vector(bits-1 downto 0);  --! input value
     --! amount of bits to shift (positive = left, negative = rigt)
@@ -135,33 +135,29 @@ architecture behav of barrel_shift is
 begin  -- architecture behav
 
   left: for c in 1 to bits generate
-    
     barrel_shift_int_1: entity work.barrel_shift_int
       generic map (
-        bits         => bits,
-        value        => c,
-        signed_arith => signed_arith,
-        direction    => '1')
+        bits           => bits,
+        value          => c,
+        signed_arith   => signed_arith,
+        direction_left => true)
       port map (
         input  => input,
         output => outputs(c));
-
   end generate left;
 
   outputs(0) <= input;
   
   right: for c in -1 downto -bits generate
-    
     barrel_shift_int_1: entity work.barrel_shift_int
       generic map (
-        bits         => bits,
-        value        => -c,
-        signed_arith => signed_arith,
-        direction    => '0')
+        bits           => bits,
+        value          => -c,
+        signed_arith   => signed_arith,
+        direction_left => false)
       port map (
         input  => input,
         output => outputs(c));
-
   end generate right;
 
   output <= outputs(to_integer(signed(amount)));

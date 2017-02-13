@@ -1,4 +1,4 @@
--- Copyright (c) 2012, Nils Christopher Brause
+-- Copyright (c) 2012-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -27,11 +27,10 @@ use ieee.std_logic_1164.all;
 --! of arbitrary frequency. It can be used in a direct digital synthesizer.
 entity nco is
   generic (
-    freq_bits       : natural;          --! width of freqeuncy input
-    lut_bits        : natural;          --! width of LUT input
-    bits            : natural;          --! width of output signals
-    use_registers   : bit := '0';       --! use additional rtegisters on slow FPGAs
-    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
+    freq_bits     : natural;            --! width of freqeuncy input
+    lut_bits      : natural;            --! width of LUT input
+    bits          : natural;            --! width of output signals
+    use_registers : boolean := false);  --! use additional rtegisters on slow FPGAs
   port (
     clk   : in  std_logic;              --! clock input
     reset : in  std_logic;              --! asynchronous reset (active low)
@@ -51,8 +50,7 @@ begin  -- architecture behav
 
   pareg : entity work.accumulator
     generic map (
-      bits            => freq_bits,
-      use_kogge_stone => use_kogge_stone)
+      bits => freq_bits)
     port map (
       clk    => clk,
       reset  => reset,
@@ -62,9 +60,8 @@ begin  -- architecture behav
 
   add_1: entity work.add
     generic map (
-      bits            => freq_bits,
-      use_registers   => use_registers,
-      use_kogge_stone => use_kogge_stone)
+      bits          => freq_bits,
+      use_registers => use_registers)
     port map (
       clk       => clk,
       reset     => reset,

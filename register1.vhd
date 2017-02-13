@@ -1,4 +1,4 @@
--- Copyright (c) 2012, Nils Christopher Brause
+-- Copyright (c) 2012-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -38,7 +38,7 @@ end reg1;
 architecture behav of reg1 is
 begin  -- behav
 
-  reg: process (clk, reset)
+  reg: process (clk, reset, enable)
   begin
     if reset = '0' then
       data_out <= '0';

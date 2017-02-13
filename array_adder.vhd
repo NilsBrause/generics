@@ -1,4 +1,4 @@
--- Copyright (c) 2012, Nils Christopher Brause
+-- Copyright (c) 2012-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -30,11 +30,10 @@ use work.log2.all;
 --! and reset signal. Please note that there is no carry/overflow logic.
 entity array_adder is
   generic (
-    bits            : natural;          --! width of input signal
-    width           : natural;          --! number of summands
-    signed_arith    : bit := '1';       --! use signed aeithmetic
-    use_registers   : bit := '0';       --! use additional registers on slow FPGAs
-    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
+    bits          : natural;            --! width of input signal
+    width         : natural;            --! number of summands
+    signed_arith  : boolean := true;    --! use signed aeithmetic
+    use_registers : boolean := false);  --! use additional registers on slow FPGAs
   port (
     clk   : in  std_logic;              --! input clock
     reset : in  std_logic;              --! asynchronous reset (active low)
@@ -57,10 +56,10 @@ begin  -- tree_add
 
   summands: for i in 0 to width-1 generate
     tree(0)(i)(bits-1 downto 0) <= data(i*bits + bits-1 downto i*bits);
-    signed_yes: if signed_arith = '1' generate
+    signed_yes: if signed_arith generate
       tree(0)(i)(sum_bits-1 downto bits) <= (others => data(i*bits + bits-1));
     end generate signed_yes;
-    signed_no: if signed_arith = '0' generate
+    signed_no: if not signed_arith generate
       tree(0)(i)(sum_bits-1 downto bits) <= (others => '0');
     end generate signed_no;
   end generate summands;
@@ -73,9 +72,8 @@ begin  -- tree_add
     adds: for i in 0 to 2**(stages-1-c)-1 generate
       add_1: entity work.add
         generic map (
-          bits            => sum_bits,
-          use_registers   => use_registers,
-          use_kogge_stone => use_kogge_stone)
+          bits          => sum_bits,
+          use_registers => use_registers)
         port map (
           clk       => clk,
           reset     => reset,

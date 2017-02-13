@@ -1,4 +1,4 @@
--- Copyright (c) 2013, Nils Christopher Brause
+-- Copyright (c) 2013-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -28,12 +28,11 @@ use work.log2.all;
 --! The multiplier can mutiply complex signed or unsigned numbers.
 entity cmplx_mul is
   generic (
-    bits1           : natural;          --! width of first input
-    bits2           : natural;          --! width of second input
-    out_bits        : natural;          --! width of the output
-    signed_arith    : bit := '1';       --! use signed arithmetic
-    use_registers   : bit := '0';       --! use additional registers on slow FPGAs
-    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
+    bits1         : natural;                 --! width of first input
+    bits2         : natural;                 --! width of second input
+    out_bits      : natural;                 --! width of the output
+    signed_arith  : boolean := true;         --! use signed arithmetic
+    use_registers : boolean := false);       --! use additional registers on slow FPGAs
   port (
     clk         : in  std_logic;             --! clock input
     reset       : in  std_logic;             --! ansynchronous reset (active low)
@@ -63,11 +62,10 @@ begin  -- architecture behav
 
   mul_real1_real2: entity work.mul
     generic map (
-      bits1           => bits1,
-      bits2           => bits2,
-      signed_arith    => signed_arith,
-      use_registers   => use_registers,
-      use_kogge_stone => use_kogge_stone)
+      bits1         => bits1,
+      bits2         => bits2,
+      signed_arith  => signed_arith,
+      use_registers => use_registers)
     port map (
       clk    => clk,
       reset  => reset,
@@ -77,11 +75,10 @@ begin  -- architecture behav
 
   mul_real1_imag2: entity work.mul
     generic map (
-      bits1           => bits1,
-      bits2           => bits2,
-      signed_arith    => signed_arith,
-      use_registers   => use_registers,
-      use_kogge_stone => use_kogge_stone)
+      bits1         => bits1,
+      bits2         => bits2,
+      signed_arith  => signed_arith,
+      use_registers => use_registers)
     port map (
       clk    => clk,
       reset  => reset,
@@ -91,11 +88,10 @@ begin  -- architecture behav
 
   mul_imag1_real2: entity work.mul
     generic map (
-      bits1           => bits1,
-      bits2           => bits2,
-      signed_arith    => signed_arith,
-      use_registers   => use_registers,
-      use_kogge_stone => use_kogge_stone)
+      bits1         => bits1,
+      bits2         => bits2,
+      signed_arith  => signed_arith,
+      use_registers => use_registers)
     port map (
       clk    => clk,
       reset  => reset,
@@ -105,11 +101,10 @@ begin  -- architecture behav
 
   mul_imag1_imag2: entity work.mul
     generic map (
-      bits1           => bits1,
-      bits2           => bits2,
-      signed_arith    => signed_arith,
-      use_registers   => use_registers,
-      use_kogge_stone => use_kogge_stone)
+      bits1         => bits1,
+      bits2         => bits2,
+      signed_arith  => signed_arith,
+      use_registers => use_registers)
     port map (
       clk    => clk,
       reset  => reset,
@@ -117,7 +112,7 @@ begin  -- architecture behav
       input2 => input2_imag,
       output => imag1_imag2);
 
-  signed_arith_yes: if signed_arith = '1' generate
+  signed_arith_yes: if signed_arith generate
     -- left shift by one dure to sign bit
     real1_real2_tmp <= real1_real2(bits1+bits2-2 downto bits1+bits2-1-out_bits);
     real1_imag2_tmp <= real1_imag2(bits1+bits2-2 downto bits1+bits2-1-out_bits);
@@ -125,7 +120,7 @@ begin  -- architecture behav
     imag1_imag2_tmp <= imag1_imag2(bits1+bits2-2 downto bits1+bits2-1-out_bits);
   end generate signed_arith_yes;
 
-  signed_arith_no: if signed_arith = '0' generate
+  signed_arith_no: if not signed_arith generate
     real1_real2_tmp <= real1_real2(bits1+bits2-1 downto bits1+bits2-out_bits);
     real1_imag2_tmp <= real1_imag2(bits1+bits2-1 downto bits1+bits2-out_bits);
     imag1_real2_tmp <= imag1_real2(bits1+bits2-1 downto bits1+bits2-out_bits);
@@ -134,9 +129,8 @@ begin  -- architecture behav
 
   sub_real: entity work.sub
     generic map (
-      bits            => out_bits,
-      use_registers   => use_registers,
-      use_kogge_stone => use_kogge_stone)
+      bits          => out_bits,
+      use_registers => use_registers)
     port map (
       clk        => clk,
       reset      => reset,
@@ -149,9 +143,8 @@ begin  -- architecture behav
 
   add_imag: entity work.add
     generic map (
-      bits            => out_bits,
-      use_registers   => use_registers,
-      use_kogge_stone => use_kogge_stone)
+      bits          => out_bits,
+      use_registers => use_registers)
     port map (
       clk       => clk,
       reset     => reset,

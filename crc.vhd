@@ -1,4 +1,4 @@
--- Copyright (c) 2012, Nils Christopher Brause
+-- Copyright (c) 2012-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -67,7 +67,7 @@ begin  -- architecture behav
 
   reg_1: entity work.reg
     generic map (
-      bits => crc_width )
+      bits => crc_width)
     port map (
       clk      => clk,
       reset    => reset,

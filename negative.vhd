@@ -1,4 +1,4 @@
--- Copyright (c) 2016, Nils Christopher Brause
+-- Copyright (c) 2016-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -25,9 +25,8 @@ use ieee.std_logic_1164.all;
 
 entity neg is
   generic (
-    bits : natural;                     --! number of bits
-    use_registers   : bit := '0';       --! use additional registers on slow FPGAs
-    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
+    bits          : natural;            --! number of bits
+    use_registers : boolean := false);  --! use additional registers on slow FPGAs
   port (
     clk        : in  std_logic;         --! clock input
     reset      : in  std_logic;         --! asynchronous reset (active low)
@@ -42,9 +41,8 @@ begin  -- architecture behav
 
   sub_1: entity work.sub
     generic map (
-      bits            => bits,
-      use_registers   => use_registers,
-      use_kogge_stone => use_kogge_stone)
+      bits          => bits,
+      use_registers => use_registers)
     port map (
       clk        => clk,
       reset      => reset,

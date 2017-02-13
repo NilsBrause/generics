@@ -1,4 +1,4 @@
--- Copyright (c) 2012, Nils Christopher Brause
+-- Copyright (c) 2012-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -57,13 +57,6 @@ begin  -- architecture behav
         data_out => tmp((c+2)*bits-1 downto (c+1)*bits));
   end generate regs;
 
-  control: process (reset, enable, tmp) is
-  begin  -- process control
-    if reset = '0' then
-      data_out <= (others => '0');
-    elsif enable = '1' then
-      data_out <= tmp((delay+1)*bits-1 downto delay*bits);    
-    end if;
-  end process control;
+  data_out <= tmp((delay+1)*bits-1 downto delay*bits);
   
 end architecture behav;

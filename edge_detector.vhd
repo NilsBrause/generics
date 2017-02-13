@@ -1,4 +1,4 @@
--- Copyright (c) 2013, Nils Christopher Brause
+-- Copyright (c) 2013-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -21,9 +21,10 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+--! Converts rising/falling endge into a pulse
 entity edge_detector is
   generic (
-    edge : std_logic := '1');
+    edge : std_logic := '1');           --! '1' = rising, '0' = falling
   port (
     clk    : in  std_logic;
     reset  : in  std_logic;

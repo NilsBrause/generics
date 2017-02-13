@@ -1,4 +1,4 @@
--- Copyright (c) 2012, Nils Christopher Brause
+-- Copyright (c) 2012-2017, Nils Christopher Brause
 -- All rights reserved.
 -- 
 -- Permission to use, copy, modify, and/or distribute this software for any
@@ -28,11 +28,10 @@ use ieee.std_logic_1164.all;
 --! Please note that no rounding occures is outp_bits >= inp_bits.
 entity round is
   generic (
-    inp_bits        : natural;          --! width of input
-    outp_bits       : natural;          --! width of output
-    signed_arith    : bit := '1';       --! assume input is signed
-    use_registers   : bit := '0';       --! use additional registers on slow FPGAs
-    use_kogge_stone : bit := '0');      --! use an optimized Kogge Stone adder
+    inp_bits      : natural;            --! width of input
+    outp_bits     : natural;            --! width of output
+    signed_arith  : boolean := true;    --! assume input is signed
+    use_registers : boolean := false);  --! use additional registers on slow FPGAs
   port (
     clk    : in std_logic;              --! clock input
     reset  : in std_logic;              --! asynchronous reset (active low)
@@ -51,9 +50,8 @@ begin  -- behav
     
     add_1: entity work.add
       generic map (
-        bits            => outp_bits,
-        use_registers   => '0',
-        use_kogge_stone => use_kogge_stone)
+        bits          => outp_bits,
+        use_registers => false)
       port map (
         clk       => clk,
         reset     => reset,
@@ -64,7 +62,7 @@ begin  -- behav
         carry_out => open,
         overflow  => open);
     
-    signed_yes: if signed_arith = '1' generate
+    signed_yes: if signed_arith generate
       output_tmp <= roundup
                     when ((input(inp_bits-1) = '0' -- positive sign
                            and input(inp_bits-outp_bits-1) = '1' -- .5
@@ -77,7 +75,7 @@ begin  -- behav
                     else input(inp_bits-1 downto inp_bits-outp_bits);
     end generate signed_yes;
     
-    signed_no: if signed_arith = '0' generate
+    signed_no: if not signed_arith generate
       output_tmp <= roundup
                     when ((input(inp_bits-1) = '0'
                            and input(inp_bits-outp_bits-1) = '1') -- .5
@@ -101,7 +99,7 @@ begin  -- behav
     output_tmp(outp_bits-inp_bits-1 downto 0) <= (others => '0');
   end generate extend;
 
-  use_registers_yes: if use_registers = '1' generate
+  use_registers_yes: if use_registers generate
     reg_1: entity work.reg
       generic map (
         bits => outp_bits)
@@ -113,7 +111,7 @@ begin  -- behav
         data_out => output);
   end generate use_registers_yes;
 
-  use_registers_no: if use_registers = '0' generate
+  use_registers_no: if not use_registers generate
     output <= output_tmp;
   end generate use_registers_no;
   
